@@ -15,7 +15,7 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
   responsive: true,
   ajax: {
     type: "GET",
-    url: "get_danh_muc_nganh",
+    url: "get_danh_sach_nganh",
     dataSrc: "",
   },
   columns: [
@@ -28,43 +28,13 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
     },
     { data: "ten" },
     { data: "kyhieu" },
-    { data: "tentruong" },
     {
-      data: "trangthai",
+      data: "isDeleted",
       render: function (data, type, row) {
-        if (data == 0) {
-          return '<center><span class="badge badge-danger"><i class="fa-solid fa-x"></i>Đang hoạt động</span></center>';
+        if (data == 1) {
+          return '<center><span class="badge badge-danger"><i class="fa-solid fa-x"></i>Đã xóa</span></center>';
         } else {
-          return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i>Đã xóa</span></center>';
-        }
-      },
-    },
-    {
-      data: "id",
-      render: function (data, type, row) {
-        if (row.trangthai == 1) {
-          return `<center>
-                <a class="btn btn-info btn-sm" id="editBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
-                  <i class="fa-solid fa-pencil-alt"></i>
-                </a>
-                <a class="btn btn-warning btn-sm" id="banBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
-                  <i class="fa-solid fa-user-slash"></i>
-                </a>
-                <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
-                  <i class="fa-solid fa-trash"></i>
-                </a>
-              </center>`;
-        } else {
-          return `
-              <center>
-                <a class="btn btn-success btn-sm" id="activeBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
-                  <i class="fa-solid fa-user-check"></i>
-                </a>
-                <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
-                  <i class="fa-solid fa-trash"></i>
-                </a>
-              </center>
-            `;
+          return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i>Đang hoạt động</span></center>';
         }
       },
     },
@@ -97,7 +67,7 @@ $("#bangdscacnganh").on("click", "#deleteBtn", function () {
           if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `Xoá người dùng thành công.`,
+              title: `Xoá ngành thành công.`,
             });
             bangdscacnganh.ajax.reload();
           } else if (res.status == "EXISTS") {
@@ -156,92 +126,6 @@ $("#bangdstaikhoan").on("click", "#activeBtn", function () {
         },
       });
     }
-  });
-});
-
-// Reset mật khẩu người dùng
-$("#bangdstaikhoan").on("click", "#resetBtn", function () {
-  let id = $(this).data("id");
-
-  Swal.fire({
-    title: `Xác nhận reset mật khẩu người dùng`,
-    showDenyButton: false,
-    showCancelButton: true,
-    confirmButtonText: "Reset",
-    cancelButtonText: "Huỷ",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      $.ajax({
-        type: `POST`,
-        url: `reset_password?id=${id}`,
-        success: function (res) {
-          if (res.status == "OK") {
-            Toast.fire({
-              icon: "success",
-              title: `Đã reset mật khẩu người dùng.`,
-            });
-            bangdstaikhoan.ajax.reload();
-          }
-        },
-        error: function () {
-          Toast.fire({
-            icon: "error",
-            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
-          });
-        },
-      });
-    }
-  });
-});
-
-// Cập nhật quyền người dùng
-$("#bangdstaikhoan").on("click", "#roleBtn", function () {
-  let id = $(this).data("id");
-
-  clear_modal();
-
-  $("#modal_title").text(`Phân quyền người dùng`);
-  $("#modal_body").html(`
-      <div class="form-group">
-        <label for="modal_role_select">Phân quyền</label>
-        <select id="modal_role_select" class="form-control">
-          <option value="1">Quản trị viên</option>
-          <option value="0">Người hướng dẫn</option>
-        </select>
-      </div>
-    `);
-  $("#modal_footer").append(
-    `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn">
-        <i class="fa-solid fa-floppy-disk"></i> 
-        Lưu thay đổi
-      </button>`
-  );
-
-  $("#modal_id").modal("show");
-
-  $("#modal_submit_btn").on("click", function () {
-    $.ajax({
-      type: `POST`,
-      url: `update_phan_quyen_nguoi_huong_dan_by_id?id=${id}&role=${$(
-        "#modal_role_select"
-      ).val()}`,
-      success: function (res) {
-        if (res.status == "OK") {
-          Toast.fire({
-            icon: "success",
-            title: `Đã phân quyền người dùng.`,
-          });
-          $("#modal_id").modal("hide");
-          bangdstaikhoan.ajax.reload();
-        }
-      },
-      error: function () {
-        Toast.fire({
-          icon: "error",
-          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
-        });
-      },
-    });
   });
 });
 
@@ -317,23 +201,6 @@ $("#bangdstaikhoan").on("click", "#editBtn", function () {
   let github = $("#modal_github_input");
   let avatar = $("#modal_avatar_input");
 
-  // Load chi tiết
-  $.ajax({
-    type: `GET`,
-    url: `get_thong_tin_nguoi_huong_dan_by_id?id=${id}`,
-    success: function (res) {
-      hoten.val(res.hoten);
-      email.val(res.email);
-      sdt.val(res.sdt);
-      chucdanh.val(res.chucdanh);
-      phong.val(res.phong);
-      zalo.val(res.zalo);
-      facebook.val(res.facebook);
-      github.val(res.github);
-      avatar.val(res.avatar);
-    },
-  });
-
   $("#modal_submit_btn").on("click", function () {
     $.ajax({
       type: `POST`,
@@ -359,96 +226,58 @@ $("#bangdstaikhoan").on("click", "#editBtn", function () {
 });
 
 // Tạo thông tin người dùng
-$("#taoTaiKhoanBtn").on("click", function () {
+$("#taodanhmucnganhBtn").on("click", function () {
   clear_modal();
 
-  $("#modal_title").text(`Tạo người dùng`);
+  $("#modal_title").text(`Tạo ngành mới`);
   $("#modal_body").html(`
       <div class="form-group">
-        <label for="modal_hoten_input">Họ tên</label>
-        <input type="text" class="form-control" id="modal_hoten_input" required />
+        <label for="modal_tenganh_input">Tên ngành</label>
+        <input type="text" class="form-control" id="modal_tennganh_input" required />
       </div>
       <div class="form-group">
-        <label for="modal_username_input">Username</label>
-        <input type="text" class="form-control" id="modal_username_input" required />
+        <label for="modal_kyhieu_input">Ký hiệu</label>
+        <input type="text" class="form-control" id="modal_kyhieu_input" required />
       </div>
       <div class="form-group">
-        <label for="modal_email_input">Email</label>
-        <input type="email" class="form-control" id="modal_email_input" required />
-      </div>
-      <div class="form-group">
-        <label for="modal_sdt_input">Số điện thoại</label>
-        <input type="number" class="form-control" id="modal_sdt_input" required />
-      </div>
-      <div class="form-group">
-        <label for="modal_chucdanh_select">Chức danh</label>
-        <select id="modal_chucdanh_select" class="form-control">
-          <option value="Nhân viên">Nhân viên</option>
-          <option value="Phó phòng">Phó phòng</option>
-          <option value="Trưởng phòng">Trưởng phòng</option>
+        <label for="modal_chontruong_select">Chọn trường</label>
+        <select id="modal_chontruong_select" class="form-control">
+          <option value="ĐH Cần Thơ">ĐH Cần Thơ</option>
+          <option value="Đại học Sư phạm Kỹ thuật Vĩnh Long">Đại học Sư phạm Kỹ thuật Vĩnh Long</option>
+          <option value="Đại học Xây dựng Miền Tây">Đại học Xây dựng Miền Tây</option>
+          <option value="Đại học Cửu Long">Đại học Cửu Long</option>
+          <option value="Đại học Nam Cần Thơ">Đại học Nam Cần Thơ</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label for="modal_phong_select">Phòng</label>
-        <select id="modal_phong_select" class="form-control">
-          <option value="Phòng GP CNTT 1">Phòng GP CNTT 1</option>
-          <option value="Phòng GP CNTT 2">Phòng GP CNTT 2</option>
-          <option value="Phòng KD">Phòng KD</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="modal_zalo_input">Zalo</label>
-        <input type="text" class="form-control" id="modal_zalo_input" />
-      </div>
-      <div class="form-group">
-        <label for="modal_facebook_input">Facebook</label>
-        <input type="text" class="form-control" id="modal_facebook_input" />
-      </div>
-      <div class="form-group">
-        <label for="modal_github_input">Github</label>
-        <input type="text" class="form-control" id="modal_github_input" />
-      </div>
-      <div class="form-group">
-        <label for="modal_avatar_input">Avatar</label>
-        <input type="text" class="form-control" id="modal_avatar_input" />
       </div>
     `);
   $("#modal_footer").append(
-    `<button type="button" class="btn btn-primary" id="modal_submit_btn">
+    `<button type="button" class="btn btn-primary" id="modal_submit_nganh_btn">
         <i class="fa-solid fa-floppy-disk"></i> 
-        Thêm
+        Lưu
       </button>`
   );
 
   $("#modal_id").modal("show");
 
-  let hoten = $("#modal_hoten_input");
-  let username = $("#modal_username_input");
-  let email = $("#modal_email_input");
-  let sdt = $("#modal_sdt_input");
-  let chucdanh = $("#modal_chucdanh_select");
-  let phong = $("#modal_phong_select");
-  let zalo = $("#modal_zalo_input");
-  let facebook = $("#modal_facebook_input");
-  let github = $("#modal_github_input");
-  let avatar = $("#modal_avatar_input");
+  let tennganh = $("#modal_tennganh_input");
+  let kyhieu = $("#modal_kyhieu_input");
 
-  $("#modal_submit_btn").on("click", function () {
+  $("#modal_submit_nganh_btn").on("click", function () {
     $.ajax({
       type: `POST`,
-      url: `them_nguoi_huong_dan?hoten=${hoten.val()}&email=${email.val()}&sdt=${sdt.val()}&chucdanh=${chucdanh.val()}&phong=${phong.val()}&username=${username.val()}&zalo=${zalo.val()}&facebook=${facebook.val()}&github=${github.val()}&avatar=${avatar.val()}`,
+      url: `them_nganh?ten=${tennganh.val()}&kyhieu=${kyhieu.val()}`,
       success: function (res) {
         if (res.status == "OK") {
           Toast.fire({
             icon: "success",
-            title: `Đã thêm người hướng dẫn.`,
+            title: `Đã thêm ngành mới.`,
           });
           $("#modal_id").modal("hide");
-          bangdstaikhoan.ajax.reload();
+          bangdscacnganh.ajax.reload();
         } else {
           Toast.fire({
             icon: "error",
-            title: `Username đã tồn tại, vui lòng chọn username khác.`,
+            title: `Ngành đã tồn tại, vui lòng chọn ngành khác.`,
           });
         }
       },
