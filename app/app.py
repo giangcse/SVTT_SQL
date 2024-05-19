@@ -4,6 +4,7 @@ from fastapi.responses import Response, JSONResponse, RedirectResponse, FileResp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+# Để khai báo format của request body, bạn cần sử dụng Pydantic models
 from pydantic import BaseModel
 from hashlib import sha3_256
 from typing import List
@@ -1764,6 +1765,30 @@ async def canhbaodangnhap_route(noidung: str, token: str = Cookie(None)):
             if permission == "admin":
                 asyncio.create_task(sendMessageTelegram(message=f"<code>Cảnh báo đăng nhập</code>\n\n<b>Tài khoản:</b> <code>{username}</code>\n<b>Thông tin thiết bị đăng nhập:</b>\n<pre language='json'>"+json.loads(
                     json.dumps(noidung, indent=2)).replace('","', '",\n"')+"</pre>", chat_id=admin_chat_id, format='HTML'))
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+# chuc nag danh muc
+@app.get('/danhmucnganh')
+async def danh_muc_nganh(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                return templates.TemplateResponse('danhmucnganh.html', context={'request': request})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.get('/danhmuctruong')
+async def danh_muc_truong(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                return templates.TemplateResponse('danhmuctruong.html', context={'request': request})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
