@@ -627,8 +627,8 @@ def get_ds_dia_chi():
 
 def get_danh_sach_nganh():
     try:
-        result = cursor.execute("SELECT ID, Ten FROM Nganh").fetchall()
-        return [{'id': i[0], 'ten': i[1]} for i in result]
+        result = cursor.execute("SELECT ID, Ten,KyHieu,isDeleted FROM Nganh").fetchall()
+        return [{'id': i[0], 'ten': i[1] ,'kyhieu' : i[2] , 'isDeleted' : i[3]} for i in result]
     except Exception as e:
         return e
 
@@ -938,6 +938,13 @@ def them_nguoi_huong_dan(hoten: str, sdt: str, email: str, chucdanh: str, phong:
     except Exception as e:
         return e
 
+def them_nganh(ten: str, kyhieu: str):
+    try:
+        result = cursor.execute("EXEC InsertNganh ?, ?", protect_xss(ten), protect_xss(kyhieu)).fetchone()
+        cursor.commit()
+        return result[0]
+    except Exception as e:
+        return e
 
 def update_thong_tin_sv(sv_id: int, mssv: str, hoten: str, gioitinh: int, sdt: str, email: str, diachi: str, malop: str, khoa: int, nganh: int, truong: int):
     try:
