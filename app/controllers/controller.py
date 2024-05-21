@@ -224,6 +224,8 @@ def get_ds_dia_chi_controller():
 def get_danh_sach_nganh_controller():
     return get_danh_sach_nganh()
 
+def them_nganh_controller(ten: str, kyhieu: str, isDeleted: int, idtruong:int):
+    return them_nganh(ten, kyhieu, isDeleted, idtruong)
 
 def get_danh_sach_truong_controller():
     return get_danh_sach_truong()
