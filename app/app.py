@@ -1780,6 +1780,22 @@ async def danh_muc_nganh(request: Request, token: str = Cookie(None)):
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+# chuc nang them nganh
+@app.post('/them_nganh')
+async def them_nganh(ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = them_nganh_controller(ten,kyhieu,isDeleted,idtruong)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_CREATE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
 
 @app.get('/danhmuctruong')
 async def danh_muc_truong(request: Request, token: str = Cookie(None)):
