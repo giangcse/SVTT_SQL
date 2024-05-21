@@ -627,12 +627,26 @@ def get_ds_dia_chi():
 
 def get_danh_sach_nganh():
     try:
-        result = cursor.execute("SELECT ID, Ten,KyHieu,isDeleted FROM Nganh").fetchall()
-        return [{'id': i[0], 'ten': i[1] ,'kyhieu' : i[2] , 'isDeleted' : i[3]} for i in result]
+        query = """
+            SELECT N.ID, N.Ten, N.KyHieu, N.isDeleted, T.Ten as TenTruong
+            FROM Nganh N
+            JOIN Truong T ON N.id_truong = T.ID
+        """
+        result = cursor.execute(query).fetchall()
+        danh_sach_nganh = [
+            {'id': i[0], 'ten': i[1], 'kyhieu': i[2], 'isDeleted': i[3], 'ten_truong': i[4]}
+            for i in result
+        ]
+        return danh_sach_nganh
     except Exception as e:
         return e
-
-
+def update_chi_tiet_nganh_by_id(id: int, ten: str, kyhieu: str, idtruong:int):
+    try:
+        result = cursor.execute("EXEC UpdateNganhByID ?, ?, ?, ?", id, protect_xss(ten), protect_xss(kyhieu), idtruong)
+        cursor.commit()
+        return True
+    except Exception as e:
+        return e
 def get_danh_sach_truong():
     try:
         result = cursor.execute("SELECT ID, Ten FROM Truong").fetchall()
@@ -938,13 +952,16 @@ def them_nguoi_huong_dan(hoten: str, sdt: str, email: str, chucdanh: str, phong:
     except Exception as e:
         return e
 
-def them_nganh(ten: str, kyhieu: str):
+def them_nganh(ten: str, kyhieu: str, isDeleted: int, idtruong: int):
     try:
-        result = cursor.execute("EXEC InsertNganh ?, ?", protect_xss(ten), protect_xss(kyhieu)).fetchone()
-        cursor.commit()
-        return result[0]
+        query = "EXEC InsertNganh ?, ?, ?, ?"
+        cursor.execute(query, (protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong))
+        kq_insert_nganh = cursor.fetchone()[0]
+        conn.commit()
+        return {'status': 'OK', 'result': kq_insert_nganh}
     except Exception as e:
-        return e
+        print(f"Error: {e}")
+        return {'status': 'ERROR', 'message': str(e)}
 
 def update_thong_tin_sv(sv_id: int, mssv: str, hoten: str, gioitinh: int, sdt: str, email: str, diachi: str, malop: str, khoa: int, nganh: int, truong: int):
     try:
