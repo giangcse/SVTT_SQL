@@ -1,3 +1,19 @@
+function generateSchoolOptions() {
+  const schools = [
+    { id: 2, name: "ĐH Cần Thơ" },
+    { id: 1, name: "Đại học Sư phạm Kỹ thuật Vĩnh Long" },
+    { id: 3, name: "Đại học Xây dựng Miền Tây" },
+    { id: 4, name: "Đại học Cửu Long" },
+    { id: 5, name: "Đại học Nam Cần Thơ" },
+  ];
+
+  let options = "";
+  schools.forEach((school) => {
+    options += `<option value="${school.id}">${school.name} (${school.id})</option>`;
+  });
+  return options;
+}
+
 var Toast = Swal.mixin({
   toast: true,
   position: "top-end",
@@ -38,6 +54,19 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
         }
       },
     },
+    { data: "ten_truong" },
+    {
+      data: "id",
+      render: function (data, type, row) {
+        return `
+          <center>
+            <a class="btn btn-info btn-sm" id="editNganhBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
+              <i class="fa-solid fa-pencil-alt"></i>
+            </a>
+          </center>
+        `;
+      },
+    },
   ],
 });
 
@@ -47,47 +76,6 @@ function clear_modal() {
   $("#modal_body").empty();
   $("#modal_footer").empty();
 }
-
-// Xoá người dùng
-$("#bangdscacnganh").on("click", "#deleteBtn", function () {
-  let id = $(this).data("id");
-
-  Swal.fire({
-    title: `Xác nhận xoá danh mục ngành`,
-    showDenyButton: false,
-    showCancelButton: true,
-    confirmButtonText: "Xoá",
-    cancelButtonText: "Huỷ",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      $.ajax({
-        type: `POST`,
-        url: `update_xoa_nganh_by_id?id=${id}`,
-        success: function (res) {
-          if (res.status == "OK") {
-            Toast.fire({
-              icon: "success",
-              title: `Xoá ngành thành công.`,
-            });
-            bangdscacnganh.ajax.reload();
-          } else if (res.status == "EXISTS") {
-            Toast.fire({
-              icon: "warning",
-              title:
-                "Người dùng đang hướng dẫn nhóm. Vui lòng chọn Ngừng sử dụng.",
-            });
-          }
-        },
-        error: function () {
-          Toast.fire({
-            icon: "error",
-            title: `Xoá người dùng thất bại.`,
-          });
-        },
-      });
-    }
-  });
-});
 
 // Active người dùng
 $("#bangdstaikhoan").on("click", "#activeBtn", function () {
@@ -130,60 +118,34 @@ $("#bangdstaikhoan").on("click", "#activeBtn", function () {
 });
 
 // Cập nhật thông tin người dùng
-$("#bangdstaikhoan").on("click", "#editBtn", function () {
+$("#bangdscacnganh").on("click", "#editNganhBtn", function () {
   let id = $(this).data("id");
 
   clear_modal();
 
-  $("#modal_title").text(`Chỉnh sửa thông tin người dùng`);
+  $("#modal_title").text(`Chỉnh sửa thông tin ngành`);
   $("#modal_body").html(`
-      <div class="form-group">
-        <label for="modal_hoten_input">Họ tên</label>
-        <input type="text" class="form-control" id="modal_hoten_input" required />
-      </div>
-      <div class="form-group">
-        <label for="modal_email_input">Email</label>
-        <input type="email" class="form-control" id="modal_email_input" required />
-      </div>
-      <div class="form-group">
-        <label for="modal_sdt_input">Số điện thoại</label>
-        <input type="number" class="form-control" id="modal_sdt_input" required />
-      </div>
-      <div class="form-group">
-        <label for="modal_chucdanh_select">Chức danh</label>
-        <select id="modal_chucdanh_select" class="form-control">
-          <option value="Nhân viên">Nhân viên</option>
-          <option value="Phó phòng">Phó phòng</option>
-          <option value="Trưởng phòng">Trưởng phòng</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="modal_phong_select">Phòng</label>
-        <select id="modal_phong_select" class="form-control">
-          <option value="Phòng GP CNTT 1">Phòng GP CNTT 1</option>
-          <option value="Phòng GP CNTT 2">Phòng GP CNTT 2</option>
-          <option value="Phòng KD">Phòng KD</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="modal_zalo_input">Zalo</label>
-        <input type="text" class="form-control" id="modal_zalo_input" />
-      </div>
-      <div class="form-group">
-        <label for="modal_facebook_input">Facebook</label>
-        <input type="text" class="form-control" id="modal_facebook_input" />
-      </div>
-      <div class="form-group">
-        <label for="modal_github_input">Github</label>
-        <input type="text" class="form-control" id="modal_github_input" />
-      </div>
-      <div class="form-group">
-        <label for="modal_avatar_input">Avatar</label>
-        <input type="text" class="form-control" id="modal_avatar_input" />
-      </div>
+  <div class="form-group">
+    <label for="modal_tenganh_input">Tên ngành</label>
+    <input type="text" class="form-control" id="modal_tennganh_input" required />
+  </div>
+  <div class="form-group">
+    <label for="modal_kyhieu_input">Ký hiệu</label>
+    <input type="text" class="form-control" id="modal_kyhieu_input" required />
+  </div>
+  <div class="form-group">
+    <label for="modal_chontruong_select">Chọn trường</label>
+    <select id="modal_chontruong_select" class="form-control">
+      <option value="ĐH Cần Thơ">ĐH Cần Thơ</option>
+      <option value="Đại học Sư phạm Kỹ thuật Vĩnh Long">Đại học Sư phạm Kỹ thuật Vĩnh Long</option>
+      <option value="Đại học Xây dựng Miền Tây">Đại học Xây dựng Miền Tây</option>
+      <option value="Đại học Cửu Long">Đại học Cửu Long</option>
+      <option value="Đại học Nam Cần Thơ">Đại học Nam Cần Thơ</option>
+    </select>
+  </div>
     `);
   $("#modal_footer").append(
-    `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn">
+    `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_nganh_btn">
         <i class="fa-solid fa-floppy-disk"></i> 
         Lưu thay đổi
       </button>`
@@ -191,20 +153,14 @@ $("#bangdstaikhoan").on("click", "#editBtn", function () {
 
   $("#modal_id").modal("show");
 
-  let hoten = $("#modal_hoten_input");
-  let email = $("#modal_email_input");
-  let sdt = $("#modal_sdt_input");
-  let chucdanh = $("#modal_chucdanh_select");
-  let phong = $("#modal_phong_select");
-  let zalo = $("#modal_zalo_input");
-  let facebook = $("#modal_facebook_input");
-  let github = $("#modal_github_input");
-  let avatar = $("#modal_avatar_input");
+  let tennganh = $("#modal_tenganh_input");
+  let kyhieu = $("#modal_kyhieu_input");
+  let idtruong = $("#modal_chontruong_select");
 
-  $("#modal_submit_btn").on("click", function () {
+  $("#modal_submit_nganh_btn").on("click", function () {
     $.ajax({
       type: `POST`,
-      url: `update_chi_tiet_tai_khoan_by_id?id=${id}&hoten=${hoten.val()}&email=${email.val()}&sdt=${sdt.val()}&chucdanh=${chucdanh.val()}&phong=${phong.val()}&zalo=${zalo.val()}&facebook=${facebook.val()}&github=${github.val()}&avatar=${avatar.val()}`,
+      url: `update_chi_tiet_nganh_by_id?id=${id}&ten=${tennganh.val()}&kyhieu=${kyhieu.val()}&idtruong=${idtruong.val()}`,
       success: function (res) {
         if (res.status == "OK") {
           Toast.fire({
@@ -225,7 +181,7 @@ $("#bangdstaikhoan").on("click", "#editBtn", function () {
   });
 });
 
-// Tạo thông tin người dùng
+// Tạo thông tin ngành
 $("#taodanhmucnganhBtn").on("click", function () {
   clear_modal();
 
@@ -242,18 +198,14 @@ $("#taodanhmucnganhBtn").on("click", function () {
       <div class="form-group">
         <label for="modal_chontruong_select">Chọn trường</label>
         <select id="modal_chontruong_select" class="form-control">
-          <option value="ĐH Cần Thơ">ĐH Cần Thơ</option>
-          <option value="Đại học Sư phạm Kỹ thuật Vĩnh Long">Đại học Sư phạm Kỹ thuật Vĩnh Long</option>
-          <option value="Đại học Xây dựng Miền Tây">Đại học Xây dựng Miền Tây</option>
-          <option value="Đại học Cửu Long">Đại học Cửu Long</option>
-          <option value="Đại học Nam Cần Thơ">Đại học Nam Cần Thơ</option>
+          ${generateSchoolOptions()}
         </select>
       </div>
     `);
   $("#modal_footer").append(
     `<button type="button" class="btn btn-primary" id="modal_submit_nganh_btn">
         <i class="fa-solid fa-floppy-disk"></i> 
-        Lưu
+        Lưu 
       </button>`
   );
 
@@ -261,13 +213,14 @@ $("#taodanhmucnganhBtn").on("click", function () {
 
   let tennganh = $("#modal_tennganh_input");
   let kyhieu = $("#modal_kyhieu_input");
+  let idtruong = $("#modal_chontruong_select");
 
   $("#modal_submit_nganh_btn").on("click", function () {
     $.ajax({
       type: `POST`,
-      url: `them_nganh?ten=${tennganh.val()}&kyhieu=${kyhieu.val()}`,
+      url: `them_nganh?ten=${tennganh.val()}&kyhieu=${kyhieu.val()}&isDeleted=0&idtruong=${idtruong.val()}`,
       success: function (res) {
-        if (res.status == "OK") {
+        if (res.status === "OK") {
           Toast.fire({
             icon: "success",
             title: `Đã thêm ngành mới.`,
@@ -281,7 +234,8 @@ $("#taodanhmucnganhBtn").on("click", function () {
           });
         }
       },
-      error: function () {
+      error: function (xhr, status, error) {
+        console.error("Error:", status, error);
         Toast.fire({
           icon: "error",
           title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
