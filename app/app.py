@@ -603,6 +603,9 @@ async def get_ds_cong_viec_by_id_nhom_route(id: str, token: str = Cookie(None)):
 async def get_chi_tiet_nhom_thuc_tap_by_id_route(id: str):
     return JSONResponse(status_code=200, content=get_chi_tiet_nhom_thuc_tap_by_id_controller(id))
 
+@app.get('/get_chi_tiet_nganh_by_id')
+async def get_chi_tiet_nganh_by_id_route(id: str):
+    return JSONResponse(status_code=200, content=get_chi_tiet_nganh_by_id_controller(id))
 
 @app.get('/get_all_nguoi_huong_dan')
 async def get_all_nguoi_huong_dan_route():
@@ -1075,7 +1078,6 @@ async def ctu_xuat_phieu_theo_doi_route(id: str, token: str = Cookie(None)):
 @app.get('/goi_y_dia_chi')
 async def goi_y_dia_chi(q: str):
     return JSONResponse(status_code=200, content=get_goi_y_xa_phuong_controller(q))
-
 
 @app.get('/get_ds_dia_chi')
 async def get_ds_dia_chi_route():
@@ -1894,6 +1896,21 @@ async def danh_muc_truong(request: Request, token: str = Cookie(None)):
             permission = payload.get("permission")
             if permission == "admin":
                 return templates.TemplateResponse('danhmuctruong.html', context={'request': request})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+@app.post('/update_nganh_by_id')
+async def update_nganh_by_id(id: int, ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_nganh_by_id_controller(id, ten,kyhieu,isDeleted,idtruong)
+                if result:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_UPDATE'})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')

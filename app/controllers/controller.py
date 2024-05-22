@@ -393,3 +393,8 @@ def update_xoa_nganh_by_id_controller(id: int):
     return update_xoa_nganh_by_id(id)
 def update_mo_khoa_nganh_by_id_controller(id: int):
     return update_mo_khoa_nganh_by_id(id)
+def get_chi_tiet_nganh_by_id_controller(id: str):
+    result = get_chi_tiet_nganh_by_id(id)
+    return result
+def update_nganh_by_id_controller(id: int, ten: str, kyhieu: str, isDeleted: int, idtruong: int):
+    return update_nganh_by_id(id, ten, kyhieu, isDeleted, idtruong)

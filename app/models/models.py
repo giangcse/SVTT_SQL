@@ -1013,3 +1013,18 @@ def update_mo_khoa_nganh_by_id(id: int):
         return result
     except Exception as e:
         return e
+def get_chi_tiet_nganh_by_id(id: str):
+    try:
+        
+        result = cursor.execute("EXEC GetChiTietNganhByID ?", id).fetchone()
+        return {'id': result[0], 'ten': result[1], 'kyhieu': result[2], 'isDeleted': result[3], 'id_truong': result[4],'ten_truong': result[5]}
+    except Exception as e:
+        return e
+def update_nganh_by_id(id:int, ten:str,kyhieu:str,isDeleted:int,idtruong:int):
+    try:
+        query = "UPDATE Nganh SET Ten = ?, KyHieu = ?, isDeleted = ?, id_truong = ? WHERE ID = ?"
+        result = cursor.execute(query, protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong,id).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
