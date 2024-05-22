@@ -16,7 +16,7 @@ function empty_modal() {
 }
 
 // Khởi tạo dropdown
-$('.dropdown-toggle').dropdown()
+$(".dropdown-toggle").dropdown();
 
 // load filter
 function loadFilter() {
@@ -111,8 +111,7 @@ function create_table(kythuctap, nhomthuctap) {
         render: function (data, type, row, meta) {
           if (row.handanhgia >= currentTimestamp) {
             if (row.kyhieu_truong == "VLUTE") {
-              return (
-                `<center>
+              return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
                     <i class="fas fa-pencil-alt"></i>
                   </a> 
@@ -124,11 +123,9 @@ function create_table(kythuctap, nhomthuctap) {
                       <a class="dropdown-item" href="xuat_danh_gia?id=${data}" target="_blank">In phiếu đánh giá</a>
                     </div>
                   </div>
-                </center>`
-              );
+                </center>`;
             } else {
-              return (
-                `<center>
+              return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
                     <i class="fas fa-pencil-alt"></i>
                   </a> 
@@ -141,14 +138,14 @@ function create_table(kythuctap, nhomthuctap) {
                       <a class="dropdown-item" href="ctu_xuat_phieu_giao_viec?id=${data}" target="_blank">In phiếu giao việc</a>
                       <a class="dropdown-item" href="ctu_xuat_phieu_theo_doi?id=${data}" target="_blank">In phiếu theo dõi</a>
                       <a class="dropdown-item" href="xuat_danh_gia?id=${data}" target="_blank">In phiếu đánh giá</a>
+                      <a class="dropdown-item" href="xuat_danh_gia_ctu?id=${data}" target="_blank">In phiếu đánh giá (CTU)</a>
+
                     </div>
                   </div>
-                </center>`
-              );
+                </center>`;
             }
           } else {
-            return (
-              `<center>
+            return `<center>
                 <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}" data-edit="false">
                   <i class="fa-solid fa-eye"></i>
                 </a>
@@ -160,14 +157,14 @@ function create_table(kythuctap, nhomthuctap) {
                       <a class="dropdown-item" href="xuat_danh_gia?id=${data}" target="_blank">In phiếu đánh giá</a>
                     </div>
                 </div>
-              </center>`);
+              </center>`;
           }
         },
       },
     ],
     columnDefs: [
-      { "orderable": false, "targets": 0 } // Tắt tính năng sắp xếp cho cột 0
-    ]
+      { orderable: false, targets: 0 }, // Tắt tính năng sắp xếp cho cột 0
+    ],
   });
 
   $("#bangdssv").on("click", "#editBtn", function () {
@@ -175,8 +172,7 @@ function create_table(kythuctap, nhomthuctap) {
     let kyhieu_truong = $(this).data("truong");
 
     empty_modal();
-    if (kyhieu_truong=="VLUTE") {
-
+    if (kyhieu_truong == "VLUTE") {
       $.ajax({
         url: "get_chi_tiet_danh_gia_sv_by_id?id=" + id,
         type: "GET",
@@ -273,7 +269,7 @@ function create_table(kythuctap, nhomthuctap) {
           </form>`;
           $("#modal_body").empty();
           $("#modal_body").append(html);
-  
+
           $("input, textarea").val("");
           let ythuckyluat_number = $("#ythuckyluat_number");
           let ythuckyluat_text = $("#ythuckyluat_text");
@@ -290,9 +286,11 @@ function create_table(kythuctap, nhomthuctap) {
           let khananggiaiquyetcongviec_number = $(
             "#khananggiaiquyetcongviec_number"
           );
-          let khananggiaiquyetcongviec_text = $("#khananggiaiquyetcongviec_text");
+          let khananggiaiquyetcongviec_text = $(
+            "#khananggiaiquyetcongviec_text"
+          );
           let danhgiachung_number = $("#danhgiachung_number");
-  
+
           if (Object.keys(res).length > 0) {
             ythuckyluat_number.val(res.ythuckyluat_number);
             ythuckyluat_text.val(res.ythuckyluat_text);
@@ -309,10 +307,12 @@ function create_table(kythuctap, nhomthuctap) {
             khananggiaiquyetcongviec_number.val(
               res.khananggiaiquyetcongviec_number
             );
-            khananggiaiquyetcongviec_text.val(res.khananggiaiquyetcongviec_text);
+            khananggiaiquyetcongviec_text.val(
+              res.khananggiaiquyetcongviec_text
+            );
             danhgiachung_number.val(res.danhgiachung_number);
           }
-  
+
           $("#modal_footer").empty();
           if (res.handanhgia <= currentTimestamp) {
             $("#modal_id input, #modal_id textarea").prop("disabled", true);
@@ -323,7 +323,7 @@ function create_table(kythuctap, nhomthuctap) {
             );
           }
           $("#modal_id").modal("show");
-  
+
           // Tính năng lưu thay đổi
           $("#modal_submit_btn").click(function () {
             // Get ID Nhom
@@ -366,7 +366,7 @@ function create_table(kythuctap, nhomthuctap) {
                   khananggiaiquyetcongviec_text.val() +
                   "&danhgiachung_number=" +
                   parseFloat(danhgiachung_number.val());
-  
+
                 $.ajax({
                   type: "POST",
                   url: "update_danh_gia_sv_by_id" + data_update,
@@ -405,7 +405,7 @@ function create_table(kythuctap, nhomthuctap) {
       empty_modal();
 
       $(".modal-dialog").addClass("modal-lg");
-      $("#modal_title").text("Đánh giá sinh viên"); 
+      $("#modal_title").text("Đánh giá sinh viên");
       $("#modal_body").html(`
         <table class="table table-bordered">
           <thead>

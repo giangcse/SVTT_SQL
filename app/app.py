@@ -858,6 +858,62 @@ async def xuat_danh_gia(id: str, token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
+@app.get('xuat_danh_gia_ctu')
+async def xuat_danh_gia_ctu(id: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                i = xuat_phieu_danh_gia_controller(id)
+                headers = {
+                    # Mở tệp PDF trong trình duyệt
+                    "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
+                    "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
+                }
+                if i is not TypeError and i is not None:
+                    if i['kyhieu_truong'] == "CTU" or i['kyhieu_truong'] == "DNC":
+                        data: dict = {
+                            "student_fullname": i['hoten'],
+                            "student_class": i['malop'],
+                            "mentor_fullname": i['nguoihuongdan'],
+                            "r1_text": i['ythuckyluat_text'],
+                            "r2_text": i['tuanthuthoigian_text'],
+                            "r3_text": i['kienthuc_text'],
+                            "r4_text": i['kynangnghe_text'],
+                            "r5_text": i['khanangdoclap_text'],
+                            "r6_text": i['khanangnhom_text'],
+                            "r7_text": i['khananggiaiquyetcongviec_text'],
+                            "r1_number": str(i['ythuckyluat_number']),
+                            "r2_number": str(i['tuanthuthoigian_number']),
+                            "r3_number": str(i['kienthuc_number']),
+                            "r4_number": str(i['kynangnghe_number']),
+                            "r5_number": str(i['khanangdoclap_number']),
+                            "r6_number": str(i['khanangnhom_number']),
+                            "r7_number": str(i['khananggiaiquyetcongviec_number']),
+                            "r8_number": str(i['danhgiachung_number'])
+                        }
+                        r = ctu_xuat_danh_gia(
+                            'pdf/phieudanhgia_ctu.pdf', f"{i['mssv']}.pdf", data, username)
+                        if r:
+                            with open(r, 'rb') as f:
+                                docx_content = f.read()
+
+                            os.remove(os.path.join(
+                                f'DOCX/{username}', f"{i['mssv']}.pdf"))
+                            return Response(content=docx_content, headers=headers)
+                        else:
+                            return JSONResponse(status_code=400, content={'status': 'ERR'})
+                    else:
+                        return JSONResponse(status_code=200, content={'status': 'Phiếu chỉ dành cho sinh viên ĐH Cần Thơ (CTU)'})
+                else:
+                    return JSONResponse(status_code=404, content={'status': 'Sinh viên chưa có đánh giá'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
 
 @app.get('/ctu_xuat_phieu_tiep_nhan')
 async def ctu_xuat_phieu_tiep_nhan_route(id: str, token: str = Cookie(None)):
@@ -1552,6 +1608,39 @@ async def reset_password_route(id: int, token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
+# xoa nganh
+@app.post('/update_xoa_nganh_by_id')
+async def update_xoa_nganh_by_id_route(id: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_xoa_nganh_by_id_controller(id)
+                print('id' , id)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'EXISTS'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_mo_khoa_nganh_by_id')
+async def update_mo_khoa_nganh_by_id_route(id: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_mo_khoa_nganh_by_id_controller(id)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'EXISTS'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
 
 @app.post('/update_xoa_nguoi_huong_dan_by_id')
 async def update_xoa_nguoi_huong_dan_by_id_route(id: int, token: str = Cookie(None)):
@@ -1789,7 +1878,7 @@ async def them_nganh(ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str 
             permission = payload.get("permission")
             if permission == "admin":
                 result = them_nganh_controller(ten,kyhieu,isDeleted,idtruong)
-                if result == 1:
+                if result:
                     return JSONResponse(status_code=200, content={'status': 'OK'})
                 else:
                     return JSONResponse(status_code=200, content={'status': 'NOT_CREATE'})

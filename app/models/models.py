@@ -986,12 +986,30 @@ def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
         return e
     
 #Chuc nang xuat phieu danh gia 
-def ctu_xuat_phieu_danh_gia_model(sv_id: int, username: str):
+def ctu_xuat_danh_gia(sv_id: int, username: str):
     try:
         r = cursor.execute("EXEC GetDanhGiaSVByID ?, ?", sv_id, protect_xss(username)).fetchone()
         if r:
             return {'ythuckyluat_number': r[3], 'ythuckyluat_text': r[4], 'tuanthuthoigian_number': r[5], 'tuanthuthoigian_text': r[6], 'kienthuc_number': r[7], 'kienthuc_text': r[8], 'kynangnghe_number': r[9], 'kynangnghe_text': r[10], 'khanangdoclap_number': r[11], 'khanangdoclap_text': r[12], 'khanangnhom_number': r[13], 'khanangnhom_text': r[14], 'khananggiaiquyetcongviec_number': r[15], 'khananggiaiquyetcongviec_text': r[16], 'danhgiachung_number': r[17]}
         else:
             return None
+    except Exception as e:
+        return e
+
+def update_xoa_nganh_by_id(id: int):
+    try:
+        print('id ' ,id)
+        query = "UPDATE Nganh SET isDeleted = 1 WHERE ID = ?"
+        result = cursor.execute(query, id).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+def update_mo_khoa_nganh_by_id(id: int):
+    try:
+        query = "UPDATE Nganh SET isDeleted = 0 WHERE ID = ?"
+        result = cursor.execute(query, id).rowcount
+        cursor.commit()
+        return result
     except Exception as e:
         return e

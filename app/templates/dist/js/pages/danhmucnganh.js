@@ -56,15 +56,28 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
     },
     { data: "ten_truong" },
     {
-      data: "id",
+      data: null,
       render: function (data, type, row) {
-        return `
-          <center>
-            <a class="btn btn-info btn-sm" id="editNganhBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
-              <i class="fa-solid fa-pencil-alt"></i>
-            </a>
-          </center>
-        `;
+        if (row.isDeleted == 1) {
+          return `
+            <center>
+              <a class="btn btn-warning btn-sm" id="unlockNganhBtn" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Mở khóa ngành">
+                <i class="fa-solid fa-key"></i>
+              </a>
+            </center>
+          `;
+        } else {
+          return `
+            <center>
+              <a class="btn btn-info btn-sm" id="editNganhBtn" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
+                <i class="fa-solid fa-pencil-alt"></i>
+              </a>
+              <a class="btn btn-danger btn-sm" id="deleteNganhBtn" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá ngành">
+                <i class="fa-solid fa-trash"></i>
+              </a>
+            </center>
+          `;
+        }
       },
     },
   ],
@@ -77,32 +90,32 @@ function clear_modal() {
   $("#modal_footer").empty();
 }
 
-// Active người dùng
-$("#bangdstaikhoan").on("click", "#activeBtn", function () {
+// Xoa nganh
+$("#bangdscacnganh").on("click", "#deleteNganhBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
-    title: `Xác nhận kích hoạt người dùng`,
+    title: `Xác nhận xóa ngành`,
     showDenyButton: false,
     showCancelButton: true,
-    confirmButtonText: "Kích hoạt",
+    confirmButtonText: "Xoá",
     cancelButtonText: "Huỷ",
   }).then((result) => {
     if (result.isConfirmed) {
       $.ajax({
         type: `POST`,
-        url: `update_active_nguoi_huong_dan_by_id?id=${id}`,
+        url: `update_xoa_nganh_by_id?id=${id}`,
         success: function (res) {
           if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `Đã kích hoạt người dùng.`,
+              title: `xóa ngành thành công.`,
             });
-            bangdstaikhoan.ajax.reload();
-          } else if (res.status == "NOT_BANNED") {
+            bangdscacnganh.ajax.reload();
+          } else if (res.status == "EXISTS") {
             Toast.fire({
               icon: "warning",
-              title: "Người dùng đang hoạt động.",
+              title: "Ngành đang được sử dụng. Vui lòng chọn Ngừng sử dụng",
             });
           }
         },
@@ -117,7 +130,6 @@ $("#bangdstaikhoan").on("click", "#activeBtn", function () {
   });
 });
 
-// Cập nhật thông tin người dùng
 $("#bangdscacnganh").on("click", "#editNganhBtn", function () {
   let id = $(this).data("id");
 
@@ -125,25 +137,21 @@ $("#bangdscacnganh").on("click", "#editNganhBtn", function () {
 
   $("#modal_title").text(`Chỉnh sửa thông tin ngành`);
   $("#modal_body").html(`
-  <div class="form-group">
-    <label for="modal_tenganh_input">Tên ngành</label>
-    <input type="text" class="form-control" id="modal_tennganh_input" required />
-  </div>
-  <div class="form-group">
-    <label for="modal_kyhieu_input">Ký hiệu</label>
-    <input type="text" class="form-control" id="modal_kyhieu_input" required />
-  </div>
-  <div class="form-group">
-    <label for="modal_chontruong_select">Chọn trường</label>
-    <select id="modal_chontruong_select" class="form-control">
-      <option value="ĐH Cần Thơ">ĐH Cần Thơ</option>
-      <option value="Đại học Sư phạm Kỹ thuật Vĩnh Long">Đại học Sư phạm Kỹ thuật Vĩnh Long</option>
-      <option value="Đại học Xây dựng Miền Tây">Đại học Xây dựng Miền Tây</option>
-      <option value="Đại học Cửu Long">Đại học Cửu Long</option>
-      <option value="Đại học Nam Cần Thơ">Đại học Nam Cần Thơ</option>
-    </select>
-  </div>
-    `);
+    <div class="form-group">
+      <label for="modal_tenganh_input">Tên ngành</label>
+      <input type="text" class="form-control" id="modal_tennganh_input" required />
+    </div>
+    <div class="form-group">
+      <label for="modal_kyhieu_input">Ký hiệu</label>
+      <input type="text" class="form-control" id="modal_kyhieu_input" required />
+    </div>
+    <div class="form-group">
+      <label for="modal_chontruong_select">Chọn trường</label>
+      <select id="modal_chontruong_select" class="form-control">
+        ${generateSchoolOptions()}
+      </select>
+    </div>
+  `);
   $("#modal_footer").append(
     `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_nganh_btn">
         <i class="fa-solid fa-floppy-disk"></i> 
@@ -153,14 +161,21 @@ $("#bangdscacnganh").on("click", "#editNganhBtn", function () {
 
   $("#modal_id").modal("show");
 
-  let tennganh = $("#modal_tenganh_input");
-  let kyhieu = $("#modal_kyhieu_input");
-  let idtruong = $("#modal_chontruong_select");
+  // Use .one() to attach the event handler that will be removed after the first execution
+  $("#modal_footer").one("click", "#modal_submit_nganh_btn", function () {
+    let tennganh = $("#modal_tennganh_input").val();
+    let kyhieu = $("#modal_kyhieu_input").val();
+    let idtruong = $("#modal_chontruong_select").val();
 
-  $("#modal_submit_nganh_btn").on("click", function () {
     $.ajax({
-      type: `POST`,
-      url: `update_chi_tiet_nganh_by_id?id=${id}&ten=${tennganh.val()}&kyhieu=${kyhieu.val()}&idtruong=${idtruong.val()}`,
+      type: "POST",
+      url: `update_chi_tiet_nganh_by_id`,
+      data: {
+        id: id,
+        ten: tennganh,
+        kyhieu: kyhieu,
+        idtruong: idtruong,
+      },
       success: function (res) {
         if (res.status == "OK") {
           Toast.fire({
@@ -168,7 +183,7 @@ $("#bangdscacnganh").on("click", "#editNganhBtn", function () {
             title: `Đã cập nhật thông tin.`,
           });
           $("#modal_id").modal("hide");
-          bangdstaikhoan.ajax.reload();
+          bangdscacnganh.ajax.reload();
         }
       },
       error: function () {
@@ -220,14 +235,15 @@ $("#taodanhmucnganhBtn").on("click", function () {
       type: `POST`,
       url: `them_nganh?ten=${tennganh.val()}&kyhieu=${kyhieu.val()}&isDeleted=0&idtruong=${idtruong.val()}`,
       success: function (res) {
-        if (res.status === "OK") {
+        console.log(res);
+        if (res.status == "OK") {
           Toast.fire({
             icon: "success",
             title: `Đã thêm ngành mới.`,
           });
           $("#modal_id").modal("hide");
           bangdscacnganh.ajax.reload();
-        } else {
+        } else if (res.status == "EXISTED") {
           Toast.fire({
             icon: "error",
             title: `Ngành đã tồn tại, vui lòng chọn ngành khác.`,
@@ -242,5 +258,45 @@ $("#taodanhmucnganhBtn").on("click", function () {
         });
       },
     });
+  });
+});
+
+// Unlock nganh
+$("#bangdscacnganh").on("click", "#unlockNganhBtn", function () {
+  let id = $(this).data("id");
+
+  Swal.fire({
+    title: `Xác nhận mở khóa ngành`,
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Mở khóa",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: `POST`,
+        url: `update_mo_khoa_nganh_by_id?id=${id}`,
+        success: function (res) {
+          if (res.status == "OK") {
+            Toast.fire({
+              icon: "success",
+              title: `Mở khóa ngành thành công.`,
+            });
+            bangdscacnganh.ajax.reload();
+          } else {
+            Toast.fire({
+              icon: "error",
+              title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+            });
+          }
+        },
+        error: function () {
+          Toast.fire({
+            icon: "error",
+            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+          });
+        },
+      });
+    }
   });
 });
