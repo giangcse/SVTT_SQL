@@ -1,3 +1,4 @@
+from pipes import Template
 from fastapi import FastAPI, Request, Depends, HTTPException, Cookie, UploadFile, File, Body
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import Response, JSONResponse, RedirectResponse, FileResponse
@@ -5,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 # Để khai báo format của request body, bạn cần sử dụng Pydantic models
+from flask import jsonify
 from pydantic import BaseModel
 from hashlib import sha3_256
 from typing import List
@@ -861,26 +863,20 @@ async def xuat_danh_gia(id: str, token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
-@app.get('xuat_danh_gia_ctu')
-async def xuat_danh_gia_ctu(id: str, token: str = Cookie(None)):
+@app.get('ctu_xuat_phieu_danh_gia')
+async def ctu_xuat_phieu_danh_gia_route(id: str, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             username = payload.get("sub")
             permission = payload.get("permission")
             if permission == "admin" or permission == "user":
-                i = xuat_phieu_danh_gia_controller(id)
-                headers = {
-                    # Mở tệp PDF trong trình duyệt
-                    "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
-                    "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
-                }
+                i = xuat_phieu_danh_gia_controller(id, username)
                 if i is not TypeError and i is not None:
                     if i['kyhieu_truong'] == "CTU" or i['kyhieu_truong'] == "DNC":
                         data: dict = {
-                            "student_fullname": i['hoten'],
-                            "student_class": i['malop'],
-                            "mentor_fullname": i['nguoihuongdan'],
+                            "sinhvienid": i['sinhvienid'],
+                            "nhomhuongdanid": i['nhomhuongdanid'],
                             "r1_text": i['ythuckyluat_text'],
                             "r2_text": i['tuanthuthoigian_text'],
                             "r3_text": i['kienthuc_text'],
@@ -897,14 +893,19 @@ async def xuat_danh_gia_ctu(id: str, token: str = Cookie(None)):
                             "r7_number": str(i['khananggiaiquyetcongviec_number']),
                             "r8_number": str(i['danhgiachung_number'])
                         }
+                        headers = {
+                            # Mở tệp PDF trong trình duyệt
+                            "Content-Disposition": f"inline; filename={i['sv_mssv']}.pdf",
+                            "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
+                        }
                         r = ctu_xuat_danh_gia(
-                            'pdf/phieudanhgia_ctu.pdf', f"{i['mssv']}.pdf", data, username)
+                            'pdf/phieudanhgia_ctu.pdf', f"phieudanhgia_{i['mssv']}.pdf", data, username)
                         if r:
                             with open(r, 'rb') as f:
                                 docx_content = f.read()
 
                             os.remove(os.path.join(
-                                f'DOCX/{username}', f"{i['mssv']}.pdf"))
+                                f'DOCX/{username}', f"phieudanhgia_{i['mssv']}.pdf"))
                             return Response(content=docx_content, headers=headers)
                         else:
                             return JSONResponse(status_code=400, content={'status': 'ERR'})
@@ -1880,8 +1881,8 @@ async def them_nganh(ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str 
             permission = payload.get("permission")
             if permission == "admin":
                 result = them_nganh_controller(ten,kyhieu,isDeleted,idtruong)
-                if result:
-                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
                 else:
                     return JSONResponse(status_code=200, content={'status': 'NOT_CREATE'})
         except jwt.PyJWTError:
@@ -1907,10 +1908,26 @@ async def update_nganh_by_id(id: int, ten: str,kyhieu:str,isDeleted:int,idtruong
             permission = payload.get("permission")
             if permission == "admin":
                 result = update_nganh_by_id_controller(id, ten,kyhieu,isDeleted,idtruong)
-                if result:
-                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
                 else:
                     return JSONResponse(status_code=200, content={'status': 'NOT_UPDATE'})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+
+@app.get('/templates')
+async def get_templates(request: Request,token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                return templates.TemplateResponse('templates.html', context={'request': request})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.get('/get_danhsach_templates')
+async def get_danhsach_templates():
+    return get_danhsach_templates_controller()

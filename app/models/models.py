@@ -954,11 +954,27 @@ def them_nguoi_huong_dan(hoten: str, sdt: str, email: str, chucdanh: str, phong:
 
 def them_nganh(ten: str, kyhieu: str, isDeleted: int, idtruong: int):
     try:
-        query = "EXEC InsertNganh ?, ?, ?, ?"
-        cursor.execute(query, (protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong))
-        kq_insert_nganh = cursor.fetchone()[0]
-        conn.commit()
-        return {'status': 'OK', 'result': kq_insert_nganh}
+        ten = protect_xss(ten)
+        kyhieu = protect_xss(kyhieu)
+        
+        # Check if kyhieu exists
+        check_query = "SELECT COUNT(*) FROM Nganh WHERE kyhieu = ?"
+        cursor.execute(check_query, (kyhieu,))
+        exists = cursor.fetchone()[0]
+        
+        if exists > 0:
+            return {'status': 'EXIST'}
+        else:
+            
+            query = """
+                INSERT INTO Nganh (Ten, KyHieu, isDeleted, id_truong)
+                OUTPUT INSERTED.ID
+                VALUES (?, ?, ?, ?)
+            """
+            cursor.execute(query, (protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong))
+            kq_insert_nganh = cursor.fetchone()[0]
+            conn.commit()
+            return {'status': 'OK', 'result': kq_insert_nganh}
     except Exception as e:
         print(f"Error: {e}")
         return {'status': 'ERROR', 'message': str(e)}
@@ -984,9 +1000,8 @@ def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
             return None
     except Exception as e:
         return e
-    
-#Chuc nang xuat phieu danh gia 
-def ctu_xuat_danh_gia(sv_id: int, username: str):
+
+def xuat_phieu_danh_gia_ctu_model(sv_id: int, username: str):
     try:
         r = cursor.execute("EXEC GetDanhGiaSVByID ?, ?", sv_id, protect_xss(username)).fetchone()
         if r:
@@ -996,9 +1011,19 @@ def ctu_xuat_danh_gia(sv_id: int, username: str):
     except Exception as e:
         return e
 
+#Chuc nang xuat phieu danh gia 
+def ctu_xuat_danh_gia(sv_id: int, username: str):
+    try:
+        r = cursor.execute("EXEC UpdateDanhGiaSVByID ?, ?", sv_id, protect_xss(username)).fetchone()
+        if r:
+            return {'ythuckyluat_number': r[3], 'ythuckyluat_text': r[4], 'tuanthuthoigian_number': r[5], 'tuanthuthoigian_text': r[6], 'kienthuc_number': r[7], 'kienthuc_text': r[8], 'kynangnghe_number': r[9], 'kynangnghe_text': r[10], 'khanangdoclap_number': r[11], 'khanangdoclap_text': r[12], 'khanangnhom_number': r[13], 'khanangnhom_text': r[14], 'khananggiaiquyetcongviec_number': r[15], 'khananggiaiquyetcongviec_text': r[16], 'danhgiachung_number': r[17]}
+        else:
+            return None
+    except Exception as e:
+        return e
+
 def update_xoa_nganh_by_id(id: int):
     try:
-        print('id ' ,id)
         query = "UPDATE Nganh SET isDeleted = 1 WHERE ID = ?"
         result = cursor.execute(query, id).rowcount
         cursor.commit()
@@ -1022,9 +1047,34 @@ def get_chi_tiet_nganh_by_id(id: str):
         return e
 def update_nganh_by_id(id:int, ten:str,kyhieu:str,isDeleted:int,idtruong:int):
     try:
+        ten = protect_xss(ten)
+        kyhieu = protect_xss(kyhieu)
+        
+        # Check if kyhieu exists
+        check_query = "SELECT COUNT(*) FROM nganh WHERE kyhieu = ? AND id != ?"
+        cursor.execute(check_query, (kyhieu,id))
+        exists = cursor.fetchone()[0]
+        
+        if exists > 0:
+            return {'status': 'EXIST'}
         query = "UPDATE Nganh SET Ten = ?, KyHieu = ?, isDeleted = ?, id_truong = ? WHERE ID = ?"
         result = cursor.execute(query, protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong,id).rowcount
         cursor.commit()
-        return result
+        return {'status': 'OK', 'result': result}
+    except Exception as e:
+        return e
+def get_danhsach_templates():
+    try:
+        query = """
+        select tem.id, tem.name, tem.content, t.Ten as TenTruong 
+        from Template tem 
+        JOIN Truong t ON tem.truong_id = t.ID
+        """
+        result = cursor.execute(query).fetchall()
+        danh_sach_templates = [
+            {'id': i[0], 'name': i[1], 'content': i[2], 'ten_truong': i[3]}
+            for i in result
+        ]
+        return danh_sach_templates
     except Exception as e:
         return e

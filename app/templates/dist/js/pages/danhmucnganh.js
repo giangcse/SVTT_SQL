@@ -183,10 +183,10 @@ $("#bangdscacnganh").on("click", "#editBtn", function () {
               });
               $("#modal_id").modal("hide");
               bangdscacnganh.ajax.reload();
-            } else if (res.status == "EXISTED") {
+            } else if (res.status == "NOT_UPDATE") {
               Toast.fire({
-                icon: "error",
-                title: `Ngành đã tồn tại, vui lòng chọn ngành khác.`,
+                icon: "warning",
+                title: "Ký hiệu đã được sử dụng. Vui lòng chọn ký hiệu khác",
               });
             }
           },
@@ -258,10 +258,10 @@ $("#taodanhmucnganhBtn").on("click", function () {
           });
           $("#modal_id").modal("hide");
           bangdscacnganh.ajax.reload();
-        } else if (res.status == "EXISTED") {
+        } else if (res.status == "NOT_CREATE") {
           Toast.fire({
-            icon: "error",
-            title: `Ngành đã tồn tại, vui lòng chọn ngành khác.`,
+            icon: "warning",
+            title: `Vui lòng chọn ký hiệu khác.`,
           });
         }
       },

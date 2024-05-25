@@ -124,6 +124,24 @@ function create_table(kythuctap, nhomthuctap) {
                     </div>
                   </div>
                 </center>`;
+            } else if (row.kyhieu_truong == "CTU") {
+              return `<center>
+                  <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
+                    <i class="fas fa-pencil-alt"></i>
+                  </a> 
+                  <div class="btn-group dropleft">
+                    <button type="button" class="btn btn-outline-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                      <i class="fa-solid fa-print"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="ctu_xuat_phieu_tiep_nhan?id=${data}" target="_blank">In phiếu tiếp nhận</a>
+                      <a class="dropdown-item" href="ctu_xuat_phieu_giao_viec?id=${data}" target="_blank">In phiếu giao việc</a>
+                      <a class="dropdown-item" href="ctu_xuat_phieu_theo_doi?id=${data}" target="_blank">In phiếu theo dõi</a>
+                      <a class="dropdown-item" href="ctu_xuat_phieu_danh_gia?id=${data}" target="_blank">In phiếu đánh giá CTU</a>
+                    </div>
+                    
+                  </div>
+                </center>`;
             } else {
               return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
@@ -138,8 +156,6 @@ function create_table(kythuctap, nhomthuctap) {
                       <a class="dropdown-item" href="ctu_xuat_phieu_giao_viec?id=${data}" target="_blank">In phiếu giao việc</a>
                       <a class="dropdown-item" href="ctu_xuat_phieu_theo_doi?id=${data}" target="_blank">In phiếu theo dõi</a>
                       <a class="dropdown-item" href="xuat_danh_gia?id=${data}" target="_blank">In phiếu đánh giá</a>
-                      <a class="dropdown-item" href="xuat_danh_gia_ctu?id=${data}" target="_blank">In phiếu đánh giá (CTU)</a>
-
                     </div>
                   </div>
                 </center>`;
