@@ -960,3 +960,10 @@ def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
             return None
     except Exception as e:
         return e
+
+def get_ds_loai_yeu_cau():
+    try:
+        result = cursor.execute("SELECT ID, LoaiYeuCau FROM [QL_SinhVien].[dbo].[LOAIYEUCAU]").fetchall()
+        return [{'id': i[0], 'loaiyeucau': i[1]} for i in result]
+    except Exception as e:
+        return e

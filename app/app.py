@@ -282,6 +282,37 @@ async def danhsachnhomthuctap(request: Request, token: str = Cookie(None)):
     return RedirectResponse('/login')
 
 
+@app.get('/check')
+async def checkid(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user" or permission == "student":
+                return {"message": "Hello", "user" : username}
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/yeucauinphieu')
+async def yeucauinphieu(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                return templates.TemplateResponse('form_request.html', context={'request': request})
+            elif permission == "student":
+                return templates.TemplateResponse('sv_form_request.html', context={'request': request})
+                # return {"message": "Hello", "user" : username}
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
 @app.get('/get_ds_de_tai_profile')
 async def get_ds_de_tai_profile(id: str):
     return JSONResponse(status_code=200, content=get_nhom_thuc_tap_by_user_id_controller(id))
@@ -1764,6 +1795,32 @@ async def canhbaodangnhap_route(noidung: str, token: str = Cookie(None)):
             if permission == "admin":
                 asyncio.create_task(sendMessageTelegram(message=f"<code>Cảnh báo đăng nhập</code>\n\n<b>Tài khoản:</b> <code>{username}</code>\n<b>Thông tin thiết bị đăng nhập:</b>\n<pre language='json'>"+json.loads(
                     json.dumps(noidung, indent=2)).replace('","', '",\n"')+"</pre>", chat_id=admin_chat_id, format='HTML'))
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/get_ds_loai_yeu_cau')
+async def get_ds_loai_yeu_cau_route():
+    return JSONResponse(status_code=200, content=get_ds_loai_yeu_cau_controller())
+
+
+@app.post('/gui_yeu_cau_in_phieu')
+async def gui_yeu_cau_in_phieu_route(id: int, idloaiyeucau: int, ngaygui: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "student":
+                return {"message": "Hello, this is url gửi yêu cầu in phiếu"}
+            
+            # if permission == "admin" or permission == "user":
+            #     result = them_cong_viec_nhom_controller(
+            #         id, ngaybatdau, ngayketthuc, ten, mota)
+            #     if result:
+            #         return JSONResponse(status_code=200, content={'status': 'OK'})
+            #     else:
+            #         return JSONResponse(status_code=200, content={'status': 'NOT OK'})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
