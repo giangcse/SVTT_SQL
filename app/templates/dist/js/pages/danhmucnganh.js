@@ -150,7 +150,7 @@ $("#xoadanhmucnganhBtn").on("click", function () {
             if (res.status == "OK") {
               Toast.fire({
                 icon: "success",
-                title: `Đã xóa ngành.`,
+                title: `Đã xóa ${idList.length} ngành.`,
               });
               bangdscacnganh.ajax.reload();
             } else {
@@ -314,7 +314,7 @@ $("#taodanhmucnganhBtn").on("click", function () {
         if (res.status == "OK") {
           Toast.fire({
             icon: "success",
-            title: `Đã thêm ngành mới.`,
+            title: `Đã thêm ngành ${tennganh.val()}.`,
           });
           $("#modal_id").modal("hide");
           bangdscacnganh.ajax.reload();
