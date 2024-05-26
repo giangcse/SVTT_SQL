@@ -1078,3 +1078,13 @@ def get_danhsach_templates():
         return danh_sach_templates
     except Exception as e:
         return e
+def delete_nganh_by_id_list_model(idList: list):
+    try:
+        placeholders = ','.join(['?'] * len(idList))
+        query = "DELETE FROM Nganh WHERE ID IN ({})".format(placeholders)
+        result = cursor.execute(query, idList).rowcount
+        cursor.commit()
+        return {'status': 'OK', 'deleted_count': result}
+    except Exception as e:
+        print(e)
+        return {'status': 'ERROR', 'message': str(e)}

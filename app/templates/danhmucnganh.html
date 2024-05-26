@@ -3,6 +3,44 @@
   <head>
     {% include 'header.html' ignore missing %}
     <title>Quản lý các ngành | HTQL SVTT</title>
+    <style>
+      /* Custom styles for checkbox */
+      .select-all-checkbox,
+      .select-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 15px;
+        height: 15px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        background-color: white;
+        outline: none;
+        cursor: pointer;
+      }
+      .select-all-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .select-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .select-all-checkbox:checked::after {
+        content: "\2713";
+        color: white;
+        font-size: 10px;
+        display: block;
+        text-align: center;
+      }
+      .select-checkbox:checked::after {
+        content: "\2713";
+        color: white;
+        font-size: 10px;
+        display: block;
+        text-align: center;
+      }
+    </style>
   </head>
 
   <body class="hold-transition sidebar-mini">
@@ -45,6 +83,13 @@
               >
                 <i class="fa-solid fa-plus"></i> Tạo ngành mới
               </button>
+              <button
+                class="btn btn-dark btn-xs ms-2"
+                style="hidden"
+                id="xoadanhmucnganhBtn"
+              >
+                <i class="fa-solid fa-trash"></i> Xóa ngành đã chọn
+              </button>
             </div>
             <div class="card-body">
               <table
@@ -53,7 +98,14 @@
               >
                 <thead>
                   <tr>
-                    <th scope="col" style="text-align: center" width="5%">#</th>
+                    <th scope="col" style="text-align: center" width="5%">
+                      <input
+                        type="checkbox"
+                        id="select-all-checkbox"
+                        class="select-all-checkbox"
+                      />
+                    </th>
+                    <th scope="col" style="text-align: center" width="5%"></th>
                     <th scope="col" style="text-align: center" width="15%">
                       Tên ngành
                     </th>

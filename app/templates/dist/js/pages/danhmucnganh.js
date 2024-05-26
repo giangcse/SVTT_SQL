@@ -20,6 +20,12 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
   },
   columns: [
     {
+      data: "id",
+      render: function (data, type, row, meta) {
+        return `<center><input type="checkbox" id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
+      },
+    },
+    {
       data: null,
       render: function (data, type, row, meta) {
         // Use meta.row to get the current row index, and add 1 to start from 1
@@ -32,9 +38,9 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
       data: "isDeleted",
       render: function (data, type, row) {
         if (data == 1) {
-          return '<center><span class="badge badge-danger"><i class="fa-solid fa-x"></i>Đã xóa</span></center>';
+          return '<center><span class="badge badge-warning"><i class="fa-solid fa-exclamation"></i> Ngưng hoạt động</span></center>';
         } else {
-          return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i>Đang hoạt động</span></center>';
+          return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang hoạt động</span></center>';
         }
       },
     },
@@ -79,10 +85,10 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
-    title: `Xác nhận xóa ngành`,
+    title: `Xác nhận ngưng sử dụng ngành`,
     showDenyButton: false,
     showCancelButton: true,
-    confirmButtonText: "Xoá",
+    confirmButtonText: "Xác nhận",
     cancelButtonText: "Huỷ",
   }).then((result) => {
     if (result.isConfirmed) {
@@ -93,7 +99,7 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function () {
           if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `xóa ngành thành công.`,
+              title: `Ngưng sử dụng ngành thành công!.`,
             });
             bangdscacnganh.ajax.reload();
           } else if (res.status == "EXISTS") {
@@ -114,6 +120,60 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function () {
   });
 });
 
+//xoa ngành vĩnh viễn
+$("#xoadanhmucnganhBtn").on("click", function () {
+  let idList = $("#child-checkbox:checked")
+    .map(function () {
+      return $(this).data("id");
+    })
+    .get();
+  if (idList.length == 0) {
+    Toast.fire({
+      icon: "warning",
+      title: `Vui lòng chọn ngành cần xóa.`,
+    });
+  } else {
+    Swal.fire({
+      title: `Xác nhận xóa ngành`,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          type: `POST`,
+          url: `delete_nganh_by_id_list?idList=${idList}`,
+          contentType: "application/json",
+          success: function (res) {
+            console.log(res);
+            if (res.status == "OK") {
+              Toast.fire({
+                icon: "success",
+                title: `Đã xóa ngành.`,
+              });
+              bangdscacnganh.ajax.reload();
+            } else {
+              Toast.fire({
+                icon: "warning",
+                title: "Không thể xóa ngành đang được sử dụng.",
+              });
+              bangdscacnganh.ajax.reload();
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error("Error:", status, error);
+            Toast.fire({
+              icon: "error",
+              title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+            });
+            bangdscacnganh.ajax.reload();
+          },
+        });
+      }
+    });
+  }
+});
 // Sửa thông tin ngành
 $("#bangdscacnganh").on("click", "#editBtn", function () {
   let id = $(this).data("id");
@@ -313,5 +373,33 @@ $("#bangdscacnganh").on("click", "#unlockNganhBtn", function () {
         },
       });
     }
+  });
+});
+// Select all/none checkboxes
+$("#bangdscacnganh").on("click", ".select-all-checkbox", function () {
+  var isChecked = $(this).prop("checked");
+  $(".child-checkbox").prop("checked", isChecked);
+});
+// Xóa danh mục ngành
+$(document).ready(function () {
+  // Ẩn nút khi trang vừa tải
+  $("#xoadanhmucnganhBtn").hide();
+
+  // Lắng nghe sự kiện khi checkbox thay đổi trạng thái
+  $(document).on("change", ".select-checkbox", function () {
+    if ($(".select-checkbox:checked").length > 0) {
+      // Hiển thị nút nếu có checkbox được chọn
+      $("#xoadanhmucnganhBtn").show();
+    } else {
+      // Ẩn nút nếu không có checkbox nào được chọn
+      $("#xoadanhmucnganhBtn").hide();
+    }
+  });
+
+  // Lắng nghe sự kiện thay đổi của checkbox "select-all-checkbox"
+  $(document).on("change", ".select-all-checkbox", function () {
+    $(".select-checkbox")
+      .prop("checked", $(this).prop("checked"))
+      .trigger("change");
   });
 });

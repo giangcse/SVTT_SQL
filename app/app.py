@@ -1931,3 +1931,18 @@ async def get_templates(request: Request,token: str = Cookie(None)):
 @app.get('/get_danhsach_templates')
 async def get_danhsach_templates():
     return get_danhsach_templates_controller()
+
+@app.post('/delete_nganh_by_id_list')
+async def delete_nganh_by_id_list(idList: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("permission") == "admin":
+                result = delete_nganh_by_id_list_controller(idList.split(','))
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_DELETE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')

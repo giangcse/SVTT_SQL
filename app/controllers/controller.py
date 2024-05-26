@@ -388,7 +388,6 @@ def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
 #     return ctu_xuat_phieu_danh_gia_model(sv_id,username)
 # xoa nganh
 def update_xoa_nganh_by_id_controller(id: int):
-    print('id', id)
     return update_xoa_nganh_by_id(id)
 def update_mo_khoa_nganh_by_id_controller(id: int):
     return update_mo_khoa_nganh_by_id(id)
@@ -399,3 +398,5 @@ def update_nganh_by_id_controller(id: int, ten: str, kyhieu: str, isDeleted: int
     return update_nganh_by_id(id, ten, kyhieu, isDeleted, idtruong)
 def get_danhsach_templates_controller():
     return get_danhsach_templates()
+def delete_nganh_by_id_list_controller(idList: list):
+    return delete_nganh_by_id_list_model(idList)
