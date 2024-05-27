@@ -185,12 +185,13 @@ def get_id_nhom_by_sv_id_controller(id: str):
     return get_id_nhom_by_sv_id(id)
 
 
-def xuat_phieu_danh_gia_controller(id: str, username: str):
-    print('id', id)
-    print('username', username)
-    return xuat_phieu_danh_gia_ctu_model(id, username)
+def xuat_phieu_danh_gia_controller(id: str):
+    try:
+        result = get_chi_tiet_sinh_vien_da_danh_gia(id)
+        return result
+    except Exception as e:
+        return e
     
-
 
 def get_ds_nhom_chua_co_cong_viec_controller(username: str):
     return get_ds_nhom_chua_co_cong_viec(username)
@@ -389,14 +390,19 @@ def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
 # xoa nganh
 def update_xoa_nganh_by_id_controller(id: int):
     return update_xoa_nganh_by_id(id)
+
 def update_mo_khoa_nganh_by_id_controller(id: int):
     return update_mo_khoa_nganh_by_id(id)
+
 def get_chi_tiet_nganh_by_id_controller(id: str):
     result = get_chi_tiet_nganh_by_id(id)
     return result
+
 def update_nganh_by_id_controller(id: int, ten: str, kyhieu: str, isDeleted: int, idtruong: int):
     return update_nganh_by_id(id, ten, kyhieu, isDeleted, idtruong)
+
 def get_danhsach_templates_controller():
     return get_danhsach_templates()
+
 def delete_nganh_by_id_list_controller(idList: list):
     return delete_nganh_by_id_list_model(idList)

@@ -124,24 +124,6 @@ function create_table(kythuctap, nhomthuctap) {
                     </div>
                   </div>
                 </center>`;
-            } else if (row.kyhieu_truong == "CTU") {
-              return `<center>
-                  <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
-                    <i class="fas fa-pencil-alt"></i>
-                  </a> 
-                  <div class="btn-group dropleft">
-                    <button type="button" class="btn btn-outline-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                      <i class="fa-solid fa-print"></i>
-                    </button>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href="ctu_xuat_phieu_tiep_nhan?id=${data}" target="_blank">In phiếu tiếp nhận</a>
-                      <a class="dropdown-item" href="ctu_xuat_phieu_giao_viec?id=${data}" target="_blank">In phiếu giao việc</a>
-                      <a class="dropdown-item" href="ctu_xuat_phieu_theo_doi?id=${data}" target="_blank">In phiếu theo dõi</a>
-                      <a class="dropdown-item" href="ctu_xuat_phieu_danh_gia?id=${data}" target="_blank">In phiếu đánh giá CTU</a>
-                    </div>
-                    
-                  </div>
-                </center>`;
             } else {
               return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
@@ -241,7 +223,7 @@ function create_table(kythuctap, nhomthuctap) {
                 <textarea id="kynangnghe_text" class="form-control" rows="3"></textarea> 
               </div> 
             </div> 
-            <div class="form-group row mt-4"> 
+<div class="form-group row mt-4"> 
               <div class="col-sm-10"> 
                 <label for="khanangdoclap" class="col-form-label">Khả năng làm việc độc lập</label> 
               </div> 
@@ -438,7 +420,7 @@ function create_table(kythuctap, nhomthuctap) {
             <tr>
               <td>I.1. Thực hiện nội quy của cơ quan <i>(nếu thực tập online thì không chấm điểm)</i></td>
               <td>
-                <input type="number" min="0" max="10" step="0.5" class="form-control form-control-sm" id="thuchiennoiquy"/>
+<input type="number" min="0" max="10" step="0.5" class="form-control form-control-sm" id="thuchiennoiquy"/>
               </td>
             </tr>
             <tr>
@@ -501,7 +483,7 @@ function create_table(kythuctap, nhomthuctap) {
               <td>III.3. Kết quả công việc có đóng góp cho cơ quan nơi thực tập</td>
               <td>
                 <input type="number" min="0" max="10" step="0.5" class="form-control form-control-sm" id="donggop"/>
-              </td>
+</td>
             </tr>
           </tbody>
         </table>
