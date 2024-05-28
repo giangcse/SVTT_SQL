@@ -384,5 +384,34 @@ def ctu_xuat_phieu_giao_viec_controller(sv_id: int, username: str):
 def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
 
+
 def get_ds_loai_yeu_cau_controller():
     return get_ds_loai_yeu_cau()
+
+
+def gui_yeu_cau_in_phieu_controller(sv_id: int, idloaiyeucau: int):
+    return gui_yeu_cau_in_phieu(sv_id, idloaiyeucau)
+
+
+def get_ds_yeu_cau_in_phieu_by_sv_controller(sv_id: int):
+    return get_ds_yeu_cau_in_phieu_by_sv(sv_id)
+
+
+def update_xoa_yeu_cau_in_phieu_by_id_controller(id: int):
+    return update_xoa_yeu_cau_in_phieu_by_id(id)
+
+
+def get_all_yeu_cau_in_phieu_controller():
+    return get_all_yeu_cau_in_phieu()
+
+
+def update_yeu_cau_in_phieu_controller(id: int, id_nxl: int, trangthai: int):
+    return update_yeu_cau_in_phieu(id, id_nxl, trangthai)
+
+
+def get_username_nguoi_huong_dan_by_sv_id_controller(id: int):
+    return get_username_nguoi_huong_dan_by_sv_id(id)
+
+
+def check_yeu_cau_in_phieu_controller(id: int):
+    return check_yeu_cau_in_phieu(id)

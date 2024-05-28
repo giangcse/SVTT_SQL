@@ -967,3 +967,78 @@ def get_ds_loai_yeu_cau():
         return [{'id': i[0], 'loaiyeucau': i[1]} for i in result]
     except Exception as e:
         return e
+    
+    
+def get_ds_yeu_cau_in_phieu_by_sv(sv_id: int):
+    try:
+        result = cursor.execute("SELECT yc.id, loaiyeucau, CONVERT(VARCHAR, ngaygui, 103) as ngaygui, trangthai FROM YeuCauInPhieu yc inner join LOAIYEUCAU lyc on lyc.ID = yc.ID_LoaiYeuCau WHERE id_sinhvien = ? ORDER BY ngaygui DESC", sv_id)
+        return [{'id': i[0], 'loaiyeucau': i[1], 'ngaygui': i[2], 'trangthai':i[3]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+    
+
+def gui_yeu_cau_in_phieu(id: int, idloaiyeucau: int):
+    try:
+        cursor.execute("EXEC InsertYeuCauInPhieu ?, ?, ?", id, idloaiyeucau, datetime.datetime.now().strftime('%Y-%m-%d'))
+        conn.commit()
+        r = cursor.rowcount
+        if r == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return e
+    
+    
+def update_xoa_yeu_cau_in_phieu_by_id(id: int):
+    try:
+        r = cursor.execute(
+            "EXEC UpdateXoaYeuCauInPhieuByID ?", id).rowcount
+        cursor.commit()
+        if r == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return e
+
+
+def get_all_yeu_cau_in_phieu():
+    try:
+        result = cursor.execute("SELECT yc.id, sv.HoTen, sv.Email, loaiyeucau, CONVERT(VARCHAR, ngaygui, 103) as ngaygui, CONVERT(VARCHAR, NgayXuLy, 103) as ngayxuly, trangthai "
+                                "FROM YeuCauInPhieu yc inner join LOAIYEUCAU lyc on lyc.ID = yc.ID_LoaiYeuCau inner join SINHVIEN sv on yc.ID_SinhVien = sv.ID "
+                                "ORDER BY ngaygui DESC")
+        return [{'id': i[0], 'hotensv': i[1], 'emailsv': i[2], 'loaiyeucau':i[3], 'ngaygui':i[4], 'ngayxuly':i[5], 'trangthai':i[6]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+    
+    
+def update_yeu_cau_in_phieu(id: int, id_nxl: int, trangthai: int):
+    try:
+        cursor.execute("EXEC UpdateYeuCauInPhieu ?, ?, ?, ?", id, datetime.datetime.now().strftime('%Y-%m-%d'), trangthai, id_nxl)
+        conn.commit()
+        r = cursor.rowcount
+        if r == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return e
+    
+    
+def get_username_nguoi_huong_dan_by_sv_id(sv_id: int):
+    try:
+        result = cursor.execute("SELECT nhd.Username FROM SINHVIEN sv inner join NHOMHUONGDAN nhom on sv.NhomHuongDan=nhom.ID inner join NGUOIHUONGDAN nhd on nhom.NguoiHuongDanID=nhd.ID WHERE sv.ID = ?", sv_id).fetchone()
+        if result is None:
+            return {'error': 'Không tìm thấy thông tin người hướng dẫn'}
+        return result[0]
+    except Exception as e:
+        return e
+    
+    
+def check_yeu_cau_in_phieu(id: int):
+    try:
+        result = cursor.execute("SELECT trangthai FROM YeuCauInPhieu WHERE ID = ?", id).fetchone()
+        return result[0]
+    except Exception as e:
+        return e

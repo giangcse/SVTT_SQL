@@ -1806,21 +1806,153 @@ async def get_ds_loai_yeu_cau_route():
 
 
 @app.post('/gui_yeu_cau_in_phieu')
-async def gui_yeu_cau_in_phieu_route(id: int, idloaiyeucau: int, ngaygui: int, token: str = Cookie(None)):
+async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             permission = payload.get("permission")
+            sv_id = payload.get("id")
             if permission == "student":
-                return {"message": "Hello, this is url gửi yêu cầu in phiếu"}
-            
-            # if permission == "admin" or permission == "user":
-            #     result = them_cong_viec_nhom_controller(
-            #         id, ngaybatdau, ngayketthuc, ten, mota)
-            #     if result:
-            #         return JSONResponse(status_code=200, content={'status': 'OK'})
-            #     else:
-            #         return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+                result = gui_yeu_cau_in_phieu_controller(
+                    sv_id, idloaiyeucau)
+                if result==True:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/get_ds_yeu_cau_in_phieu_by_sv')
+async def get_ds_yeu_cau_in_phieu_by_sv_route(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            sv_id = payload.get("id")
+            if permission == "student":
+                data = get_ds_yeu_cau_in_phieu_by_sv_controller(sv_id)
+                response_data = {"data": data}
+                return JSONResponse(content=response_data, status_code=200)
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.post('/update_xoa_yeu_cau_in_phieu_by_id')
+async def update_xoa_yeu_cau_in_phieu_by_id_route(id: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin" or "user" or "student":
+                result = update_xoa_yeu_cau_in_phieu_by_id_controller(id)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/get_all_yeu_cau_in_phieu')
+async def get_all_yeu_cau_in_phieu_route(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin" or "user":
+                data = get_all_yeu_cau_in_phieu_controller()
+                response_data = {"data": data}
+                return JSONResponse(content=response_data, status_code=200)
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.post('/update_yeu_cau_in_phieu')
+async def update_yeu_cau_in_phieu_route(id: int, trangthai: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            id_nxl = payload.get("id")
+            if permission == "admin" or "user":
+                result = update_yeu_cau_in_phieu_controller(id, id_nxl, trangthai)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.post('/canh_bao_yeu_cau_in_phieu')
+async def canh_bao_yeu_cau_in_phieu_route(loaiyeucau: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            username = payload.get("sub")
+            if permission == "student":
+                time=datetime.datetime.now().strftime('%H:%M:%S %d/%m/%Y')
+                asyncio.create_task(sendMessageTelegram(message=f"<b>Yêu cầu in phiếu mới.</b>\n\n<b>Tài khoản:</b> <code>{username}</code>\n"
+                                                        f"<b>Vào lúc: </b><code>{time}</code>\n"
+                                                        f"<b>Loại yêu cầu: </b><code>{loaiyeucau}</code>", chat_id=admin_chat_id, format='HTML'))
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/sv_ctu_xuat_phieu_tiep_nhan')
+async def sv_ctu_xuat_phieu_tiep_nhan_route(id: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            sv_id = payload.get("id")
+            if permission == "student":
+                if (check_yeu_cau_in_phieu_controller(id)==1):
+                    i = ctu_xuat_phieu_tiep_nhan_controller(sv_id)
+                    if i is not TypeError:
+                        if i['kyhieu_truong'] == "CTU" or i['kyhieu_truong'] == "DNC":
+                            data: dict = {
+                                "ngaybatdau": i['ngaybatdau'],
+                                "ngayketthuc": i['ngayketthuc'],
+                                "nhd_hoten": i['nguoihuongdan'],
+                                "nhd_sdt": i['sdt_nguoihuongdan'],
+                                "nhd_email": i['email_nguoihuongdan'],
+                                "sv_hoten": i['hoten'],
+                                "sv_mssv": i['mssv'],
+                                "sv_malop": i['malop'],
+                                "sv_nganh": i['nganh']
+                            }
+                            headers = {
+                                # Mở tệp PDF trong trình duyệt
+                                "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
+                                "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
+                            }
+                            username=get_username_nguoi_huong_dan_by_sv_id_controller(sv_id)
+                            r = ctu_xuat_phieu_tiep_nhan(
+                                'pdf/phieutiepnhan_ctu.pdf', f"phieutiepnhan_{i['mssv']}.pdf", data, username)
+                            if r:
+                                with open(r, 'rb') as f:
+                                    docx_content = f.read()
+
+                                os.remove(os.path.join(
+                                    f'DOCX/{username}', f"phieutiepnhan_{i['mssv']}.pdf"))
+                                return Response(content=docx_content, headers=headers)
+                        else:
+                            return JSONResponse(status_code=200, content={'status': 'Phiếu chỉ dành cho SV ĐH Cần Thơ (CTU)'})
+                    else:
+                        return JSONResponse(status_code=400, content={'status': 'ERR'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'Phiếu không được phê duyệt'})
+            else:
+                return JSONResponse(status_code=404, content={'status': 'Lỗi khi xuất phiếu'})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')

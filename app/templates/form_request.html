@@ -35,39 +35,28 @@
         <!-- Map card -->
         <div class="card">
           <div class="card-header border-0 rows">
-            <h3 class="card-title col-lg-4 pb-2">
+            <h3 class="card-title col-lg-2">
               <i class="fa-solid fa-list-ol"></i>
-              Loại yêu cầu
+              Danh sách yêu cầu
             </h3>
-            <div class="col-lg-12 row">
-              <div class="form-group col-lg-3">
-                <select name="filter_chonnhom" id="filter_chonnhom" class="form-control select2" height="120%">
-                  <option selected disabled>-- CHỌN LOẠI YÊU CẦU --</option>
-                </select>
-              </div>
-
-              <div class="form-group col-lg-3">
-                <button class="btn btn-success btn-xs ms-auto" id="themconviecviec_btn"><i class="fa-solid fa-plus"></i>
-                  Giao việc</button>
-              </div>
-            </div>
+            <button class="btn btn-success btn-xs ms-auto" id="themconviecviec_btn"><i class="fa-solid fa-plus"></i>
+              Tạo bản in</button>
           </div>
           <div class="card-body">
-            <div class="row">
-              <div class="col-lg-4">
-                <div class="tab-pane mt-4" id="timeline">
-                  <!-- The timeline -->
-                  <div class="timeline timeline-inverse" id="dscongviec">
-
-                  </div>
-                </div>
-              </div>
-              <fiv class="col-lg-8">
-                <table class="table table-bordered table-hover display sticky-top" id="bangdscongviec" hidden>
-                  <tbody></tbody>
-                </table>
-              </fiv>
-            </div>
+            <table class="table table-bordered table-hover" id="bangdsyeucau">
+              <thead>
+                <tr>
+                  <th scope="col" style="text-align: center;" width="5%">#</th>
+                  <th scope="col" style="text-align: center;" width="25%">Sinh viên</th>
+                  <th scope="col" style="text-align: center;">Loại yêu cầu</th>
+                  <th scope="col" style="text-align: center;" width="12%">Ngày yêu cầu</th>
+                  <th scope="col" style="text-align: center;" width="12%">Ngày xử lý</th>
+                  <th scope="col" style="text-align: center;" width="8%">Trạng thái</th>
+                  <th scope="col" style="text-align: center;" width="8%">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
 
@@ -117,7 +106,7 @@
   <script src="plugins/select2/js/select2.js"></script>
   <!-- AdminLTE for demo purposes -->
   <script src="dist/js/demo.js"></script>
-  <script src="dist/js/pages/assign.js"></script>
+  <script src="dist/js/pages/form_request.js"></script>
 </body>
 
 </html>
