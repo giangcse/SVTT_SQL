@@ -32,7 +32,7 @@ bangdsyeucau = $("#bangdsyeucau").DataTable({
       data: null,
       render: function (data, type, row, meta) {
         // Use meta.row to get the current row index, and add 1 to start from 1
-        return "<center>" + (meta.row + 1) + "</center>";
+        return "<center>" + (meta.row + 1) + "<br><input type='checkbox' class='row-checkbox' data-id='" + row.id + "'></center>";
       },
     },
     {
@@ -88,6 +88,31 @@ bangdsyeucau = $("#bangdsyeucau").DataTable({
   ],
 });
 
+var selectedIds = []; // Mảng để lưu trữ các ID đã chọn
+
+// Sự kiện khi nhấn vào hàng để chọn checkbox tương ứng
+$('#bangdsyeucau tbody').on('click', 'tr', function() {
+  var checkbox = $(this).find('.row-checkbox');
+  checkbox.prop('checked', !checkbox.prop('checked'));
+  updateSelectedIds(checkbox);
+});
+
+// Hàm cập nhật mảng selectedIds
+function updateSelectedIds(checkbox) {
+  var id = checkbox.data('id');
+  if (checkbox.prop('checked')) {
+    // Nếu checkbox được chọn, thêm ID vào mảng
+    if (!selectedIds.includes(id)) {
+      selectedIds.push(id);
+    }
+  } else {
+    // Nếu checkbox bị bỏ chọn, xóa ID khỏi mảng
+    selectedIds = selectedIds.filter(function(selectedId) {
+      return selectedId !== id;
+    });
+  }
+}
+
 // Xoá yêu cầu
 $("#bangdsyeucau").on("click", "#deleteBtn", function () {
   let id = $(this).data("id");
@@ -103,9 +128,14 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
     if (result.isConfirmed) {
       $.ajax({
         type: "POST",
-        url: "/update_xoa_yeu_cau_in_phieu_by_id?id=" + parseInt(id),
+        url: "/update_xoa_yeu_cau_in_phieu_by_id",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: [id],
+          trangthai: 0
+        }),
         success: function (res) {
-          if(res.status=='OK'){
+          if(res.total==1){
             Toast.fire({
               icon: "success",
               title: "Đã xoá 1 yêu cầu",
@@ -117,6 +147,8 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
               icon: "warning",
               title: "Xóa yêu cầu không thành công"
             });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
           }
         },
         error: function (xhr, status, error) {
@@ -126,6 +158,7 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
           });
         },
       });
+      selectedIds = [];
     }
   });
 });
@@ -145,9 +178,14 @@ $("#bangdsyeucau").on("click", "#checkBtn", function () {
     if (result.isConfirmed) {
       $.ajax({
         type: "POST",
-        url: "/update_yeu_cau_in_phieu?id=" + parseInt(id) + "&trangthai=1",
+        url: "/update_yeu_cau_in_phieu",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: [id],
+          trangthai: 1
+        }),
         success: function (res) {
-          if(res.status=='OK'){
+          if(res.total==1){
             Toast.fire({
               icon: "success",
               title: "Đã duyệt 1 yêu cầu",
@@ -159,6 +197,8 @@ $("#bangdsyeucau").on("click", "#checkBtn", function () {
               icon: "warning",
               title: "Duyệt yêu cầu không thành công"
             });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
           }
         },
         error: function (xhr, status, error) {
@@ -168,6 +208,7 @@ $("#bangdsyeucau").on("click", "#checkBtn", function () {
           });
         },
       });
+      selectedIds = [];
     }
   });
 });
@@ -175,7 +216,6 @@ $("#bangdsyeucau").on("click", "#checkBtn", function () {
 // Từ chối yêu cầu
 $("#bangdsyeucau").on("click", "#rejectBtn", function () {
   let id = $(this).data("id");
-
   Swal.fire({
     title: "Từ chối yêu cầu này?" ,
     showDenyButton: false,
@@ -187,9 +227,14 @@ $("#bangdsyeucau").on("click", "#rejectBtn", function () {
     if (result.isConfirmed) {
       $.ajax({
         type: "POST",
-        url: "/update_yeu_cau_in_phieu?id=" + parseInt(id) + "&trangthai=-1",
+        url: "/update_yeu_cau_in_phieu",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: [id],
+          trangthai: -1
+        }),
         success: function (res) {
-          if(res.status=='OK'){
+          if(res.total==1){
             Toast.fire({
               icon: "success",
               title: "Đã từ chối 1 yêu cầu",
@@ -210,6 +255,172 @@ $("#bangdsyeucau").on("click", "#rejectBtn", function () {
           });
         },
       });
+      selectedIds = [];
+    }
+  });
+});
+
+$("#checkSelectedBtn").click(function () {
+  // Kiểm tra nếu nhóm id chưa được chọn
+  if (selectedIds.length == 0) {
+    Toast.fire({
+      icon: "warning",
+      title: "Chưa có sinh viên nào được chọn"
+    });
+    return; // Ngăn chặn việc thực hiện các hành động tiếp theo
+  }
+  Swal.fire({
+    title: "Phê duyệt "+selectedIds.length+" yêu cầu đã chọn?" ,
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    /* Read more about isConfirmed, isDenied below */
+    if (result.isConfirmed) {
+      $.ajax({
+        type: "POST",
+        url: "/update_yeu_cau_in_phieu",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: selectedIds,
+          trangthai: 1
+        }),
+        success: function (res) {
+          if(res.total!=0){
+            Toast.fire({
+              icon: "success",
+              title: "Đã duyệt "+res.total+" yêu cầu",
+            });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
+          }else{
+            Toast.fire({
+              icon: "warning",
+              title: "Duyệt yêu cầu không thành công"
+            });
+          }
+          // Tải lại bảng bangdsyeucau
+          bangdsyeucau.ajax.reload();
+        },
+        error: function (xhr, status, error) {
+          Toast.fire({
+            icon: "error",
+            title: "Lỗi! Thực hiện không thành công",
+          });
+        },
+      });
+      selectedIds = [];
+    }
+  });
+});
+
+$("#rejectSelectedBtn").click(function () {
+  // Kiểm tra nếu nhóm id chưa được chọn
+  if (selectedIds.length == 0) {
+    Toast.fire({
+      icon: "warning",
+      title: "Chưa có sinh viên nào được chọn"
+    });
+    return; // Ngăn chặn việc thực hiện các hành động tiếp theo
+  }
+  Swal.fire({
+    title: "Từ chối "+selectedIds.length+" yêu cầu đã chọn?" ,
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    /* Read more about isConfirmed, isDenied below */
+    if (result.isConfirmed) {
+      $.ajax({
+        type: "POST",
+        url: "/update_yeu_cau_in_phieu",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: selectedIds,
+          trangthai: -1
+        }),
+        success: function (res) {
+          if(res.total!=0){
+            Toast.fire({
+              icon: "success",
+              title: "Đã từ chối "+res.total+" yêu cầu",
+            });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
+          }else{
+            Toast.fire({
+              icon: "warning",
+              title: "Từ chối yêu cầu không thành công"
+            });
+          }
+          // Tải lại bảng bangdsyeucau
+          bangdsyeucau.ajax.reload();
+        },
+        error: function (xhr, status, error) {
+          Toast.fire({
+            icon: "error",
+            title: "Lỗi! Thực hiện không thành công",
+          });
+        },
+      });
+      selectedIds = [];
+    }
+  });
+});
+
+$("#deleteSelectedBtn").click(function () {
+  // Kiểm tra nếu nhóm id chưa được chọn
+  if (selectedIds.length == 0) {
+    Toast.fire({
+      icon: "warning",
+      title: "Chưa có sinh viên nào được chọn"
+    });
+    return; // Ngăn chặn việc thực hiện các hành động tiếp theo
+  }
+  Swal.fire({
+    title: "Xóa "+selectedIds.length+" yêu cầu đã chọn?" ,
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    /* Read more about isConfirmed, isDenied below */
+    if (result.isConfirmed) {
+      $.ajax({
+        type: "POST",
+        url: "/update_xoa_yeu_cau_in_phieu_by_id",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: selectedIds,
+          trangthai: 0
+        }),
+        success: function (res) {
+          if(res.total!=0){
+            Toast.fire({
+              icon: "success",
+              title: "Đã xóa "+res.total+" yêu cầu",
+            });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
+          }else{
+            Toast.fire({
+              icon: "warning",
+              title: "Xóa yêu cầu không thành công"
+            });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
+          }
+        },
+        error: function (xhr, status, error) {
+          Toast.fire({
+            icon: "error",
+            title: "Lỗi! Thực hiện không thành công",
+          });
+        },
+      });
+      selectedIds = [];
     }
   });
 });

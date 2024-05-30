@@ -990,15 +990,27 @@ def gui_yeu_cau_in_phieu(id: int, idloaiyeucau: int):
         return e
     
     
-def update_xoa_yeu_cau_in_phieu_by_id(id: int):
+# def update_xoa_yeu_cau_in_phieu_by_id(id: int):
+#     try:
+#         r = cursor.execute(
+#             "EXEC UpdateXoaYeuCauInPhieuByID ?", id).rowcount
+#         cursor.commit()
+#         if r == 1:
+#             return True
+#         else:
+#             return False
+#     except Exception as e:
+#         return e
+    
+    
+def update_xoa_yeu_cau_in_phieu_by_id(ids: list):
     try:
-        r = cursor.execute(
-            "EXEC UpdateXoaYeuCauInPhieuByID ?", id).rowcount
-        cursor.commit()
-        if r == 1:
-            return True
-        else:
-            return False
+        r = 0
+        for id in ids:
+            cursor.execute("EXEC UpdateXoaYeuCauInPhieuByID ?", id)
+            conn.commit()
+            r += cursor.rowcount
+        return r
     except Exception as e:
         return e
 
@@ -1013,18 +1025,19 @@ def get_all_yeu_cau_in_phieu():
         return e
     
     
-def update_yeu_cau_in_phieu(id: int, id_nxl: int, trangthai: int):
+def update_yeu_cau_in_phieu(ids: list, id_nxl: int, trangthai: int):
     try:
-        cursor.execute("EXEC UpdateYeuCauInPhieu ?, ?, ?, ?", id, datetime.datetime.now().strftime('%Y-%m-%d'), trangthai, id_nxl)
-        conn.commit()
-        r = cursor.rowcount
-        if r == 1:
-            return True
-        else:
-            return False
+        r = 0
+        # Sử dụng vòng lặp để thực hiện cập nhật cho từng ID trong danh sách
+        for id in ids:
+            cursor.execute("EXEC UpdateYeuCauInPhieu ?, ?, ?, ?", id, datetime.datetime.now().strftime('%Y-%m-%d'), trangthai, id_nxl)
+            conn.commit()
+            r += cursor.rowcount
+            
+        return r
     except Exception as e:
         return e
-    
+
     
 def get_username_nguoi_huong_dan_by_sv_id(sv_id: int):
     try:
@@ -1038,7 +1051,15 @@ def get_username_nguoi_huong_dan_by_sv_id(sv_id: int):
     
 def check_yeu_cau_in_phieu(id: int):
     try:
-        result = cursor.execute("SELECT trangthai FROM YeuCauInPhieu WHERE ID = ?", id).fetchone()
+        result = cursor.execute("SELECT yc.trangthai, l.LoaiYeuCau FROM YeuCauInPhieu yc inner join LOAIYEUCAU l on yc.ID_LoaiYeuCau=l.ID WHERE yc.ID = ?", id).fetchone()
+        return {'trangthai': result[0], 'loaiyeucau': result[1]}
+    except Exception as e:
+        return e
+    
+    
+def get_ky_hieu_truong_by_sv_id(id: int):
+    try:
+        result = cursor.execute("SELECT KyHieu FROM Truong t inner join SinhVien sv on sv.Truong = t.ID WHERE sv.ID = ?", id).fetchone()
         return result[0]
     except Exception as e:
         return e

@@ -397,16 +397,16 @@ def get_ds_yeu_cau_in_phieu_by_sv_controller(sv_id: int):
     return get_ds_yeu_cau_in_phieu_by_sv(sv_id)
 
 
-def update_xoa_yeu_cau_in_phieu_by_id_controller(id: int):
-    return update_xoa_yeu_cau_in_phieu_by_id(id)
+def update_xoa_yeu_cau_in_phieu_by_id_controller(ids: list):
+    return update_xoa_yeu_cau_in_phieu_by_id(ids)
 
 
 def get_all_yeu_cau_in_phieu_controller():
     return get_all_yeu_cau_in_phieu()
 
 
-def update_yeu_cau_in_phieu_controller(id: int, id_nxl: int, trangthai: int):
-    return update_yeu_cau_in_phieu(id, id_nxl, trangthai)
+def update_yeu_cau_in_phieu_controller(ids: list, id_nxl: int, trangthai: int):
+    return update_yeu_cau_in_phieu(ids, id_nxl, trangthai)
 
 
 def get_username_nguoi_huong_dan_by_sv_id_controller(id: int):

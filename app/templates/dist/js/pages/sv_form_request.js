@@ -90,7 +90,7 @@ $(document).ready(function () {
           } else if(row.trangthai==1){
             return (
               `<center>
-              <a class="btn btn-info btn-sm" id="printBtn" href="/sv_ctu_xuat_phieu_tiep_nhan?id=${data}""><i class="fas fa-print"></i></a>
+              <a class="btn btn-info btn-sm" id="printBtn" href="/sv_xuat_phieu?id=${data}""><i class="fas fa-print"></i></a>
               </center>`
             );
           } else {
@@ -148,7 +148,13 @@ $(document).ready(function () {
             });
             // Tải lại bảng bangdsyeucau
             bangdsyeucau.ajax.reload();
-          } else {
+          } else if(res.status == "INVALID"){
+            Toast.fire({
+              icon: "warning",
+              title: "Chưa đến thời hạn in phiếu đánh giá",
+            });
+          }
+          else {
             Toast.fire({
               icon: "error",
               title: "Không thể gửi yêu cầu!",
@@ -182,9 +188,14 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
     if (result.isConfirmed) {
       $.ajax({
         type: "POST",
-        url: "/update_xoa_yeu_cau_in_phieu_by_id?id=" + parseInt(id),
+        url: "/update_xoa_yeu_cau_in_phieu_by_id",
+        contentType: "application/json",
+        data: JSON.stringify({
+          ids: [id],
+          trangthai: 0
+        }),
         success: function (res) {
-          if(res.status=='OK'){
+          if(res.total==1){
             Toast.fire({
               icon: "success",
               title: "Đã xoá 1 yêu cầu",
@@ -196,6 +207,8 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
               icon: "warning",
               title: "Xóa yêu cầu không thành công"
             });
+            // Tải lại bảng bangdsyeucau
+            bangdsyeucau.ajax.reload();
           }
         },
         error: function (xhr, status, error) {
