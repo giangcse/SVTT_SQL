@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Progress Bar</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .progress {
+        position: relative;
+        height: 30px;
+        cursor: pointer;
+      }
+      .progress-bar {
+        transition: width 0.1s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div id="interactive-progress" class="progress">
+        <div
+          id="progress-bar"
+          class="progress-bar"
+          role="progressbar"
+          style="width: 0%"
+          aria-valuenow="0"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          0%
+        </div>
+      </div>
+      <div id="display-progress" class="progress mt-3">
+        <div
+          id="display-progress-bar"
+          class="progress-bar"
+          role="progressbar"
+          style="width: 0%"
+          aria-valuenow="0"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          0%
+        </div>
+      </div>
+      <button
+        id="showValueButton"
+        class="btn btn-primary mt-3"
+        style="display: none"
+      >
+        Hiển thị Giá Trị
+      </button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      function updateProgressBarAndLog() {
+        var progressBar = document.getElementById("progress-bar");
+        var percentage = parseInt(progressBar.style.width);
+        console.log(
+          "Giá trị cuối cùng của currentPercentage là: " + percentage
+        );
+      }
+
+      function initializeProgressBar() {
+        var progressBar = document.getElementById("progress-bar");
+        var progressContainer = document.getElementById("interactive-progress");
+        var displayProgressBar = document.getElementById(
+          "display-progress-bar"
+        );
+        var currentPercentage = 0;
+        var isDragging = false;
+
+        var showValueButton = document.getElementById("showValueButton");
+
+        // Hàm kiểm tra và hiển thị nút button khi đạt đến giá trị nhất định
+        function checkThreshold() {
+          if (currentPercentage >= 50) {
+            // Thay đổi giá trị nhất định tại đây
+            showValueButton.style.display = "block";
+          } else {
+            showValueButton.style.display = "none";
+          }
+        }
+        progressContainer.addEventListener("mousedown", function (e) {
+          isDragging = true;
+          updateProgress(e);
+          document.addEventListener("mousemove", updateProgress);
+        });
+
+        document.addEventListener("mouseup", function (e) {
+          if (isDragging) {
+            isDragging = false;
+            document.removeEventListener("mousemove", updateProgress);
+            alert(
+              "Giá trị hiện tại của thanh progress: " + currentPercentage + "%"
+            );
+          }
+        });
+
+        function updateProgress(e) {
+          var rect = progressContainer.getBoundingClientRect();
+          var offsetX = e.clientX - rect.left;
+          var totalWidth = rect.width;
+          var percentage = Math.min(
+            Math.max(0, (offsetX / totalWidth) * 100),
+            100
+          );
+
+          progressBar.style.width = percentage + "%";
+          progressBar.innerHTML = Math.round(percentage) + "%";
+
+          // Cập nhật thanh progress bar thứ hai
+          displayProgressBar.style.width = percentage + "%";
+          displayProgressBar.innerHTML = Math.round(percentage) + "%";
+
+          // Lưu giá trị hiện tại để hiển thị trong alert
+          currentPercentage = Math.round(percentage);
+
+          // Cập nhật giá trị trong console.log
+          checkThreshold();
+          updateProgressBarAndLog();
+        }
+
+        // Ngăn chặn hành động sao chép văn bản
+        document.addEventListener("copy", function (e) {
+          e.preventDefault();
+        });
+
+        document.addEventListener("cut", function (e) {
+          e.preventDefault();
+        });
+
+        document.addEventListener("contextmenu", function (e) {
+          e.preventDefault();
+        });
+
+        // Sự kiện khi click vào nút button
+        showValueButton.addEventListener("click", function () {
+          alert(
+            "Giá trị hiện tại của thanh progress: " + currentPercentage + "%"
+          );
+          showValueButton.style.display = "none"; // Ẩn nút sau khi click
+        });
+
+        // Trả về hoặc đặt currentPercentage thành biến toàn cục nếu bạn muốn truy cập từ bên ngoài
+        return currentPercentage;
+      }
+
+      // Gọi hàm initializeProgressBar từ bất kỳ nơi nào trong tài liệu JavaScript của bạn
+      initializeProgressBar();
+    </script>
+  </body>
+</html>
