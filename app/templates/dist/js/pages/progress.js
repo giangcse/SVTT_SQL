@@ -71,7 +71,7 @@ function loadKyThucTap() {
     url: `get_ky_thuc_tap_by_username`,
     success: function (res) {
       $.each(res, function (idx, val) {
-        if(val['thoihan']!==1){
+        if (val["thoihan"] !== 1) {
           $("#filter_kythuctap").append(`
             <option value="${val["id"]}">${val["ngaybatdau"]} - ${val["ngayketthuc"]}</option>
           `);
@@ -119,7 +119,7 @@ $(document).ready(function () {
   });
 
   // Bắt sự kiện click nút xem
-  $("#viewBtn").on('click', function () {
+  $("#viewBtn").on("click", function () {
     let sinhvienid = $("#filter_sinhvien").val();
     loadDSCongViec(sinhvienid);
   });
@@ -130,6 +130,28 @@ $(document).ready(function () {
       $("#bang_dscongviec").DataTable().destroy();
     }
     // Create after
+    let GtriThanhTienDo = {};
+    // Hàm để truy xuất giá trị của thanh trạng thái
+    function layGTriTienDo(rowId) {
+      return GtriThanhTienDo[rowId];
+    }
+    var a = 2;
+    function khoiTaoThanhTienDo(sliderId, spanId, rowId) {
+      $(`#${sliderId}`).on("input", function () {
+        let value = $(this).val();
+        $(`#${spanId}`).text(value);
+
+        // Lưu giá trị vào đối tượng GtriThanhTienDo
+        GtriThanhTienDo[rowId] = value;
+
+        // In giá trị ra console
+        console.log(`Row ID: ${rowId}, Slider Value: ${layGTriTienDo(rowId)}`);
+      });
+    }
+    function layGTriTienDo(rowId) {
+      return GtriThanhTienDo[rowId];
+    }
+
     let dscongviec = $("#bang_dscongviec").DataTable({
       paging: false,
       retrieve: true,
@@ -163,7 +185,24 @@ $(document).ready(function () {
             if (data == 0) {
               return '<center><span class="badge badge-warning">Đang thực hiện</span></center>';
             } else if (data == 1) {
-              return '<center><span class="badge badge-success">Hoàn thành</span></center>';
+              let sliderId = `slider-${row.id}`;
+              let spanId = `width-value-${row.id}`;
+
+              // Gọi hàm khoiTaoThanhTienDo sau khi phần tử đã được render
+              setTimeout(() => {
+                khoiTaoThanhTienDo(sliderId, spanId, row.id);
+                let a = khoiTaoThanhTienDo(sliderId, spanId, row.id);
+                console.log(a);
+              }, 0);
+
+              return `
+               <center><span class="badge badge-success">Hoàn thành</span></center>
+      <div class="slider">
+        <label for="${sliderId}">Progress</label>
+        <input type="range" id="${sliderId}" min="1" max="100" />
+        <span id="${spanId}">00</span>
+      </div>
+              `;
             } else {
               return '<center><span class="badge badge-danger">Trễ hạn</span></center>';
             }
@@ -190,6 +229,7 @@ $(document).ready(function () {
         }
       },
     });
+
     // Bắt sự kiện xác nhận trạng thái chi tiết công việc
     $("#bang_dscongviec").on("click", "#confirmBtn", function () {
       Swal.fire({
@@ -203,7 +243,6 @@ $(document).ready(function () {
       }).then((result) => {
         if (result.isConfirmed) {
           let id = $(this).data("id");
-
           $.ajax({
             type: `POST`,
             url: `update_xac_nhan_trang_thai_cong_viec?idcongviec=${id}`,
