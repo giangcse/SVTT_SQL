@@ -393,6 +393,10 @@ def gui_yeu_cau_in_phieu_controller(sv_id: int, idloaiyeucau: int):
     return gui_yeu_cau_in_phieu(sv_id, idloaiyeucau)
 
 
+def gui_yeu_cau_in_phieu_by_nguoi_huong_dan_controller(ids: list, idloaiyeucau: int, nhd_id: int):
+    return gui_yeu_cau_in_phieu_by_nguoi_huong_dan(ids, idloaiyeucau, nhd_id)
+
+
 def get_ds_yeu_cau_in_phieu_by_sv_controller(sv_id: int):
     return get_ds_yeu_cau_in_phieu_by_sv(sv_id)
 

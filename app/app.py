@@ -1819,8 +1819,8 @@ async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None
             sv_id = payload.get("id")
             if permission == "student":
                 if(idloaiyeucau==3): #YÊU CẦU IN PHIẾU ĐÁNH GIÁ CÓ ID = 3
-                    i = xuat_phieu_danh_gia_controller(id)
-                    if isinstance(i, tuple) and i[0] is not None and i[0] is not TypeError:
+                    i = xuat_phieu_danh_gia_controller(sv_id)
+                    if i is not None and i is not TypeError:
                         result = gui_yeu_cau_in_phieu_controller(
                             sv_id, idloaiyeucau)
                         if result==True:
@@ -1836,6 +1836,31 @@ async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None
                         return JSONResponse(status_code=200, content={'status': 'OK'})
                     else:
                         return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.post('/gui_yeu_cau_in_phieu_by_nguoi_huong_dan')
+async def gui_yeu_cau_in_phieu_by_nguoi_huong_dan_route(list_sv: ListRequest, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            nhd_id = payload.get("id")
+            idloaiyeucau = list_sv.trangthai
+            if permission == "admin" or "user":
+                r = 0
+                if(idloaiyeucau==3): #YÊU CẦU IN PHIẾU ĐÁNH GIÁ CÓ ID = 3
+                    for sv_id in list_sv.ids:
+                        i = xuat_phieu_danh_gia_controller(sv_id)
+                        if i is not None and i is not TypeError:
+                            result = gui_yeu_cau_in_phieu_by_nguoi_huong_dan_controller(
+                                [sv_id], idloaiyeucau, nhd_id)
+                            r += result
+                else:
+                    r = gui_yeu_cau_in_phieu_by_nguoi_huong_dan_controller(list_sv.ids, idloaiyeucau, nhd_id)
+            return JSONResponse(status_code=200, content={'total': r})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
@@ -1910,9 +1935,9 @@ async def canh_bao_yeu_cau_in_phieu_route(loaiyeucau: str, token: str = Cookie(N
             username = payload.get("sub")
             if permission == "student":
                 time=datetime.datetime.now().strftime('%H:%M:%S %d/%m/%Y')
-                asyncio.create_task(sendMessageTelegram(message=f"<b>Yêu cầu in phiếu mới.</b>\n\n<b>Tài khoản:</b> <code>{username}</code>\n"
-                                                        f"<b>Vào lúc: </b><code>{time}</code>\n"
-                                                        f"<b>Loại yêu cầu: </b><code>{loaiyeucau}</code>", chat_id=admin_chat_id, format='HTML'))
+                asyncio.create_task(sendMessageTelegram(message=f"<b>Yêu cầu in phiếu mới.</b>\n\n<code><b>Tài khoản:</b> {username}\n"
+                                                        f"<b>Vào lúc: </b>{time}\n"
+                                                        f"<b>Loại yêu cầu: </b>{loaiyeucau}</code>", chat_id=admin_chat_id, format='HTML'))
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')

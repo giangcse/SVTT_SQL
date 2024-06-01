@@ -990,6 +990,20 @@ def gui_yeu_cau_in_phieu(id: int, idloaiyeucau: int):
         return e
     
     
+
+def gui_yeu_cau_in_phieu_by_nguoi_huong_dan(ids: list, idloaiyeucau: int, nhd_id: int):
+    try:
+        r = 0
+        for sv_id in ids:
+            cursor.execute("EXEC InsertYeuCauInPhieuByNguoiHuongDan ?, ?, ?, ?", sv_id, idloaiyeucau, datetime.datetime.now().strftime('%Y-%m-%d'), nhd_id)
+            conn.commit()
+            if cursor.rowcount >= 0:
+                r += cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+    
+    
 # def update_xoa_yeu_cau_in_phieu_by_id(id: int):
 #     try:
 #         r = cursor.execute(
@@ -1017,10 +1031,10 @@ def update_xoa_yeu_cau_in_phieu_by_id(ids: list):
 
 def get_all_yeu_cau_in_phieu():
     try:
-        result = cursor.execute("SELECT yc.id, sv.HoTen, sv.Email, loaiyeucau, CONVERT(VARCHAR, ngaygui, 103) as ngaygui, CONVERT(VARCHAR, NgayXuLy, 103) as ngayxuly, trangthai "
+        result = cursor.execute("SELECT yc.id, sv.HoTen, sv.Email, loaiyeucau, CONVERT(VARCHAR, ngaygui, 103) as ngayguiyc, CONVERT(VARCHAR, NgayXuLy, 103) as ngayxuly, trangthai "
                                 "FROM YeuCauInPhieu yc inner join LOAIYEUCAU lyc on lyc.ID = yc.ID_LoaiYeuCau inner join SINHVIEN sv on yc.ID_SinhVien = sv.ID "
                                 "ORDER BY ngaygui DESC")
-        return [{'id': i[0], 'hotensv': i[1], 'emailsv': i[2], 'loaiyeucau':i[3], 'ngaygui':i[4], 'ngayxuly':i[5], 'trangthai':i[6]} for i in result.fetchall()]
+        return [{'id': i[0], 'hotensv': i[1], 'emailsv': i[2], 'loaiyeucau':i[3], 'ngayguiyc':i[4], 'ngayxuly':i[5], 'trangthai':i[6]} for i in result.fetchall()]
     except Exception as e:
         return e
     

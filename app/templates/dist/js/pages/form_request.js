@@ -6,6 +6,8 @@ var Toast = Swal.mixin({
 });
 
 var bangdsyeucau;
+var selectedIds = []; // Mảng để lưu trữ các ID đã chọn
+var listID_sv = []; // Mảng lưu trữ id các sinh viên thuộc nhóm đã chọn trong modal
 
 // Clear modal
 function clear_modal() {
@@ -43,7 +45,7 @@ bangdsyeucau = $("#bangdsyeucau").DataTable({
       },
     },
     { data: "loaiyeucau" },
-    { data: "ngaygui" },
+    { data: "ngayguiyc" },
     { data: "ngayxuly" },
     {
       data: "trangthai",
@@ -87,8 +89,6 @@ bangdsyeucau = $("#bangdsyeucau").DataTable({
     },
   ],
 });
-
-var selectedIds = []; // Mảng để lưu trữ các ID đã chọn
 
 // Sự kiện khi nhấn vào hàng để chọn checkbox tương ứng
 $('#bangdsyeucau tbody').on('click', 'tr', function() {
@@ -422,5 +422,204 @@ $("#deleteSelectedBtn").click(function () {
       });
       selectedIds = [];
     }
+  });
+});
+
+
+// Modal thêm bản in
+$("#thembanin_btn").click(function () {
+  // Clear modal
+  clear_modal();
+  $("#modal_title").text("Thêm bản in mới");
+  html = `<div class="form-group">\              
+            <label for="filter_loaiyeucau">Chọn loại phiếu in</label>
+            <select name="filter_kythuctap" id="filter_loaiyeucau" class="form-control select2" height="120%">
+              <option value="-1" disabled selected  >-- Chọn loại yêu cầu --</option>
+            </select>
+          </div> \
+          <div class="form-group">\
+            <label for="filter_kythuctap">Chọn kỳ thực tập</label>
+            <select name="filter_kythuctap" id="filter_kythuctap" class="form-control select2" height="120%">
+              <option value="-1" disabled selected>-- Chọn kỳ thực tập --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filter_nhomthuctap">Chọn nhóm thực tập</label>
+            <select name="filter_nhomthuctap" id="filter_nhomthuctap" class="form-control select2" height="120%">
+              <option value="-1" disabled selected>-- Chọn nhóm thực tập --</option>
+            </select> 
+          </div>`;
+  $("#modal_body").append(html);
+  $("#modal_footer").append(
+    '<button type="button" class="btn btn-primary" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Thêm</button>'
+  );
+
+  // Get danh sách các loai yeu cau
+  let filter_loaiyeucau = $("#filter_loaiyeucau");
+  $.ajax({
+    type: "GET",
+    url: `get_ds_loai_yeu_cau`,
+    success: function (res) {
+      $.each(res, function (idx, val) {
+        filter_loaiyeucau.append(
+          '<option value="' + val.id + '">' + val.loaiyeucau + "</option>"
+        );
+      });
+    },
+  });
+
+  // lOAD FILTER CHON KY TT
+  $.ajax({
+    type: "GET",
+    url: "/get_ky_thuc_tap_by_username",
+    success: function (data) {
+      let filter_kythuctap = $("#filter_kythuctap");
+      data.forEach((element) => {
+        filter_kythuctap.append(
+          `<option value="${element.id}">${element.ngaybatdau} - ${element.ngayketthuc}</option>`
+        );
+      });
+    },
+  });
+
+  $("#filter_kythuctap").on("change", function () {
+    let id = $("#filter_kythuctap").val();
+    let filter_nhomthuctap = $("#filter_nhomthuctap");
+
+    $.ajax({
+      type: `GET`,
+      url: `get_danh_sach_nhom_theo_ky_id?id=${id}`,
+      success: function (res) {
+        // empty first
+        filter_nhomthuctap.empty();
+
+        $.each(res, function (idx, val) {
+          filter_nhomthuctap.append(`
+            <option value="${val.id}">${val.tennhom}</option>
+          `);
+        });
+
+
+        
+        let kythuctap = $("#filter_kythuctap").val();
+        let nhomthuctap = $("#filter_nhomthuctap").val();
+        $.ajax({
+          type: "GET",
+          url: `get_ds_sinh_vien_by_username?kythuctap=${kythuctap}&nhomthuctap=${nhomthuctap}`,
+          dataSrc: "",
+          success: function(data) {
+            data.forEach(function(sinhvien) {
+              listID_sv.push(sinhvien.id); // Thêm id của sinh viên vào listID_sv
+            });
+          },
+          error: function(xhr, status, error) {
+            alert("Lỗi khi lấy danh sách sinh viên:");
+          }
+        });
+      },
+    });
+  });
+
+
+  $("#filter_nhomthuctap").on("change", function () {
+    let kythuctap = $("#filter_kythuctap").val();
+    let nhomthuctap = $("#filter_nhomthuctap").val();
+
+    $.ajax({
+      type: "GET",
+      url: `get_ds_sinh_vien_by_username?kythuctap=${kythuctap}&nhomthuctap=${nhomthuctap}`,
+      dataSrc: "",
+      success: function(data) {
+        data.forEach(function(sinhvien) {
+          listID_sv.push(sinhvien.id); // Thêm id của sinh viên vào listID_sv
+        });
+      },
+      error: function(xhr, status, error) {
+        alert("Lỗi khi lấy danh sách sinh viên:");
+      }
+    });
+  });
+
+  $("#modal_id").modal("show");
+
+  $("#modal_submit_btn").click(function () {
+    let idloaiyeucau = $("#filter_loaiyeucau").val();
+    let id_kythuctap = $("#filter_kythuctap").val();
+    let id_nhomthuctap = $("#filter_nhomthuctap").val();
+    let nhomthuctap = $("#filter_nhomthuctap option:selected").text();
+    if (idloaiyeucau==null){
+      Toast.fire({
+        icon: "error",
+        title: "Chưa chọn loại yêu cầu",
+      });
+      return
+    }
+    if (id_kythuctap==null){
+      Toast.fire({
+        icon: "error",
+        title: "Chưa chọn kỳ thực tập",
+      });
+      return
+    }
+    if (id_nhomthuctap==null){
+      Toast.fire({
+        icon: "error",
+        title: "Chưa chọn nhóm thực tập",
+      });
+      return
+    }
+    if (listID_sv.length == 0) {
+      Toast.fire({
+        icon: "warning",
+        title: "Không có sinh viên nào"
+      });
+      return; // Ngăn chặn việc thực hiện các hành động tiếp theo
+    }
+    Swal.fire({
+      title: "Xác nhận in phiếu cho nhóm\n" + nhomthuctap +"?" ,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "POST",
+          url: "/gui_yeu_cau_in_phieu_by_nguoi_huong_dan",
+          contentType: "application/json",
+          data: JSON.stringify({
+            ids: listID_sv,
+            trangthai: idloaiyeucau
+          }),
+          success: function (res) {
+            if(res.total!=0){
+              Toast.fire({
+                icon: "success",
+                title: "Đã thêm "+res.total+" yêu cầu được duyệt",
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }else{
+              Toast.fire({
+                icon: "warning",
+                title: "Không thêm mới yêu cầu nào!"
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }
+          },
+          error: function (xhr, status, error) {
+            Toast.fire({
+              icon: "error",
+              title: "Lỗi! Thực hiện không thành công",
+            });
+          },
+        });
+        selectedIds = [];
+        listID_sv = [];
+        $("#modal_id").modal("hide");
+      }
+    });
   });
 });
