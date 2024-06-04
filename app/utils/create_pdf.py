@@ -1,4 +1,5 @@
-from PyPDF2 import PdfReader, PdfWriter
+from io import BytesIO
+from PyPDF2 import PdfFileReader, PdfFileWriter, PdfReader, PdfWriter
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
@@ -6,6 +7,8 @@ from reportlab.lib import colors
 
 import os
 import textwrap
+
+# from app.controllers.controller import query_pdf_path_from_database_controller
 
 
 def vlute_xuat_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dict, username: str):
@@ -61,6 +64,45 @@ def vlute_xuat_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dict, u
 
     return os.path.join(output_path, output_pdf_path)
 
+def vlute_chinh_sua_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dict, username: str):
+    # Read the input PDF
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+
+    # Load Times New Roman font
+    pdfmetrics.registerFont(TTFont('Times_New_Roman', 'times.ttf'))
+
+    # Create a canvas for the new content
+    c = canvas.Canvas("temp.pdf")
+    c.setFont("Times_New_Roman", 12)
+
+    # Add new content to the canvas
+    textobject = c.beginText()
+    textobject.setTextOrigin(50, 750)  # Starting position
+
+    for key, value in data.items():
+        textobject.textLine(f"{key}: {value}")
+
+    c.drawText(textobject)
+    c.save()
+
+    # Read the new content page
+    new_page = PdfReader("temp.pdf").pages[0]
+
+    # Iterate through each page of the original PDF and merge with new content
+    for page_num in range(len(reader.pages)):
+        original_page = reader.pages[page_num]
+        original_page.merge_page(new_page)
+        writer.add_page(original_page)
+
+    # Create output directory if it does not exist
+    output_path = os.path.join('DOCX', username)
+    os.makedirs(output_path, exist_ok=True)
+
+    # Write to the output PDF file
+    with open(os.path.join(output_path, output_pdf_path), "wb") as output_pdf_file:
+        writer.write(output_pdf_file)
+    return os.path.join(output_path, output_pdf_path)
 
 def ctu_xuat_phieu_tiep_nhan(input_pdf_path: str, output_pdf_path: str, data: dict, username: str):
     # Đọc file PDF đầu vào
@@ -449,3 +491,23 @@ def ctu_xuat_phieu_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dic
 #     output_pdf_path = 'output.pdf'
 #     # Thêm văn bản vào PDF
 #     ctu_xuat_phieu_theo_doi(input_pdf_path, output_pdf_path, data, "giangpt")
+
+def create_new_content(id: str, id_bieumau:int,data:dict):
+    pdfmetrics.registerFont(TTFont('Times_New_Roman', 'times.ttf'))
+    pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)
+    input_pdf_path = pdf_path[0]
+    packet = BytesIO()
+    can = canvas.Canvas(packet)
+    can.drawString(100, 750, data['noidung1'])
+    can.drawString(100, 730, data['noidung2'])
+    can.save()
+    packet.seek(0)
+    new_pdf = PdfFileReader(packet)
+    existing_pdf = PdfFileReader(open(input_pdf_path, "rb"))
+    output = PdfFileWriter()
+    for page_num in range(existing_pdf.numPages):
+        page = existing_pdf.getPage(page_num)
+        output.addPage(page)
+    output.addPage(new_pdf.getPage(0))
+    with open(input_pdf_path, "wb") as outputStream:
+        output.write(outputStream)

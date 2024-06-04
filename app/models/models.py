@@ -1,3 +1,4 @@
+import os
 from ..config import create_connection
 from ..send_otp import is_otp_valid
 import datetime
@@ -649,8 +650,16 @@ def update_chi_tiet_nganh_by_id(id: int, ten: str, kyhieu: str, idtruong:int):
         return e
 def get_danh_sach_truong():
     try:
-        result = cursor.execute("SELECT ID, Ten FROM Truong").fetchall()
-        return [{'id': i[0], 'ten': i[1]} for i in result]
+        query = """
+        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau
+        FROM BIEUMAU bm 
+        JOIN TRUONG t 
+        ON bm.truong = t.id
+        ORDER BY bm.truong;
+        """
+        result = cursor.execute(query).fetchall()
+        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4]} for row in result]
+        return danh_sach_truong
     except Exception as e:
         return e
 
@@ -1063,21 +1072,21 @@ def update_nganh_by_id(id:int, ten:str,kyhieu:str,isDeleted:int,idtruong:int):
         return {'status': 'OK', 'result': result}
     except Exception as e:
         return e
-def get_danhsach_templates():
-    try:
-        query = """
-        select tem.id, tem.name, tem.content, t.Ten as TenTruong 
-        from Template tem 
-        JOIN Truong t ON tem.truong_id = t.ID
-        """
-        result = cursor.execute(query).fetchall()
-        danh_sach_templates = [
-            {'id': i[0], 'name': i[1], 'content': i[2], 'ten_truong': i[3]}
-            for i in result
-        ]
-        return danh_sach_templates
-    except Exception as e:
-        return e
+# def get_danhsach_templates():
+#     try:
+#         query = """
+#         select tem.id, tem.name, tem.content, t.Ten as TenTruong 
+#         from Template tem 
+#         JOIN Truong t ON tem.truong_id = t.ID
+#         """
+#         result = cursor.execute(query).fetchall()
+#         danh_sach_templates = [
+#             {'id': i[0], 'name': i[1], 'content': i[2], 'ten_truong': i[3]}
+#             for i in result
+#         ]
+#         return danh_sach_templates
+#     except Exception as e:
+#         return e
 def delete_nganh_by_id_list_model(idList: list):
     try:
         placeholders = ','.join(['?'] * len(idList))
@@ -1088,3 +1097,74 @@ def delete_nganh_by_id_list_model(idList: list):
     except Exception as e:
         print(e)
         return {'status': 'ERROR', 'message': str(e)}
+
+
+def query_pdf_path_from_database_model(id: str, id_bieumau: int) -> str:
+    try:
+        # Construct the SQL query
+        query = "SELECT Data, TenBieuMau, Extension AS extn FROM BIEUMAU WHERE id = ? AND truong = ?"
+        
+        # Execute the query with the provided parameters
+        cursor.execute(query, (id_bieumau,id))
+
+        # Fetch the first result from the query
+        row = cursor.fetchone()
+
+        if row:
+            # Extract the data, tenbieumau, and extension from the row
+            data, tenbieumau, extn = row
+            
+            # Generate a unique filename based on tenbieumau and extension
+            filename = f"{tenbieumau}.{extn}"
+            
+            # Define the directory to save the PDF files
+            pdf_directory = 'pdf'
+            if not os.path.exists(pdf_directory):
+                os.makedirs(pdf_directory)
+            
+            # Define the output file path
+            output_file_path = os.path.join(pdf_directory, filename)
+            
+            # Write the file data to the output path
+            with open(output_file_path, 'wb') as f:
+                f.write(data)
+            
+            # Return the path to the saved file
+            return output_file_path
+        else:
+            print("No row found for the provided IDs")
+            return None
+    except Exception as e:
+        # Print any errors that occur during the process
+        print(f"Error retrieving file: {e}")
+        return None
+
+def vlute_chinh_sua_danh_gia_model(id_bieumau:int):
+    try:
+        query = """
+        select data,extension as ext from BIEUMAU where id = ?
+        """
+        i = cursor.execute(query, id_bieumau).fetchone()
+        return {'data': i[0], 'ext': i[1]}
+    except Exception as e:
+        return e
+    
+#doc file pdf 
+def get_pdf_from_database(id):
+    cursor.execute("SELECT tenbieumau, extension FROM BieuMau WHERE id=?", id)
+    row = cursor.fetchone()
+    if row:
+        pdf_data = row.tenbieumau
+        extension = row.extension
+        return pdf_data, extension
+    else:
+        return None, None
+def chi_tiet_bieu_mau_model(id:str, id_bieumau:int):
+    try:
+        query = """
+        select data,extension as ext from BIEUMAU where id = ? AND truong = ?
+        """
+        i = cursor.execute(query, id_bieumau, id).fetchone()
+        return {'data': i[0], 'ext': i[1]}
+    except Exception as e:
+        return e

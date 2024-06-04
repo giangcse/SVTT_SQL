@@ -401,8 +401,12 @@ def get_chi_tiet_nganh_by_id_controller(id: str):
 def update_nganh_by_id_controller(id: int, ten: str, kyhieu: str, isDeleted: int, idtruong: int):
     return update_nganh_by_id(id, ten, kyhieu, isDeleted, idtruong)
 
-def get_danhsach_templates_controller():
-    return get_danhsach_templates()
-
 def delete_nganh_by_id_list_controller(idList: list):
     return delete_nganh_by_id_list_model(idList)
+
+def query_pdf_path_from_database_controller(id: str,id_bieumau : int):
+    return query_pdf_path_from_database_model(id,id_bieumau)
+def vlute_chinh_sua_danh_gia_controller(id_bieumau: int):
+    return vlute_chinh_sua_danh_gia_model(id)
+def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
+    return chi_tiet_bieu_mau_model(id)
