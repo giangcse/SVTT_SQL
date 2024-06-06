@@ -34,7 +34,7 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
       render: function (data, type, row) {
         if (data == 0) {
           return '<center><span class="badge badge-primary"><i class="fa-solid fa-user"></i> Người hướng dẫn</span></center>';
-        } else if(data==1) {
+        } else if (data == 1) {
           return '<center><span class="badge badge-success"><i class="fa-solid fa-user-tie"></i> Quản trị</span></center>';
         }
       },
@@ -52,9 +52,8 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
     {
       data: "id",
       render: function (data, type, row) {
-        if(row.trangthai==1){
-          return (
-            `<center>
+        if (row.trangthai == 1) {
+          return `<center>
               <a class="btn btn-secondary btn-sm" id="resetBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reset mật khẩu">
                 <i class="fa-solid fa-key"></i>
               </a>
@@ -70,10 +69,9 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
               <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
                 <i class="fa-solid fa-trash"></i>
               </a>
-            </center>`
-          );
-        }else{
-          return (`
+            </center>`;
+        } else {
+          return `
             <center>
               <a class="btn btn-success btn-sm" id="activeBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
                 <i class="fa-solid fa-user-check"></i>
@@ -82,7 +80,7 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
                 <i class="fa-solid fa-trash"></i>
               </a>
             </center>
-          `);
+          `;
         }
       },
     },
@@ -97,7 +95,7 @@ function clear_modal() {
 }
 
 // Xoá người dùng
-$("#bangdstaikhoan").on("click", "#deleteBtn", function() {
+$("#bangdstaikhoan").on("click", "#deleteBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
@@ -106,38 +104,39 @@ $("#bangdstaikhoan").on("click", "#deleteBtn", function() {
     showCancelButton: true,
     confirmButtonText: "Xoá",
     cancelButtonText: "Huỷ",
-  }).then((result)=>{
-    if (result.isConfirmed){
+  }).then((result) => {
+    if (result.isConfirmed) {
       $.ajax({
         type: `POST`,
         url: `update_xoa_nguoi_huong_dan_by_id?id=${id}`,
-        success: function(res) {
-          if(res.status=='OK'){
+        success: function (res) {
+          if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `Xoá người dùng thành công.`
+              title: `Xoá người dùng thành công.`,
             });
             bangdstaikhoan.ajax.reload();
-          }else if(res.status=='EXISTS'){
+          } else if (res.status == "EXISTS") {
             Toast.fire({
               icon: "warning",
-              title: "Người dùng đang hướng dẫn nhóm. Vui lòng chọn Ngừng sử dụng."
+              title:
+                "Người dùng đang hướng dẫn nhóm. Vui lòng chọn Ngừng sử dụng.",
             });
           }
         },
-        error: function() {
+        error: function () {
           Toast.fire({
             icon: "error",
-            title: `Xoá người dùng thất bại.`
+            title: `Xoá người dùng thất bại.`,
           });
-        }
-      })
+        },
+      });
     }
   });
 });
 
 // Ban người dùng
-$("#bangdstaikhoan").on("click", "#banBtn", function() {
+$("#bangdstaikhoan").on("click", "#banBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
@@ -146,38 +145,38 @@ $("#bangdstaikhoan").on("click", "#banBtn", function() {
     showCancelButton: true,
     confirmButtonText: "Ngưng",
     cancelButtonText: "Huỷ",
-  }).then((result)=>{
-    if (result.isConfirmed){
+  }).then((result) => {
+    if (result.isConfirmed) {
       $.ajax({
         type: `POST`,
         url: `update_ban_nguoi_huong_dan_by_id?id=${id}`,
-        success: function(res) {
-          if(res.status=='OK'){
+        success: function (res) {
+          if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `Đã ngưng người dùng`
+              title: `Đã ngưng người dùng`,
             });
             bangdstaikhoan.ajax.reload();
-          }else if(res.status=='IS_ADMIN'){
+          } else if (res.status == "IS_ADMIN") {
             Toast.fire({
               icon: "warning",
-              title: "Người dùng đang là Quản trị viên."
+              title: "Người dùng đang là Quản trị viên.",
             });
           }
         },
-        error: function() {
+        error: function () {
           Toast.fire({
             icon: "error",
-            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`
+            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
           });
-        }
-      })
+        },
+      });
     }
   });
 });
 
 // Active người dùng
-$("#bangdstaikhoan").on("click", "#activeBtn", function() {
+$("#bangdstaikhoan").on("click", "#activeBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
@@ -186,38 +185,38 @@ $("#bangdstaikhoan").on("click", "#activeBtn", function() {
     showCancelButton: true,
     confirmButtonText: "Kích hoạt",
     cancelButtonText: "Huỷ",
-  }).then((result)=>{
-    if (result.isConfirmed){
+  }).then((result) => {
+    if (result.isConfirmed) {
       $.ajax({
         type: `POST`,
         url: `update_active_nguoi_huong_dan_by_id?id=${id}`,
-        success: function(res) {
-          if(res.status=='OK'){
+        success: function (res) {
+          if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `Đã kích hoạt người dùng.`
+              title: `Đã kích hoạt người dùng.`,
             });
             bangdstaikhoan.ajax.reload();
-          }else if(res.status=='NOT_BANNED'){
+          } else if (res.status == "NOT_BANNED") {
             Toast.fire({
               icon: "warning",
-              title: "Người dùng đang hoạt động."
+              title: "Người dùng đang hoạt động.",
             });
           }
         },
-        error: function() {
+        error: function () {
           Toast.fire({
             icon: "error",
-            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`
+            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
           });
-        }
-      })
+        },
+      });
     }
   });
 });
 
 // Reset mật khẩu người dùng
-$("#bangdstaikhoan").on("click", "#resetBtn", function() {
+$("#bangdstaikhoan").on("click", "#resetBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
@@ -226,34 +225,33 @@ $("#bangdstaikhoan").on("click", "#resetBtn", function() {
     showCancelButton: true,
     confirmButtonText: "Reset",
     cancelButtonText: "Huỷ",
-  }).then((result)=>{
-    if (result.isConfirmed){
+  }).then((result) => {
+    if (result.isConfirmed) {
       $.ajax({
         type: `POST`,
         url: `reset_password?id=${id}`,
-        success: function(res) {
-          if(res.status=='OK'){
+        success: function (res) {
+          if (res.status == "OK") {
             Toast.fire({
               icon: "success",
-              title: `Đã reset mật khẩu người dùng.`
+              title: `Đã reset mật khẩu người dùng.`,
             });
             bangdstaikhoan.ajax.reload();
           }
         },
-        error: function() {
+        error: function () {
           Toast.fire({
             icon: "error",
-            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`
+            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
           });
-        }
-      })
+        },
+      });
     }
   });
 });
 
-
 // Cập nhật quyền người dùng
-$("#bangdstaikhoan").on("click", "#roleBtn", function() {
+$("#bangdstaikhoan").on("click", "#roleBtn", function () {
   let id = $(this).data("id");
 
   clear_modal();
@@ -277,33 +275,34 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function() {
 
   $("#modal_id").modal("show");
 
-  $("#modal_submit_btn").on('click', function(){
+  $("#modal_submit_btn").on("click", function () {
     $.ajax({
       type: `POST`,
-      url: `update_phan_quyen_nguoi_huong_dan_by_id?id=${id}&role=${$("#modal_role_select").val()}`,
-      success: function(res) {
-        if(res.status=='OK'){
+      url: `update_phan_quyen_nguoi_huong_dan_by_id?id=${id}&role=${$(
+        "#modal_role_select"
+      ).val()}`,
+      success: function (res) {
+        if (res.status == "OK") {
           Toast.fire({
             icon: "success",
-            title: `Đã phân quyền người dùng.`
+            title: `Đã phân quyền người dùng.`,
           });
           $("#modal_id").modal("hide");
           bangdstaikhoan.ajax.reload();
         }
       },
-      error: function() {
+      error: function () {
         Toast.fire({
           icon: "error",
-          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`
+          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
         });
-      }
+      },
     });
   });
 });
 
-
 // Cập nhật thông tin người dùng
-$("#bangdstaikhoan").on("click", "#editBtn", function() {
+$("#bangdstaikhoan").on("click", "#editBtn", function () {
   let id = $(this).data("id");
 
   clear_modal();
@@ -378,7 +377,7 @@ $("#bangdstaikhoan").on("click", "#editBtn", function() {
   $.ajax({
     type: `GET`,
     url: `get_thong_tin_nguoi_huong_dan_by_id?id=${id}`,
-    success: function(res) {
+    success: function (res) {
       hoten.val(res.hoten);
       email.val(res.email);
       sdt.val(res.sdt);
@@ -388,36 +387,35 @@ $("#bangdstaikhoan").on("click", "#editBtn", function() {
       facebook.val(res.facebook);
       github.val(res.github);
       avatar.val(res.avatar);
-    }
+    },
   });
 
-
-  $("#modal_submit_btn").on('click', function(){
+  $("#modal_submit_btn").on("click", function () {
     $.ajax({
       type: `POST`,
       url: `update_chi_tiet_tai_khoan_by_id?id=${id}&hoten=${hoten.val()}&email=${email.val()}&sdt=${sdt.val()}&chucdanh=${chucdanh.val()}&phong=${phong.val()}&zalo=${zalo.val()}&facebook=${facebook.val()}&github=${github.val()}&avatar=${avatar.val()}`,
-      success: function(res) {
-        if(res.status=='OK'){
+      success: function (res) {
+        if (res.status == "OK") {
           Toast.fire({
             icon: "success",
-            title: `Đã cập nhật thông tin.`
+            title: `Đã cập nhật thông tin.`,
           });
           $("#modal_id").modal("hide");
           bangdstaikhoan.ajax.reload();
         }
       },
-      error: function() {
+      error: function () {
         Toast.fire({
           icon: "error",
-          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`
+          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
         });
-      }
+      },
     });
   });
 });
 
 // Tạo thông tin người dùng
-$("#taoTaiKhoanBtn").on("click", function() {
+$("#taoTaiKhoanBtn").on("click", function () {
   clear_modal();
 
   $("#modal_title").text(`Tạo người dùng`);
@@ -491,31 +489,31 @@ $("#taoTaiKhoanBtn").on("click", function() {
   let github = $("#modal_github_input");
   let avatar = $("#modal_avatar_input");
 
-  $("#modal_submit_btn").on('click', function(){
+  $("#modal_submit_btn").on("click", function () {
     $.ajax({
       type: `POST`,
       url: `them_nguoi_huong_dan?hoten=${hoten.val()}&email=${email.val()}&sdt=${sdt.val()}&chucdanh=${chucdanh.val()}&phong=${phong.val()}&username=${username.val()}&zalo=${zalo.val()}&facebook=${facebook.val()}&github=${github.val()}&avatar=${avatar.val()}`,
-      success: function(res) {
-        if(res.status=='OK'){
+      success: function (res) {
+        if (res.status == "OK") {
           Toast.fire({
             icon: "success",
-            title: `Đã thêm người hướng dẫn.`
+            title: `Đã thêm người hướng dẫn.`,
           });
           $("#modal_id").modal("hide");
           bangdstaikhoan.ajax.reload();
-        }else{
+        } else {
           Toast.fire({
             icon: "error",
-            title: `Username đã tồn tại, vui lòng chọn username khác.`
+            title: `Username đã tồn tại, vui lòng chọn username khác.`,
           });
         }
       },
-      error: function() {
+      error: function () {
         Toast.fire({
           icon: "error",
-          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`
+          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
         });
-      }
+      },
     });
   });
 });

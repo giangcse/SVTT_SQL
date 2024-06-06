@@ -191,7 +191,7 @@ def xuat_phieu_danh_gia_controller(id: str):
         return result
     except Exception as e:
         return e
-
+    
 
 def get_ds_nhom_chua_co_cong_viec_controller(username: str):
     return get_ds_nhom_chua_co_cong_viec(username)
@@ -224,6 +224,8 @@ def get_ds_dia_chi_controller():
 def get_danh_sach_nganh_controller():
     return get_danh_sach_nganh()
 
+def them_nganh_controller(ten: str, kyhieu: str, isDeleted: int, idtruong:int):
+    return them_nganh(ten, kyhieu, isDeleted, idtruong)
 
 def get_danh_sach_truong_controller():
     return get_danh_sach_truong()
@@ -380,9 +382,39 @@ def ctu_xuat_phieu_tiep_nhan_controller(sv_id: int):
 def ctu_xuat_phieu_giao_viec_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
 
-
 def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
+
+# chuc nang xuat danh gia
+# def ctu_xuat_phieu_danh_gia_controller(sv_id: int,username:str):
+#     return ctu_xuat_phieu_danh_gia_model(sv_id,username)
+# xoa nganh
+
+def update_xoa_nganh_by_id_controller(id: int):
+    return update_xoa_nganh_by_id(id)
+
+def update_mo_khoa_nganh_by_id_controller(id: int):
+    return update_mo_khoa_nganh_by_id(id)
+
+def get_chi_tiet_nganh_by_id_controller(id: str):
+    result = get_chi_tiet_nganh_by_id(id)
+    return result
+
+def update_nganh_by_id_controller(id: int, ten: str, kyhieu: str, isDeleted: int, idtruong: int):
+    return update_nganh_by_id(id, ten, kyhieu, isDeleted, idtruong)
+
+def delete_nganh_by_id_list_controller(idList: list):
+    return delete_nganh_by_id_list_model(idList)
+
+def query_pdf_path_from_database_controller(id: str,id_bieumau : int):
+    return query_pdf_path_from_database_model(id,id_bieumau)
+  
+def vlute_chinh_sua_danh_gia_controller(id_bieumau: int):
+    return vlute_chinh_sua_danh_gia_model(id)
+  
+def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
+    return chi_tiet_bieu_mau_model(id)
+
 
 
 def get_ds_loai_yeu_cau_controller():

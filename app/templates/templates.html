@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     {% include 'header.html' ignore missing %}
-    <title>Kỳ thực tập | HTQL SVTT</title>
+    <title>QUẢN LÝ BIỂU MẪU | HTQL SVTT</title>
   </head>
 
   <body class="hold-transition sidebar-mini">
@@ -17,12 +17,12 @@
           <div class="container-fluid">
             <div class="row mb-2">
               <div class="col-sm-6">
-                <h1>Kỳ thực tập</h1>
+                <h1>Quản lý biểu mẫu</h1>
               </div>
               <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                   <li class="breadcrumb-item"><a href="#">Home</a></li>
-                  <li class="breadcrumb-item active">Kỳ thực tập</li>
+                  <li class="breadcrumb-item active">Biểu mẫu</li>
                 </ol>
               </div>
             </div>
@@ -35,38 +35,24 @@
           <!-- Map card -->
           <div class="card">
             <div class="card-header border-0 rows">
-              <h3 class="card-title col-lg-3">
+              <h3 class="card-title col-lg-7">
                 <i class="fa-solid fa-list-ol"></i>
-                Danh sách kỳ thực tập
+                Danh sách các biểu mẫu
               </h3>
-              <button
-                class="btn btn-success btn-xs ms-auto"
-                id="themkythuctap_btn"
-              >
-                <i class="fa-solid fa-plus"></i> Thêm kỳ thực tập
-              </button>
             </div>
             <div class="card-body">
               <table
                 class="table table-bordered table-hover"
-                id="bangdskythuctap"
+                id="bangdsbieumau"
               >
                 <thead>
                   <tr>
-                    <th scope="col" style="text-align: center" width="5%">#</th>
-                    <th scope="col" style="text-align: center" width="20%">
-                      Ngày bắt đầu
+                    <th scope="col" style="text-align: center">
+                      <input type="checkbox" id="checkAll" />
                     </th>
-                    <th scope="col" style="text-align: center" width="20%">
-                      Ngày kết thúc
-                    </th>
-                    <th scope="col" style="text-align: center" width="10%">
-                      Trạng thái
-                    </th>
-                    <th scope="col" style="text-align: center">Ghi chú</th>
-                    <th scope="col" style="text-align: center; width: 12%">
-                      Thao tác
-                    </th>
+                    <th scope="col" style="text-align: center">Trường</th>
+
+                    <th scope="col" style="text-align: center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -88,11 +74,9 @@
       <!-- /.control-sidebar -->
     </div>
     <!-- ./wrapper -->
-    <!-- date-range-picker -->
-    <!-- InputMask -->
-    <script src="plugins/moment/moment.min.js"></script>
-    <script src="plugins/inputmask/jquery.inputmask.min.js"></script>
-    <script src="plugins/daterangepicker/daterangepicker.js"></script>
+
+    <!-- jQuery -->
+    <script src="../../plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
@@ -121,6 +105,18 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <script src="dist/js/pages/internships.js"></script>
+    <script src="dist/js/pages/quanlybieumau.js"></script>
+    <!-- Modal để thêm và chỉnh sửa biểu mẫu -->
+    <div id="pdfModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <iframe
+          id="pdfViewer"
+          width="100%"
+          height="500px"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </div>
   </body>
 </html>

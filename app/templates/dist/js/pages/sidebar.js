@@ -51,16 +51,16 @@ function active_nav_link() {
 active_nav_link();
 
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
+  $('[data-toggle="tooltip"]').tooltip();
 });
 
 // Kiểm tra nếu là admin thì hiện menu hệ thống
 $.ajax({
   type: `GET`,
   url: `checkIsAdmin`,
-  success: function(res){
-    if(res.status=='OK'){
+  success: function (res) {
+    if (res.status == "OK") {
       $("#hethong_quanlytaikhoan").prop("hidden", false);
     }
-  }
+  },
 });

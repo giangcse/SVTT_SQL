@@ -1,3 +1,4 @@
+import os
 from ..config import create_connection
 from ..send_otp import is_otp_valid
 import datetime
@@ -627,16 +628,38 @@ def get_ds_dia_chi():
 
 def get_danh_sach_nganh():
     try:
-        result = cursor.execute("SELECT ID, Ten FROM Nganh").fetchall()
-        return [{'id': i[0], 'ten': i[1]} for i in result]
+        query = """
+            SELECT N.ID, N.Ten, N.KyHieu, N.isDeleted, T.Ten as TenTruong
+            FROM Nganh N
+            JOIN Truong T ON N.id_truong = T.ID
+        """
+        result = cursor.execute(query).fetchall()
+        danh_sach_nganh = [
+            {'id': i[0], 'ten': i[1], 'kyhieu': i[2], 'isDeleted': i[3], 'ten_truong': i[4]}
+            for i in result
+        ]
+        return danh_sach_nganh
     except Exception as e:
         return e
-
-
+def update_chi_tiet_nganh_by_id(id: int, ten: str, kyhieu: str, idtruong:int):
+    try:
+        result = cursor.execute("EXEC UpdateNganhByID ?, ?, ?, ?", id, protect_xss(ten), protect_xss(kyhieu), idtruong)
+        cursor.commit()
+        return True
+    except Exception as e:
+        return e
 def get_danh_sach_truong():
     try:
-        result = cursor.execute("SELECT ID, Ten FROM Truong").fetchall()
-        return [{'id': i[0], 'ten': i[1]} for i in result]
+        query = """
+        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau
+        FROM BIEUMAU bm 
+        JOIN TRUONG t 
+        ON bm.truong = t.id
+        ORDER BY bm.truong;
+        """
+        result = cursor.execute(query).fetchall()
+        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4]} for row in result]
+        return danh_sach_truong
     except Exception as e:
         return e
 
@@ -938,6 +961,32 @@ def them_nguoi_huong_dan(hoten: str, sdt: str, email: str, chucdanh: str, phong:
     except Exception as e:
         return e
 
+def them_nganh(ten: str, kyhieu: str, isDeleted: int, idtruong: int):
+    try:
+        ten = protect_xss(ten)
+        kyhieu = protect_xss(kyhieu)
+        
+        # Check if kyhieu exists
+        check_query = "SELECT COUNT(*) FROM Nganh WHERE kyhieu = ?"
+        cursor.execute(check_query, (kyhieu,))
+        exists = cursor.fetchone()[0]
+        
+        if exists > 0:
+            return {'status': 'EXIST'}
+        else:
+            
+            query = """
+                INSERT INTO Nganh (Ten, KyHieu, isDeleted, id_truong)
+                OUTPUT INSERTED.ID
+                VALUES (?, ?, ?, ?)
+            """
+            cursor.execute(query, (protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong))
+            kq_insert_nganh = cursor.fetchone()[0]
+            conn.commit()
+            return {'status': 'OK', 'result': kq_insert_nganh}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {'status': 'ERROR', 'message': str(e)}
 
 def update_thong_tin_sv(sv_id: int, mssv: str, hoten: str, gioitinh: int, sdt: str, email: str, diachi: str, malop: str, khoa: int, nganh: int, truong: int):
     try:
@@ -961,7 +1010,168 @@ def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
     except Exception as e:
         return e
 
+# BRANCH THUAN
+# def xuat_phieu_danh_gia_ctu_model(sv_id: int, username: str):
+#     try:
+#         r = cursor.execute("EXEC GetDanhGiaSVByID ?, ?", sv_id, protect_xss(username)).fetchone()
+#         if r:
+#             return {'ythuckyluat_number': r[3], 'ythuckyluat_text': r[4], 'tuanthuthoigian_number': r[5], 'tuanthuthoigian_text': r[6], 'kienthuc_number': r[7], 'kienthuc_text': r[8], 'kynangnghe_number': r[9], 'kynangnghe_text': r[10], 'khanangdoclap_number': r[11], 'khanangdoclap_text': r[12], 'khanangnhom_number': r[13], 'khanangnhom_text': r[14], 'khananggiaiquyetcongviec_number': r[15], 'khananggiaiquyetcongviec_text': r[16], 'danhgiachung_number': r[17]}
+#         else:
+#             return None
+#     except Exception as e:
+#         return e
 
+# #Chuc nang xuat phieu danh gia 
+# def ctu_xuat_danh_gia(sv_id: int, username: str):
+#     try:
+#         r = cursor.execute("EXEC UpdateDanhGiaSVByID ?, ?", sv_id, protect_xss(username)).fetchone()
+#         if r:
+#             return {'ythuckyluat_number': r[3], 'ythuckyluat_text': r[4], 'tuanthuthoigian_number': r[5], 'tuanthuthoigian_text': r[6], 'kienthuc_number': r[7], 'kienthuc_text': r[8], 'kynangnghe_number': r[9], 'kynangnghe_text': r[10], 'khanangdoclap_number': r[11], 'khanangdoclap_text': r[12], 'khanangnhom_number': r[13], 'khanangnhom_text': r[14], 'khananggiaiquyetcongviec_number': r[15], 'khananggiaiquyetcongviec_text': r[16], 'danhgiachung_number': r[17]}
+#         else:
+#             return None
+#     except Exception as e:
+#         return e
+
+def update_xoa_nganh_by_id(id: int):
+    try:
+        query = "UPDATE Nganh SET isDeleted = 1 WHERE ID = ?"
+        result = cursor.execute(query, id).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+def update_mo_khoa_nganh_by_id(id: int):
+    try:
+        query = "UPDATE Nganh SET isDeleted = 0 WHERE ID = ?"
+        result = cursor.execute(query, id).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+def get_chi_tiet_nganh_by_id(id: str):
+    try:
+        
+        result = cursor.execute("EXEC GetChiTietNganhByID ?", id).fetchone()
+        return {'id': result[0], 'ten': result[1], 'kyhieu': result[2], 'isDeleted': result[3], 'id_truong': result[4],'ten_truong': result[5]}
+    except Exception as e:
+        return e
+def update_nganh_by_id(id:int, ten:str,kyhieu:str,isDeleted:int,idtruong:int):
+    try:
+        ten = protect_xss(ten)
+        kyhieu = protect_xss(kyhieu)
+        
+        # Check if kyhieu exists
+        check_query = "SELECT COUNT(*) FROM nganh WHERE kyhieu = ? AND id != ?"
+        cursor.execute(check_query, (kyhieu,id))
+        exists = cursor.fetchone()[0]
+        
+        if exists > 0:
+            return {'status': 'EXIST'}
+        query = "UPDATE Nganh SET Ten = ?, KyHieu = ?, isDeleted = ?, id_truong = ? WHERE ID = ?"
+        result = cursor.execute(query, protect_xss(ten), protect_xss(kyhieu), isDeleted, idtruong,id).rowcount
+        cursor.commit()
+        return {'status': 'OK', 'result': result}
+    except Exception as e:
+        return e
+# def get_danhsach_templates():
+#     try:
+#         query = """
+#         select tem.id, tem.name, tem.content, t.Ten as TenTruong 
+#         from Template tem 
+#         JOIN Truong t ON tem.truong_id = t.ID
+#         """
+#         result = cursor.execute(query).fetchall()
+#         danh_sach_templates = [
+#             {'id': i[0], 'name': i[1], 'content': i[2], 'ten_truong': i[3]}
+#             for i in result
+#         ]
+#         return danh_sach_templates
+#     except Exception as e:
+#         return e
+def delete_nganh_by_id_list_model(idList: list):
+    try:
+        placeholders = ','.join(['?'] * len(idList))
+        query = "DELETE FROM Nganh WHERE ID IN ({})".format(placeholders)
+        result = cursor.execute(query, idList).rowcount
+        cursor.commit()
+        return {'status': 'OK', 'deleted_count': result}
+    except Exception as e:
+        print(e)
+        return {'status': 'ERROR', 'message': str(e)}
+
+
+def query_pdf_path_from_database_model(id: str, id_bieumau: int) -> str:
+    try:
+        # Construct the SQL query
+        query = "SELECT Data, TenBieuMau, Extension AS extn FROM BIEUMAU WHERE id = ? AND truong = ?"
+        
+        # Execute the query with the provided parameters
+        cursor.execute(query, (id_bieumau,id))
+
+        # Fetch the first result from the query
+        row = cursor.fetchone()
+
+        if row:
+            # Extract the data, tenbieumau, and extension from the row
+            data, tenbieumau, extn = row
+            
+            # Generate a unique filename based on tenbieumau and extension
+            filename = f"{tenbieumau}.{extn}"
+            
+            # Define the directory to save the PDF files
+            pdf_directory = 'pdf'
+            if not os.path.exists(pdf_directory):
+                os.makedirs(pdf_directory)
+            
+            # Define the output file path
+            output_file_path = os.path.join(pdf_directory, filename)
+            
+            # Write the file data to the output path
+            with open(output_file_path, 'wb') as f:
+                f.write(data)
+            
+            # Return the path to the saved file
+            return output_file_path
+        else:
+            print("No row found for the provided IDs")
+            return None
+    except Exception as e:
+        # Print any errors that occur during the process
+        print(f"Error retrieving file: {e}")
+        return None
+
+def vlute_chinh_sua_danh_gia_model(id_bieumau:int):
+    try:
+        query = """
+        select data,extension as ext from BIEUMAU where id = ?
+        """
+        i = cursor.execute(query, id_bieumau).fetchone()
+        return {'data': i[0], 'ext': i[1]}
+    except Exception as e:
+        return e
+    
+#doc file pdf 
+def get_pdf_from_database(id):
+    cursor.execute("SELECT tenbieumau, extension FROM BieuMau WHERE id=?", id)
+    row = cursor.fetchone()
+    if row:
+        pdf_data = row.tenbieumau
+        extension = row.extension
+        return pdf_data, extension
+    else:
+        return None, None
+def chi_tiet_bieu_mau_model(id:str, id_bieumau:int):
+    try:
+        query = """
+        select data,extension as ext from BIEUMAU where id = ? AND truong = ?
+        """
+        i = cursor.execute(query, id_bieumau, id).fetchone()
+        return {'data': i[0], 'ext': i[1]}
+    except Exception as e:
+        return e
+      
+
+#BRANCH DUY ANH
 # LẤY DANH SÁCH TẤT CẢ LOẠI YÊU CẦU IN PHIẾU
 def get_ds_loai_yeu_cau():
     try:
