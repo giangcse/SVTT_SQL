@@ -37,12 +37,18 @@
           <div class="row">
             <div class="col-6">
               <div class="card-header border-0 rows">
-                <h3 class="card-title pr-2 pt-1">
+                <h3 class="card-title pr-2 py-1">
                   <i class="fa-solid fa-list-ol"></i>
                   Danh sách yêu cầu
                 </h3>
                 <button class="btn btn-success btn-xs ms-auto" id="thembanin_btn"><i class="fa-solid fa-plus"></i>
                   Tạo bản in</button>
+                <div class="form-group col-lg-6 pt-2 pr-3">
+                  <select name="filter_kythuctap" id="filter_chonkythuctap" class="form-control select2" height="120%">
+                    <option disabled>-- CHỌN KỲ THỰC TẬP --</option>
+                    <option value="-1" selected>Tất cả</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="col-6 d-flex flex-row-reverse pr-5 pt-2">

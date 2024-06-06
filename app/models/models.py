@@ -961,9 +961,22 @@ def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
     except Exception as e:
         return e
 
+
+# LẤY DANH SÁCH TẤT CẢ LOẠI YÊU CẦU IN PHIẾU
 def get_ds_loai_yeu_cau():
     try:
         result = cursor.execute("SELECT ID, LoaiYeuCau FROM [QL_SinhVien].[dbo].[LOAIYEUCAU]").fetchall()
+        return [{'id': i[0], 'loaiyeucau': i[1]} for i in result]
+    except Exception as e:
+        return e
+    
+
+# LẤY DANH SÁCH LOẠI YÊU CẦU THEO TỪNG SINH VIÊN
+def get_ds_loai_yeu_cau_by_sv(sv_id: int):
+    try:
+        result = cursor.execute("SELECT lyc.ID, lyc.LoaiYeuCau FROM LOAIYEUCAU lyc inner join LOAIYEUCAU_TRUONG "
+                                "lyct on lyc.ID = lyct.LOAIYEUCAU inner join SINHVIEN sv on lyct.TRUONG = sv.Truong "
+                                "WHERE sv.ID = ?;", sv_id).fetchall()
         return [{'id': i[0], 'loaiyeucau': i[1]} for i in result]
     except Exception as e:
         return e
@@ -1004,19 +1017,6 @@ def gui_yeu_cau_in_phieu_by_nguoi_huong_dan(ids: list, idloaiyeucau: int, nhd_id
         return e
     
     
-# def update_xoa_yeu_cau_in_phieu_by_id(id: int):
-#     try:
-#         r = cursor.execute(
-#             "EXEC UpdateXoaYeuCauInPhieuByID ?", id).rowcount
-#         cursor.commit()
-#         if r == 1:
-#             return True
-#         else:
-#             return False
-#     except Exception as e:
-#         return e
-    
-    
 def update_xoa_yeu_cau_in_phieu_by_id(ids: list):
     try:
         r = 0
@@ -1029,11 +1029,9 @@ def update_xoa_yeu_cau_in_phieu_by_id(ids: list):
         return e
 
 
-def get_all_yeu_cau_in_phieu():
+def get_all_yeu_cau_in_phieu(kythuctap: str):
     try:
-        result = cursor.execute("SELECT yc.id, sv.HoTen, sv.Email, loaiyeucau, CONVERT(VARCHAR, ngaygui, 103) as ngayguiyc, CONVERT(VARCHAR, NgayXuLy, 103) as ngayxuly, trangthai "
-                                "FROM YeuCauInPhieu yc inner join LOAIYEUCAU lyc on lyc.ID = yc.ID_LoaiYeuCau inner join SINHVIEN sv on yc.ID_SinhVien = sv.ID "
-                                "ORDER BY ngaygui DESC")
+        result = cursor.execute("EXEC GetAllYeuCauInPhieu ?", kythuctap)
         return [{'id': i[0], 'hotensv': i[1], 'emailsv': i[2], 'loaiyeucau':i[3], 'ngayguiyc':i[4], 'ngayxuly':i[5], 'trangthai':i[6]} for i in result.fetchall()]
     except Exception as e:
         return e

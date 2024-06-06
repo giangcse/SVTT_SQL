@@ -32,7 +32,7 @@ $(document).ready(function () {
   let filter_chonloaiyeucau = $("#filter_chonloaiyeucau");
   $.ajax({
     type: "GET",
-    url: `get_ds_loai_yeu_cau`,
+    url: `get_ds_loai_yeu_cau_by_sv`,
     success: function (res) {
       $.each(res, function (idx, val) {
         filter_chonloaiyeucau.append(
@@ -152,6 +152,11 @@ $(document).ready(function () {
             Toast.fire({
               icon: "warning",
               title: "Chưa đến thời hạn in phiếu đánh giá",
+            });
+          }  else if(res.status == "NOT OK"){
+            Toast.fire({
+              icon: "warning",
+              title: "Yêu cầu này đã được gửi",
             });
           }
           else {

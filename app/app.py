@@ -1810,6 +1810,20 @@ async def get_ds_loai_yeu_cau_route():
     return JSONResponse(status_code=200, content=get_ds_loai_yeu_cau_controller())
 
 
+@app.get('/get_ds_loai_yeu_cau_by_sv')
+async def get_ds_loai_yeu_cau_by_sv_route(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            sv_id = payload.get("id")
+            if permission == "student":
+                return JSONResponse(status_code=200, content=get_ds_loai_yeu_cau_by_sv_controller(sv_id))
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
 @app.post('/gui_yeu_cau_in_phieu')
 async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None)):
     if token:
@@ -1897,13 +1911,13 @@ async def update_xoa_yeu_cau_in_phieu_by_id_route(req: ListRequest, token: str =
 
 
 @app.get('/get_all_yeu_cau_in_phieu')
-async def get_all_yeu_cau_in_phieu_route(token: str = Cookie(None)):
+async def get_all_yeu_cau_in_phieu_route(kythuctap: str, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             permission = payload.get("permission")
             if permission == "admin" or "user":
-                data = get_all_yeu_cau_in_phieu_controller()
+                data = get_all_yeu_cau_in_phieu_controller(kythuctap)
                 response_data = {"data": data}
                 return JSONResponse(content=response_data, status_code=200)
         except jwt.PyJWTError:
@@ -1943,116 +1957,6 @@ async def canh_bao_yeu_cau_in_phieu_route(loaiyeucau: str, token: str = Cookie(N
     return RedirectResponse('/login')
 
 
-# @app.get('/sv_ctu_xuat_phieu_tiep_nhan')
-# async def sv_ctu_xuat_phieu_tiep_nhan_route(id: str, token: str = Cookie(None)):
-#     if token:
-#         try:
-#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#             permission = payload.get("permission")
-#             sv_id = payload.get("id")
-#             if permission == "student":
-#                 if (check_yeu_cau_in_phieu_controller(id)==1):
-#                     i = ctu_xuat_phieu_tiep_nhan_controller(sv_id)
-#                     if i is not TypeError:
-#                         if i['kyhieu_truong'] == "CTU" or i['kyhieu_truong'] == "DNC":
-#                             data: dict = {
-#                                 "ngaybatdau": i['ngaybatdau'],
-#                                 "ngayketthuc": i['ngayketthuc'],
-#                                 "nhd_hoten": i['nguoihuongdan'],
-#                                 "nhd_sdt": i['sdt_nguoihuongdan'],
-#                                 "nhd_email": i['email_nguoihuongdan'],
-#                                 "sv_hoten": i['hoten'],
-#                                 "sv_mssv": i['mssv'],
-#                                 "sv_malop": i['malop'],
-#                                 "sv_nganh": i['nganh']
-#                             }
-#                             headers = {
-#                                 # Mở tệp PDF trong trình duyệt
-#                                 "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
-#                                 "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
-#                             }
-#                             username=get_username_nguoi_huong_dan_by_sv_id_controller(sv_id)
-#                             r = ctu_xuat_phieu_tiep_nhan(
-#                                 'pdf/phieutiepnhan_ctu.pdf', f"phieutiepnhan_{i['mssv']}.pdf", data, username)
-#                             if r:
-#                                 with open(r, 'rb') as f:
-#                                     docx_content = f.read()
-
-#                                 os.remove(os.path.join(
-#                                     f'DOCX/{username}', f"phieutiepnhan_{i['mssv']}.pdf"))
-#                                 return Response(content=docx_content, headers=headers)
-#                         else:
-#                             return JSONResponse(status_code=200, content={'status': 'Phiếu chỉ dành cho SV ĐH Cần Thơ (CTU)'})
-#                     else:
-#                         return JSONResponse(status_code=400, content={'status': 'ERR'})
-#                 else:
-#                     return JSONResponse(status_code=200, content={'status': 'Phiếu không được phê duyệt'})
-#             else:
-#                 return JSONResponse(status_code=404, content={'status': 'Lỗi khi xuất phiếu'})
-#         except jwt.PyJWTError:
-#             return RedirectResponse('/login')
-#     return RedirectResponse('/login')
-
-
-# @app.get('/sv_ctu_xuat_phieu_giao_viec')
-# async def sv_ctu_xuat_phieu_giao_viec_route(id: str, token: str = Cookie(None)):
-#     if token:
-#         try:
-#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#             permission = payload.get("permission")
-#             sv_id = payload.get("id")
-#             if permission == "student":
-#                 if (check_yeu_cau_in_phieu_controller(id)==1):
-#                     username=get_username_nguoi_huong_dan_by_sv_id_controller(sv_id)
-#                     i = ctu_xuat_phieu_giao_viec_controller(sv_id, username)
-#                     # return JSONResponse(status_code=200, content=i)
-#                     if i is not TypeError:
-#                         if i['kyhieu_truong'] == "CTU"  or i['kyhieu_truong'] == "DNC":
-#                             data: dict = {
-#                                 "sv_hoten": i['sv_hoten'],
-#                                 "sv_mssv": i['sv_mssv'],
-#                                 "ngaybatdau": i['ktt_ngaybatdau'],
-#                                 "ngayketthuc": i['ktt_ngayketthuc'],
-#                                 "nhd_hoten": i['nguoihuongdan_hoten']
-#                             }
-
-#                             for cv in range(0, 8):
-#                                 try:
-#                                     data[f'tuan{int(cv)+1}_batdau'] = i['congviec'][cv]['ngaybatdau']
-#                                     data[f'tuan{int(cv)+1}_ketthuc'] = i['congviec'][cv]['ngayketthuc']
-#                                     data[f'tuan{int(cv)+1}_congviec'] = i['congviec'][cv]['tencongviec']
-#                                 except IndexError:
-#                                     data[f'tuan{int(cv)+1}_batdau'] = ""
-#                                     data[f'tuan{int(cv)+1}_ketthuc'] = ""
-#                                     data[f'tuan{int(cv)+1}_congviec'] = ""
-
-#                             headers = {
-#                                 # Mở tệp PDF trong trình duyệt
-#                                 "Content-Disposition": f"inline; filename={i['sv_mssv']}.pdf",
-#                                 "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
-#                             }
-#                             r = ctu_xuat_phieu_giao_viec(
-#                                 'pdf/phieugiaoviec_ctu.pdf', f"phieugiaoviec_{i['sv_mssv']}.pdf", data, username)
-#                             if r:
-#                                 with open(r, 'rb') as f:
-#                                     docx_content = f.read()
-
-#                                 os.remove(os.path.join(
-#                                     f'DOCX/{username}', f"phieugiaoviec_{i['sv_mssv']}.pdf"))
-#                                 return Response(content=docx_content, headers=headers)
-#                         else:
-#                             return JSONResponse(status_code=200, content={'status': 'Phiếu chỉ dành cho SV ĐH Cần Thơ (CTU)'})
-#                     else:
-#                         return JSONResponse(status_code=400, content={'status': 'Sinh viên chưa có công việc'})
-#                 else:
-#                     return JSONResponse(status_code=200, content={'status': 'Phiếu không được phê duyệt'})
-#             else:
-#                 return JSONResponse(status_code=404, content={'status': 'Lỗi khi xuất phiếu'})
-#         except jwt.PyJWTError:
-#             return RedirectResponse('/login')
-#     return RedirectResponse('/login')
-
-
 @app.get('/sv_xuat_phieu')
 async def sv_xuat_phieu_route(id: str, token: str = Cookie(None)):
     if token:
@@ -2064,8 +1968,9 @@ async def sv_xuat_phieu_route(id: str, token: str = Cookie(None)):
                 truong = get_ky_hieu_truong_by_sv_id(sv_id)
                 if truong == "CTU":
                     return RedirectResponse(f'/sv_ctu_xuat_phieu?id={id}')
-                # else truong == "DNC":
-                # else truong == "VLUTE":
+                # elif truong == "DNC":
+                elif truong == "VLUTE":
+                    return RedirectResponse(f'/sv_vlute_xuat_phieu?id={id}')
                 else:
                     return JSONResponse(status_code=400, content={'status': 'ERR'})
         except jwt.PyJWTError:
@@ -2090,7 +1995,7 @@ async def sv_ctu_xuat_phieu_route(id: str, token: str = Cookie(None)):
                 if (ttyeucau['trangthai']==1):
                     
                     # Nếu yêu cầu là in phiếu tiếp nhận
-                    if ttyeucau['loaiyeucau']=="In phiếu tiếp nhận":
+                    if "In phiếu tiếp nhận" in ttyeucau['loaiyeucau']:
                         i = ctu_xuat_phieu_tiep_nhan_controller(sv_id)
                         if i is not TypeError:
                             if i['kyhieu_truong'] == "CTU" or i['kyhieu_truong'] == "DNC":
@@ -2125,7 +2030,7 @@ async def sv_ctu_xuat_phieu_route(id: str, token: str = Cookie(None)):
                             return JSONResponse(status_code=400, content={'status': 'ERR'})
                         
                     # Nếu yêu cầu là in phiếu giao việc
-                    elif ttyeucau['loaiyeucau']=="In phiếu giao việc":
+                    elif "In phiếu giao việc" in ttyeucau['loaiyeucau']:
                         i = ctu_xuat_phieu_giao_viec_controller(sv_id, username)
                         # return JSONResponse(status_code=200, content=i)
                         if i is not TypeError:
@@ -2168,7 +2073,7 @@ async def sv_ctu_xuat_phieu_route(id: str, token: str = Cookie(None)):
                             return JSONResponse(status_code=400, content={'status': 'Sinh viên chưa có công việc'})
                         
                     # Nếu yêu cầu là in phiếu theo dõi
-                    elif ttyeucau['loaiyeucau']=="In phiếu theo dõi":
+                    elif "In phiếu theo dõi" in ttyeucau['loaiyeucau']:
                         i = ctu_xuat_phieu_theo_doi_controller(sv_id, username)
                         # return JSONResponse(status_code=200, content=i)
                         if i is not TypeError:
@@ -2211,8 +2116,91 @@ async def sv_ctu_xuat_phieu_route(id: str, token: str = Cookie(None)):
                             return JSONResponse(status_code=400, content={'status': 'Sinh viên chưa có công việc'})
                         
                     # Nếu yêu cầu là in phiếu đánh giá
-                    elif ttyeucau['loaiyeucau']=="In phiếu đánh giá":
+                    elif "In phiếu đánh giá" in ttyeucau['loaiyeucau']:
                         return JSONResponse(status_code=400, content={'status': 'Chức năng sắp ra mắt :D'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'Phiếu không được phê duyệt'})
+            else:
+                return JSONResponse(status_code=404, content={'status': 'Lỗi khi xuất phiếu'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/sv_vlute_xuat_phieu')
+async def sv_vlute_xuat_phieu_route(id: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            sv_id = payload.get("id")
+            username=get_username_nguoi_huong_dan_by_sv_id_controller(sv_id)
+            if permission == "student":
+                ttyeucau = check_yeu_cau_in_phieu_controller(id)
+                # Kiểm tra có lấy được thông tin yêu cầu từ bảng yêu cầu hay không
+                if not isinstance(ttyeucau, dict) or 'trangthai' not in ttyeucau or ttyeucau['trangthai'] is None or ttyeucau['trangthai'] is TypeError:
+                    return JSONResponse(status_code=200, content={'status': 'Phiếu không tồn tại'})
+                if (ttyeucau['trangthai']==1):
+                    
+                    # Nếu yêu cầu là in phiếu tiếp nhận
+                    if ttyeucau['loaiyeucau']=="In phiếu tiếp nhận":
+                        return JSONResponse(status_code=200, content={'status': 'Chức năng sắp ra mắt cho sinh viên VLUTE'})
+                        
+                    # Nếu yêu cầu là in phiếu giao việc
+                    elif ttyeucau['loaiyeucau']=="In phiếu giao việc":
+                        return JSONResponse(status_code=200, content={'status': 'Chức năng sắp ra mắt cho sinh viên VLUTE'})
+                        
+                    # Nếu yêu cầu là in phiếu theo dõi
+                    elif ttyeucau['loaiyeucau']=="In phiếu theo dõi":
+                        return JSONResponse(status_code=200, content={'status': 'Chức năng sắp ra mắt cho sinh viên VLUTE'})
+                        
+                    # Nếu yêu cầu là in phiếu đánh giá
+                    elif "In phiếu đánh giá" in ttyeucau['loaiyeucau']:
+                        i = xuat_phieu_danh_gia_controller(sv_id)
+                        if i is not TypeError and i is not None:
+                            headers = {
+                                # Mở tệp PDF trong trình duyệt
+                                "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
+                                "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
+                            }
+                            if i['kyhieu_truong'] == "VLUTE":
+                                data: dict = {
+                                    "student_fullname": i['hoten'],
+                                    "student_class": i['malop'],
+                                    "mentor_fullname": i['nguoihuongdan'],
+                                    "r1_text": i['ythuckyluat_text'],
+                                    "r2_text": i['tuanthuthoigian_text'],
+                                    "r3_text": i['kienthuc_text'],
+                                    "r4_text": i['kynangnghe_text'],
+                                    "r5_text": i['khanangdoclap_text'],
+                                    "r6_text": i['khanangnhom_text'],
+                                    "r7_text": i['khananggiaiquyetcongviec_text'],
+                                    "r1_number": str(i['ythuckyluat_number']),
+                                    "r2_number": str(i['tuanthuthoigian_number']),
+                                    "r3_number": str(i['kienthuc_number']),
+                                    "r4_number": str(i['kynangnghe_number']),
+                                    "r5_number": str(i['khanangdoclap_number']),
+                                    "r6_number": str(i['khanangnhom_number']),
+                                    "r7_number": str(i['khananggiaiquyetcongviec_number']),
+                                    "r8_number": str(i['danhgiachung_number'])
+                                }
+                                r = vlute_xuat_danh_gia(
+                                    'pdf/phieudanhgia_vlute.pdf', f"{i['mssv']}.pdf", data, username)
+                                if r:
+                                    with open(r, 'rb') as f:
+                                        docx_content = f.read()
+
+                                    os.remove(os.path.join(
+                                        f'DOCX/{username}', f"{i['mssv']}.pdf"))
+                                    return Response(content=docx_content, headers=headers)
+                                else:
+                                    return JSONResponse(status_code=400, content={'status': 'ERR'})
+                            else:
+                                return JSONResponse(status_code=200, content={'status': 'Phiếu chỉ dành cho sinh viên SPKT Vĩnh Long (VLUTE)'})
+                        else:
+                            return JSONResponse(status_code=404, content={'status': 'Sinh viên chưa có đánh giá'})
+                        
+                        
                 else:
                     return JSONResponse(status_code=200, content={'status': 'Phiếu không được phê duyệt'})
             else:

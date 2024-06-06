@@ -389,6 +389,10 @@ def get_ds_loai_yeu_cau_controller():
     return get_ds_loai_yeu_cau()
 
 
+def get_ds_loai_yeu_cau_by_sv_controller(sv_id: int):
+    return get_ds_loai_yeu_cau_by_sv(sv_id)
+
+
 def gui_yeu_cau_in_phieu_controller(sv_id: int, idloaiyeucau: int):
     return gui_yeu_cau_in_phieu(sv_id, idloaiyeucau)
 
@@ -405,8 +409,8 @@ def update_xoa_yeu_cau_in_phieu_by_id_controller(ids: list):
     return update_xoa_yeu_cau_in_phieu_by_id(ids)
 
 
-def get_all_yeu_cau_in_phieu_controller():
-    return get_all_yeu_cau_in_phieu()
+def get_all_yeu_cau_in_phieu_controller(kythuctap: str):
+    return get_all_yeu_cau_in_phieu(kythuctap)
 
 
 def update_yeu_cau_in_phieu_controller(ids: list, id_nxl: int, trangthai: int):

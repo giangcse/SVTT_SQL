@@ -16,249 +16,270 @@ function clear_modal() {
   $("#modal_footer").empty();
 }
 
-bangdsyeucau = $("#bangdsyeucau").DataTable({
-  paging: true,
-  lengthChange: false,
-  searching: true,
-  ordering: true,
-  info: true,
-  autoWidth: false,
-  responsive: true,
-  ajax: {
+
+$(document).ready(function () {
+  $(".select2").select2({
+    theme: "bootstrap",
+  });
+  $.ajax({
     type: "GET",
-    url: "get_all_yeu_cau_in_phieu",
-    dataSrc: "data",
-  },
-  columns: [
-    {
-      data: null,
-      render: function (data, type, row, meta) {
-        // Use meta.row to get the current row index, and add 1 to start from 1
-        return "<center>" + (meta.row + 1) + "<br><input type='checkbox' class='row-checkbox' data-id='" + row.id + "'></center>";
-      },
+    url: "/get_all_ky_thuc_tap",
+    success: function (data) {
+      let filter_chonkythuctap = $("#filter_chonkythuctap");
+      data.forEach((element) => {
+        filter_chonkythuctap.append(
+          `<option value="${element.id}">${element.ngaybatdau} - ${element.ngayketthuc}</option>`
+        );
+      });
     },
-    {
-      data: null,
-      render: function (data, type, row) {
-        // Combine loaiyeucau and ngaygui
-        return row.hotensv + "<br><small><i>" + row.emailsv + "</i></small>";
-      },
-    },
-    { data: "loaiyeucau" },
-    { data: "ngayguiyc" },
-    { data: "ngayxuly" },
-    {
-      data: "trangthai",
-      render: function (data, type, row) {
-        if (data == 0) {
-          return '<center><span class="badge badge-warning"><i class="fa-solid fa-clock"></i>&nbsp; Chờ phê duyệt</span></center>';
-        } else if (data == 1) {
-          return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i>&nbsp; Đã phê duyệt</span></center>';
-        } else {
-          return '<center><span class="badge badge-danger"><i class="fa-solid fa-xmark"></i>&nbsp; Bị từ chối</span></center>';
-        }
+  });
+  create_table("-1");
 
-      },
-    },
-    {
-      data: "id",
-      render: function (data, type, row) {
-        if(row.trangthai==0){
-          return (
-            `<center>
-              <a class="btn btn-success btn-sm" id="checkBtn" data-id="${data}"><i class="fas fa-check"></i></a>
-              <a class="btn btn-warning btn-sm" id="rejectBtn" data-id="${data}"><i class="fas fa-close"></i></a>
-            </center>`
-          );
-        } else if(row.trangthai==1){
-          return (
-            `<center>
-              <a class="btn btn-warning btn-sm" id="rejectBtn" data-id="${data}"><i class="fas fa-close"></i></a> 
-              <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}"><i class="fas fa-trash"></i></a>  
-            </center>`
-          );
-        } else {
-          return (
-            `<center> 
-              <a class="btn btn-success btn-sm" id="checkBtn" data-id="${data}"><i class="fas fa-check"></i></a>
-              <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}"><i class="fas fa-trash"></i></a>
-            </center>`
-          );
-        }
-      },
-    },
-  ],
+  $("#filter_chonkythuctap").on("change", function () {
+    let id = $("#filter_chonkythuctap").val();
+    create_table(id);
+  });
 });
 
-// Sự kiện khi nhấn vào hàng để chọn checkbox tương ứng
-$('#bangdsyeucau tbody').on('click', 'tr', function() {
-  var checkbox = $(this).find('.row-checkbox');
-  checkbox.prop('checked', !checkbox.prop('checked'));
-  updateSelectedIds(checkbox);
-});
+function create_table(kythuctap) {
+  bangdsyeucau = $("#bangdsyeucau").DataTable({
+    paging: true,
+    lengthChange: false,
+    searching: true,
+    ordering: true,
+    info: true,
+    destroy: true,
+    autoWidth: false,
+    responsive: true,
+    ajax: {
+      type: "GET",
+      url: `get_all_yeu_cau_in_phieu?kythuctap=${kythuctap}`,
+      dataSrc: "data",
+    },
+    columns: [
+      {
+        data: null,
+        render: function (data, type, row, meta) {
+          // Use meta.row to get the current row index, and add 1 to start from 1
+          return "<center>" + (meta.row + 1) + "<br><input type='checkbox' class='row-checkbox' data-id='" + row.id + "'></center>";
+        },
+      },
+      {
+        data: null,
+        render: function (data, type, row) {
+          // Combine loaiyeucau and ngaygui
+          return row.hotensv + "<br><small><i>" + row.emailsv + "</i></small>";
+        },
+      },
+      { data: "loaiyeucau" },
+      { data: "ngayguiyc" },
+      { data: "ngayxuly" },
+      {
+        data: "trangthai",
+        render: function (data, type, row) {
+          if (data == 0) {
+            return '<center><span class="badge badge-warning"><i class="fa-solid fa-clock"></i>&nbsp; Chờ phê duyệt</span></center>';
+          } else if (data == 1) {
+            return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i>&nbsp; Đã phê duyệt</span></center>';
+          } else {
+            return '<center><span class="badge badge-danger"><i class="fa-solid fa-xmark"></i>&nbsp; Bị từ chối</span></center>';
+          }
+  
+        },
+      },
+      {
+        data: "id",
+        render: function (data, type, row) {
+          if(row.trangthai==0){
+            return (
+              `<center>
+                <a class="btn btn-success btn-sm" id="checkBtn" data-id="${data}"><i class="fas fa-check"></i></a>
+                <a class="btn btn-warning btn-sm" id="rejectBtn" data-id="${data}"><i class="fas fa-close"></i></a>
+              </center>`
+            );
+          } else {
+            return (
+              `<center> 
+                <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}"><i class="fas fa-trash"></i></a>
+              </center>`
+            );
+          }
+        },
+      },
+    ],
+  });
 
-// Hàm cập nhật mảng selectedIds
-function updateSelectedIds(checkbox) {
-  var id = checkbox.data('id');
-  if (checkbox.prop('checked')) {
-    // Nếu checkbox được chọn, thêm ID vào mảng
-    if (!selectedIds.includes(id)) {
-      selectedIds.push(id);
+
+  // Sự kiện khi nhấn vào hàng để chọn checkbox tương ứng
+  $('#bangdsyeucau tbody').on('click', 'tr', function() {
+    var checkbox = $(this).find('.row-checkbox');
+    checkbox.prop('checked', !checkbox.prop('checked'));
+    updateSelectedIds(checkbox);
+  });
+
+  // Hàm cập nhật mảng selectedIds
+  function updateSelectedIds(checkbox) {
+    var id = checkbox.data('id');
+    if (checkbox.prop('checked')) {
+      // Nếu checkbox được chọn, thêm ID vào mảng
+      if (!selectedIds.includes(id)) {
+        selectedIds.push(id);
+      }
+    } else {
+      // Nếu checkbox bị bỏ chọn, xóa ID khỏi mảng
+      selectedIds = selectedIds.filter(function(selectedId) {
+        return selectedId !== id;
+      });
     }
-  } else {
-    // Nếu checkbox bị bỏ chọn, xóa ID khỏi mảng
-    selectedIds = selectedIds.filter(function(selectedId) {
-      return selectedId !== id;
-    });
   }
+
+  // Xoá yêu cầu
+  $("#bangdsyeucau").on("click", "#deleteBtn", function () {
+    let id = $(this).data("id");
+
+    Swal.fire({
+      title: "Bạn chắc chắn muốn xoá yêu cầu này?" ,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "POST",
+          url: "/update_xoa_yeu_cau_in_phieu_by_id",
+          contentType: "application/json",
+          data: JSON.stringify({
+            ids: [id],
+            trangthai: 0
+          }),
+          success: function (res) {
+            if(res.total==1){
+              Toast.fire({
+                icon: "success",
+                title: "Đã xoá 1 yêu cầu",
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }else{
+              Toast.fire({
+                icon: "warning",
+                title: "Xóa yêu cầu không thành công"
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }
+          },
+          error: function (xhr, status, error) {
+            Toast.fire({
+              icon: "error",
+              title: "Lỗi! Xoá không thành công",
+            });
+          },
+        });
+        selectedIds = [];
+      }
+    });
+  });
+
+  // Phê duyệt yêu cầu
+  $("#bangdsyeucau").on("click", "#checkBtn", function () {
+    let id = $(this).data("id");
+
+    Swal.fire({
+      title: "Phê duyệt yêu cầu này?" ,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "POST",
+          url: "/update_yeu_cau_in_phieu",
+          contentType: "application/json",
+          data: JSON.stringify({
+            ids: [id],
+            trangthai: 1
+          }),
+          success: function (res) {
+            if(res.total==1){
+              Toast.fire({
+                icon: "success",
+                title: "Đã duyệt 1 yêu cầu",
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }else{
+              Toast.fire({
+                icon: "warning",
+                title: "Duyệt yêu cầu không thành công"
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }
+          },
+          error: function (xhr, status, error) {
+            Toast.fire({
+              icon: "error",
+              title: "Lỗi! Duyệt không thành công",
+            });
+          },
+        });
+        selectedIds = [];
+      }
+    });
+  });
+
+  // Từ chối yêu cầu
+  $("#bangdsyeucau").on("click", "#rejectBtn", function () {
+    let id = $(this).data("id");
+    Swal.fire({
+      title: "Từ chối yêu cầu này?" ,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "POST",
+          url: "/update_yeu_cau_in_phieu",
+          contentType: "application/json",
+          data: JSON.stringify({
+            ids: [id],
+            trangthai: -1
+          }),
+          success: function (res) {
+            if(res.total==1){
+              Toast.fire({
+                icon: "success",
+                title: "Đã từ chối 1 yêu cầu",
+              });
+              // Tải lại bảng bangdsyeucau
+              bangdsyeucau.ajax.reload();
+            }else{
+              Toast.fire({
+                icon: "warning",
+                title: "Từ chối yêu cầu không thành công"
+              });
+            }
+          },
+          error: function (xhr, status, error) {
+            Toast.fire({
+              icon: "error",
+              title: "Lỗi! Từ chối không thành công",
+            });
+          },
+        });
+        selectedIds = [];
+      }
+    });
+  });
 }
-
-// Xoá yêu cầu
-$("#bangdsyeucau").on("click", "#deleteBtn", function () {
-  let id = $(this).data("id");
-
-  Swal.fire({
-    title: "Bạn chắc chắn muốn xoá yêu cầu này?" ,
-    showDenyButton: false,
-    showCancelButton: true,
-    confirmButtonText: "Xoá",
-    cancelButtonText: "Huỷ",
-  }).then((result) => {
-    /* Read more about isConfirmed, isDenied below */
-    if (result.isConfirmed) {
-      $.ajax({
-        type: "POST",
-        url: "/update_xoa_yeu_cau_in_phieu_by_id",
-        contentType: "application/json",
-        data: JSON.stringify({
-          ids: [id],
-          trangthai: 0
-        }),
-        success: function (res) {
-          if(res.total==1){
-            Toast.fire({
-              icon: "success",
-              title: "Đã xoá 1 yêu cầu",
-            });
-            // Tải lại bảng bangdsyeucau
-            bangdsyeucau.ajax.reload();
-          }else{
-            Toast.fire({
-              icon: "warning",
-              title: "Xóa yêu cầu không thành công"
-            });
-            // Tải lại bảng bangdsyeucau
-            bangdsyeucau.ajax.reload();
-          }
-        },
-        error: function (xhr, status, error) {
-          Toast.fire({
-            icon: "error",
-            title: "Lỗi! Xoá không thành công",
-          });
-        },
-      });
-      selectedIds = [];
-    }
-  });
-});
-
-// Phê duyệt yêu cầu
-$("#bangdsyeucau").on("click", "#checkBtn", function () {
-  let id = $(this).data("id");
-
-  Swal.fire({
-    title: "Phê duyệt yêu cầu này?" ,
-    showDenyButton: false,
-    showCancelButton: true,
-    confirmButtonText: "Đồng ý",
-    cancelButtonText: "Huỷ",
-  }).then((result) => {
-    /* Read more about isConfirmed, isDenied below */
-    if (result.isConfirmed) {
-      $.ajax({
-        type: "POST",
-        url: "/update_yeu_cau_in_phieu",
-        contentType: "application/json",
-        data: JSON.stringify({
-          ids: [id],
-          trangthai: 1
-        }),
-        success: function (res) {
-          if(res.total==1){
-            Toast.fire({
-              icon: "success",
-              title: "Đã duyệt 1 yêu cầu",
-            });
-            // Tải lại bảng bangdsyeucau
-            bangdsyeucau.ajax.reload();
-          }else{
-            Toast.fire({
-              icon: "warning",
-              title: "Duyệt yêu cầu không thành công"
-            });
-            // Tải lại bảng bangdsyeucau
-            bangdsyeucau.ajax.reload();
-          }
-        },
-        error: function (xhr, status, error) {
-          Toast.fire({
-            icon: "error",
-            title: "Lỗi! Duyệt không thành công",
-          });
-        },
-      });
-      selectedIds = [];
-    }
-  });
-});
-
-// Từ chối yêu cầu
-$("#bangdsyeucau").on("click", "#rejectBtn", function () {
-  let id = $(this).data("id");
-  Swal.fire({
-    title: "Từ chối yêu cầu này?" ,
-    showDenyButton: false,
-    showCancelButton: true,
-    confirmButtonText: "Đồng ý",
-    cancelButtonText: "Huỷ",
-  }).then((result) => {
-    /* Read more about isConfirmed, isDenied below */
-    if (result.isConfirmed) {
-      $.ajax({
-        type: "POST",
-        url: "/update_yeu_cau_in_phieu",
-        contentType: "application/json",
-        data: JSON.stringify({
-          ids: [id],
-          trangthai: -1
-        }),
-        success: function (res) {
-          if(res.total==1){
-            Toast.fire({
-              icon: "success",
-              title: "Đã từ chối 1 yêu cầu",
-            });
-            // Tải lại bảng bangdsyeucau
-            bangdsyeucau.ajax.reload();
-          }else{
-            Toast.fire({
-              icon: "warning",
-              title: "Từ chối yêu cầu không thành công"
-            });
-          }
-        },
-        error: function (xhr, status, error) {
-          Toast.fire({
-            icon: "error",
-            title: "Lỗi! Từ chối không thành công",
-          });
-        },
-      });
-      selectedIds = [];
-    }
-  });
-});
 
 $("#checkSelectedBtn").click(function () {
   // Kiểm tra nếu nhóm id chưa được chọn
