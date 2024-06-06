@@ -1010,6 +1010,7 @@ def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
     except Exception as e:
         return e
 
+# BRANCH THUAN
 # def xuat_phieu_danh_gia_ctu_model(sv_id: int, username: str):
 #     try:
 #         r = cursor.execute("EXEC GetDanhGiaSVByID ?, ?", sv_id, protect_xss(username)).fetchone()
@@ -1165,16 +1166,6 @@ def chi_tiet_bieu_mau_model(id:str, id_bieumau:int):
         select data,extension as ext from BIEUMAU where id = ? AND truong = ?
         """
         i = cursor.execute(query, id_bieumau, id).fetchone()
-        return {'data': i[0], 'ext': i[1]}
-    except Exception as e:
-        return e
-
-def ctu_chinh_phieu_tiep_nhan_model(id:int , id_bieumau: int):
-    try:
-        query = """
-        select data,extension as ext from BIEUMAU where id = ? and truong = ?
-        """
-        i = cursor.execute(query ,id_bieumau, id).fetchone()
         return {'data': i[0], 'ext': i[1]}
     except Exception as e:
         return e

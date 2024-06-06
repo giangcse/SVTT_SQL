@@ -88,11 +88,7 @@ class ChiTietCongViec(BaseModel):
     ghichu: str
     sinhvien: List[str]
 
-class DataPayload(BaseModel):
-    id: int
-    id_bieumau: int
-    data: str
-    
+
 SECRET_KEY = secret_key
 ALGORITHM = algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = 60*3
@@ -284,6 +280,37 @@ async def danhsachnhomthuctap(request: Request, token: str = Cookie(None)):
             if permission == "admin" or permission == "user":
                 return templates.TemplateResponse('groups.html', context={'request': request})
 
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/check')
+async def checkid(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user" or permission == "student":
+                return {"message": "Hello", "user" : username}
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/yeucauinphieu')
+async def yeucauinphieu(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                return templates.TemplateResponse('form_request.html', context={'request': request})
+            elif permission == "student":
+                return templates.TemplateResponse('sv_form_request.html', context={'request': request})
+                # return {"message": "Hello", "user" : username}
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
@@ -820,12 +847,12 @@ async def xuat_danh_gia(id: str, token: str = Cookie(None)):
             permission = payload.get("permission")
             if permission == "admin" or permission == "user":
                 i = xuat_phieu_danh_gia_controller(id)
-                headers = {
-                    # Mở tệp PDF trong trình duyệt
-                    "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
-                    "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
-                }
                 if i is not TypeError and i is not None:
+                    headers = {
+                        # Mở tệp PDF trong trình duyệt
+                        "Content-Disposition": f"inline; filename={i['mssv']}.pdf",
+                        "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
+                    }
                     if i['kyhieu_truong'] == "VLUTE":
                         data: dict = {
                             "student_fullname": i['hoten'],
@@ -1987,7 +2014,9 @@ async def canhbaodangnhap_route(noidung: str, token: str = Cookie(None)):
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
-# chuc nag danh muc
+
+  
+# chuc nang danh muc
 @app.get('/danhmucnganh')
 async def danh_muc_nganh(request: Request, token: str = Cookie(None)):
     if token:
@@ -1999,6 +2028,8 @@ async def danh_muc_nganh(request: Request, token: str = Cookie(None)):
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+    
+    
 # chuc nang them nganh
 @app.post('/them_nganh')
 async def them_nganh(ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str = Cookie(None)):
@@ -2016,6 +2047,57 @@ async def them_nganh(ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str 
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
+  
+@app.get('/get_ds_loai_yeu_cau')
+async def get_ds_loai_yeu_cau_route():
+    return JSONResponse(status_code=200, content=get_ds_loai_yeu_cau_controller())
+
+
+@app.get('/get_ds_loai_yeu_cau_by_sv')
+async def get_ds_loai_yeu_cau_by_sv_route(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            sv_id = payload.get("id")
+            if permission == "student":
+                return JSONResponse(status_code=200, content=get_ds_loai_yeu_cau_by_sv_controller(sv_id))
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.post('/gui_yeu_cau_in_phieu')
+async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            sv_id = payload.get("id")
+            if permission == "student":
+                if(idloaiyeucau==3): #YÊU CẦU IN PHIẾU ĐÁNH GIÁ CÓ ID = 3
+                    i = xuat_phieu_danh_gia_controller(sv_id)
+                    if i is not None and i is not TypeError:
+                        result = gui_yeu_cau_in_phieu_controller(
+                            sv_id, idloaiyeucau)
+                        if result==True:
+                            return JSONResponse(status_code=200, content={'status': 'OK'})
+                        else:
+                            return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+                    else:
+                        return JSONResponse(status_code=200, content={'status': 'INVALID'})
+                else:
+                    result = gui_yeu_cau_in_phieu_controller(
+                        sv_id, idloaiyeucau)
+                    if result==True:
+                        return JSONResponse(status_code=200, content={'status': 'OK'})
+                    else:
+                        return JSONResponse(status_code=200, content={'status': 'NOT OK'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+  
 @app.get('/danhmuctruong')
 async def danh_muc_truong(request: Request, token: str = Cookie(None)):
     if token:
@@ -2027,6 +2109,8 @@ async def danh_muc_truong(request: Request, token: str = Cookie(None)):
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+  
+  
 @app.post('/update_nganh_by_id')
 async def update_nganh_by_id(id: int, ten: str,kyhieu:str,isDeleted:int,idtruong:int ,token: str = Cookie(None)):
     if token:
@@ -2042,7 +2126,8 @@ async def update_nganh_by_id(id: int, ten: str,kyhieu:str,isDeleted:int,idtruong
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
-
+  
+  
 @app.post('/delete_nganh_by_id_list')
 async def delete_nganh_by_id_list(idList: str, token: str = Cookie(None)):
     if token:
@@ -2057,6 +2142,7 @@ async def delete_nganh_by_id_list(idList: str, token: str = Cookie(None)):
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+  
 
 @app.get('/templates')
 async def get_templates(request: Request,token: str = Cookie(None)):
@@ -2070,9 +2156,8 @@ async def get_templates(request: Request,token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
-
-@app.post('/chinh_sua_phieutiepnhan_ctu.pdf')
-async def ctu_chinh_phieu_tiep_nhan_route(id:int, id_bieumau:int,data:str, token: str = Cookie(None)):
+@app.get('/templates')
+async def get_templates(request: Request,token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -2099,3 +2184,4 @@ async def ctu_chinh_phieu_tiep_nhan_route(id:int, id_bieumau:int,data:str, token
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+

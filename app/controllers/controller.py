@@ -384,10 +384,12 @@ def ctu_xuat_phieu_giao_viec_controller(sv_id: int, username: str):
 
 def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
+
 # chuc nang xuat danh gia
 # def ctu_xuat_phieu_danh_gia_controller(sv_id: int,username:str):
 #     return ctu_xuat_phieu_danh_gia_model(sv_id,username)
 # xoa nganh
+
 def update_xoa_nganh_by_id_controller(id: int):
     return update_xoa_nganh_by_id(id)
 
@@ -406,9 +408,9 @@ def delete_nganh_by_id_list_controller(idList: list):
 
 def query_pdf_path_from_database_controller(id: str,id_bieumau : int):
     return query_pdf_path_from_database_model(id,id_bieumau)
+  
 def vlute_chinh_sua_danh_gia_controller(id_bieumau: int):
     return vlute_chinh_sua_danh_gia_model(id)
+  
 def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
     return chi_tiet_bieu_mau_model(id)
-def ctu_chinh_phieu_tiep_nhan_controller(id: int , id_bieumau: int):
-    return ctu_chinh_phieu_tiep_nhan_model(id,id_bieumau)
