@@ -384,10 +384,12 @@ def ctu_xuat_phieu_giao_viec_controller(sv_id: int, username: str):
 
 def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
+
 # chuc nang xuat danh gia
 # def ctu_xuat_phieu_danh_gia_controller(sv_id: int,username:str):
 #     return ctu_xuat_phieu_danh_gia_model(sv_id,username)
 # xoa nganh
+
 def update_xoa_nganh_by_id_controller(id: int):
     return update_xoa_nganh_by_id(id)
 
@@ -406,7 +408,50 @@ def delete_nganh_by_id_list_controller(idList: list):
 
 def query_pdf_path_from_database_controller(id: str,id_bieumau : int):
     return query_pdf_path_from_database_model(id,id_bieumau)
+  
 def vlute_chinh_sua_danh_gia_controller(id_bieumau: int):
     return vlute_chinh_sua_danh_gia_model(id)
+  
 def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
     return chi_tiet_bieu_mau_model(id)
+
+
+
+def get_ds_loai_yeu_cau_controller():
+    return get_ds_loai_yeu_cau()
+
+
+def get_ds_loai_yeu_cau_by_sv_controller(sv_id: int):
+    return get_ds_loai_yeu_cau_by_sv(sv_id)
+
+
+def gui_yeu_cau_in_phieu_controller(sv_id: int, idloaiyeucau: int):
+    return gui_yeu_cau_in_phieu(sv_id, idloaiyeucau)
+
+
+def gui_yeu_cau_in_phieu_by_nguoi_huong_dan_controller(ids: list, idloaiyeucau: int, nhd_id: int):
+    return gui_yeu_cau_in_phieu_by_nguoi_huong_dan(ids, idloaiyeucau, nhd_id)
+
+
+def get_ds_yeu_cau_in_phieu_by_sv_controller(sv_id: int):
+    return get_ds_yeu_cau_in_phieu_by_sv(sv_id)
+
+
+def update_xoa_yeu_cau_in_phieu_by_id_controller(ids: list):
+    return update_xoa_yeu_cau_in_phieu_by_id(ids)
+
+
+def get_all_yeu_cau_in_phieu_controller(kythuctap: str):
+    return get_all_yeu_cau_in_phieu(kythuctap)
+
+
+def update_yeu_cau_in_phieu_controller(ids: list, id_nxl: int, trangthai: int):
+    return update_yeu_cau_in_phieu(ids, id_nxl, trangthai)
+
+
+def get_username_nguoi_huong_dan_by_sv_id_controller(id: int):
+    return get_username_nguoi_huong_dan_by_sv_id(id)
+
+
+def check_yeu_cau_in_phieu_controller(id: int):
+    return check_yeu_cau_in_phieu(id)
