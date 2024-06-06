@@ -651,14 +651,14 @@ def update_chi_tiet_nganh_by_id(id: int, ten: str, kyhieu: str, idtruong:int):
 def get_danh_sach_truong():
     try:
         query = """
-        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau
+        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau, bm.tenfile as tenfile
         FROM BIEUMAU bm 
         JOIN TRUONG t 
         ON bm.truong = t.id
         ORDER BY bm.truong;
         """
         result = cursor.execute(query).fetchall()
-        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4]} for row in result]
+        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4], 'tenfile' : row[5]} for row in result]
         return danh_sach_truong
     except Exception as e:
         return e
@@ -1102,7 +1102,7 @@ def delete_nganh_by_id_list_model(idList: list):
 def query_pdf_path_from_database_model(id: str, id_bieumau: int) -> str:
     try:
         # Construct the SQL query
-        query = "SELECT Data, TenBieuMau, Extension AS extn FROM BIEUMAU WHERE id = ? AND truong = ?"
+        query = "SELECT Data, TenBieuMau,TenFile, Extension AS extn FROM BIEUMAU WHERE id = ? AND truong = ?"
         
         # Execute the query with the provided parameters
         cursor.execute(query, (id_bieumau,id))
@@ -1112,10 +1112,10 @@ def query_pdf_path_from_database_model(id: str, id_bieumau: int) -> str:
 
         if row:
             # Extract the data, tenbieumau, and extension from the row
-            data, tenbieumau, extn = row
+            data, tenbieumau, extn, tenfile = row
             
             # Generate a unique filename based on tenbieumau and extension
-            filename = f"{tenbieumau}.{extn}"
+            filename = f"{tenfile}"
             
             # Define the directory to save the PDF files
             pdf_directory = 'pdf'
@@ -1151,10 +1151,10 @@ def vlute_chinh_sua_danh_gia_model(id_bieumau:int):
     
 #doc file pdf 
 def get_pdf_from_database(id):
-    cursor.execute("SELECT tenbieumau, extension FROM BieuMau WHERE id=?", id)
+    cursor.execute("SELECT tenfile, extension FROM BieuMau WHERE id=?", id)
     row = cursor.fetchone()
     if row:
-        pdf_data = row.tenbieumau
+        pdf_data = row.tenfile
         extension = row.extension
         return pdf_data, extension
     else:
@@ -1165,6 +1165,16 @@ def chi_tiet_bieu_mau_model(id:str, id_bieumau:int):
         select data,extension as ext from BIEUMAU where id = ? AND truong = ?
         """
         i = cursor.execute(query, id_bieumau, id).fetchone()
+        return {'data': i[0], 'ext': i[1]}
+    except Exception as e:
+        return e
+
+def ctu_chinh_phieu_tiep_nhan_model(id:int , id_bieumau: int):
+    try:
+        query = """
+        select data,extension as ext from BIEUMAU where id = ? and truong = ?
+        """
+        i = cursor.execute(query ,id_bieumau, id).fetchone()
         return {'data': i[0], 'ext': i[1]}
     except Exception as e:
         return e

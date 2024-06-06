@@ -1,5 +1,7 @@
 from io import BytesIO
+import io
 from PyPDF2 import PdfFileReader, PdfFileWriter, PdfReader, PdfWriter
+import PyPDF2
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
@@ -253,6 +255,7 @@ def ctu_xuat_phieu_giao_viec(input_pdf_path: str, output_pdf_path: str, data: di
     # c.drawString(150, 205, data['tuan8_congviec'])
     c.drawString(245, 43, data['sv_hoten'])
     c.drawString(425, 43, data['nhd_hoten'])
+
     c.save()
 
     # Đọc trang mới được tạo
@@ -491,23 +494,30 @@ def ctu_xuat_phieu_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dic
 #     output_pdf_path = 'output.pdf'
 #     # Thêm văn bản vào PDF
 #     ctu_xuat_phieu_theo_doi(input_pdf_path, output_pdf_path, data, "giangpt")
-
-def create_new_content(id: str, id_bieumau:int,data:dict):
+def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,username:str):
+    print(data) 
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+    
+    num_pages = len(reader.pages)
+    
     pdfmetrics.registerFont(TTFont('Times_New_Roman', 'times.ttf'))
-    pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)
-    input_pdf_path = pdf_path[0]
-    packet = BytesIO()
-    can = canvas.Canvas(packet)
-    can.drawString(100, 750, data['noidung1'])
-    can.drawString(100, 730, data['noidung2'])
-    can.save()
-    packet.seek(0)
-    new_pdf = PdfFileReader(packet)
-    existing_pdf = PdfFileReader(open(input_pdf_path, "rb"))
-    output = PdfFileWriter()
-    for page_num in range(existing_pdf.numPages):
-        page = existing_pdf.getPage(page_num)
-        output.addPage(page)
-    output.addPage(new_pdf.getPage(0))
-    with open(input_pdf_path, "wb") as outputStream:
-        output.write(outputStream)
+    
+    c = canvas.Canvas("temp.pdf")
+    c.setFont("Times_New_Roman", 13)
+    c.setFillColor(colors.white)
+    c.rect(75, 400, 329, 50, stroke=0, fill=1)
+    c.setFillColor(colors.black)
+    c.drawString(75,440 , data)
+
+    c.save()
+    new_page = PdfReader("temp.pdf").pages[0]
+    for page in reader.pages:
+        page.merge_page(new_page)
+        writer.add_page(page)
+    output_path = os.path.join('DOCX', username)
+    os.makedirs(output_path, exist_ok=True)
+    output_pdf_full_path = os.path.join(output_path, output_pdf_path)
+    with open(output_pdf_full_path, 'wb') as output_pdf:
+        writer.write(output_pdf)
+    return output_pdf_full_path

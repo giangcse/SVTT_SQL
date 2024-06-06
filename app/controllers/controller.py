@@ -410,3 +410,5 @@ def vlute_chinh_sua_danh_gia_controller(id_bieumau: int):
     return vlute_chinh_sua_danh_gia_model(id)
 def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
     return chi_tiet_bieu_mau_model(id)
+def ctu_chinh_phieu_tiep_nhan_controller(id: int , id_bieumau: int):
+    return ctu_chinh_phieu_tiep_nhan_model(id,id_bieumau)
