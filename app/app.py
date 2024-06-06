@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 # Để khai báo format của request body, bạn cần sử dụng Pydantic models
-from flask import jsonify
+from flask import Flask, jsonify
 from pydantic import BaseModel
 from hashlib import sha3_256
 from typing import List

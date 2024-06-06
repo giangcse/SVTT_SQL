@@ -1050,7 +1050,6 @@ def update_mo_khoa_nganh_by_id(id: int):
         return e
 def get_chi_tiet_nganh_by_id(id: str):
     try:
-        
         result = cursor.execute("EXEC GetChiTietNganhByID ?", id).fetchone()
         return {'id': result[0], 'ten': result[1], 'kyhieu': result[2], 'isDeleted': result[3], 'id_truong': result[4],'ten_truong': result[5]}
     except Exception as e:
