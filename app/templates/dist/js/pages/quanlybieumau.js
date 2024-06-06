@@ -32,21 +32,6 @@ const createDropdownMenu = (id, row) => {
   }
 };
 
-const createButton = (id, row) => {
-  const dropdownMenu = createDropdownMenu(id, row);
-
-  return `
-    <center>
-      <div class="btn-group dropleft">
-        <button type="button" class="btn btn-outline-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-          <i class="fa-solid fa-eye"></i>
-        </button>
-        <div class="dropdown-menu">${dropdownMenu}</div>
-        <button class="btn btn-outline-warning mx-2 btn-sm editForm" data-id="${id}"><i class="fas fa-pencil-alt"></i></button>
-      </div>
-    </center>`;
-};
-
 let bangdsbieumau = $("#bangdsbieumau").DataTable({
   paging: true,
   lengthChange: false,
@@ -73,7 +58,11 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
       data: null,
       render: function (data, type, row) {
         const kyhieu = row.kyhieu ? row.kyhieu.toLowerCase() : "";
-        return `<a class="dropdown-item" href="xem_${row.tenbieumau}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
+        return `
+        <div class="dropdown">
+        <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
+        <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" href="#"><i class="fas fa-pencil-alt"></i></a>
+        </div>
         `;
       },
     },
@@ -84,4 +73,64 @@ $("#dashboard-select-districts").on("change", function () {
   const selectedValue = $(this).val();
   loadChiSo(selectedValue);
   bangdsbieumau.columns(7).search(selectedValue).draw();
+});
+
+$(document).ready(function () {
+  // Add an event listener for opening the modal
+  $("#bangdsbieumau").on("click", ".editbieumau", function (e) {
+    e.preventDefault();
+    // Get the id and id_bieumau from the button's data attributes
+    const id = $(this).data("id");
+    const id_bieumau = $(this).data("id_bieumau");
+
+    // Store these values in the modal for later use
+    $("#dataForm").data("id", id);
+    $("#dataForm").data("id_bieumau", id_bieumau);
+
+    // Open the modal
+    $("#dataModal").modal("show");
+  });
+
+  // Handle the form submission
+  $("#dataForm").on("submit", function (event) {
+    event.preventDefault();
+
+    // Get the id, id_bieumau, and input data
+    const id = $(this).data("id");
+    const id_bieumau = $(this).data("id_bieumau");
+    const inputData = $("#inputData").val();
+    // Send the data via an AJAX request
+    console.log("Data to be sent:", { id, id_bieumau, data: inputData });
+    $.ajax({
+      type: "POST",
+      url:
+        "chinh_sua_phieutiepnhan_ctu.pdf?id=" +
+        id +
+        "&id_bieumau=" +
+        id_bieumau +
+        "&data=" +
+        inputData,
+      success: function (response) {
+        // Handle the successful response here
+        Toast.fire({
+          icon: "success",
+          title: "Dữ liệu đã được gửi thành công!",
+        });
+        $("#dataModal").modal("hide");
+        var pdfWindow = window.open("");
+        pdfWindow.document.write(
+          "<iframe width='100%' height='100%' src='data:application/pdf;base64," +
+            encodeURI(response) +
+            "'></iframe>"
+        );
+      },
+      error: function (error) {
+        // Handle errors here
+        Toast.fire({
+          icon: "error",
+          title: "Có lỗi xảy ra, vui lòng thử lại!",
+        });
+      },
+    });
+  });
 });

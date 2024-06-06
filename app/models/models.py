@@ -651,14 +651,14 @@ def update_chi_tiet_nganh_by_id(id: int, ten: str, kyhieu: str, idtruong:int):
 def get_danh_sach_truong():
     try:
         query = """
-        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau
+        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau, bm.tenfile as tenfile
         FROM BIEUMAU bm 
         JOIN TRUONG t 
         ON bm.truong = t.id
         ORDER BY bm.truong;
         """
         result = cursor.execute(query).fetchall()
-        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4]} for row in result]
+        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4], 'tenfile' : row[5]} for row in result]
         return danh_sach_truong
     except Exception as e:
         return e
@@ -1103,7 +1103,7 @@ def delete_nganh_by_id_list_model(idList: list):
 def query_pdf_path_from_database_model(id: str, id_bieumau: int) -> str:
     try:
         # Construct the SQL query
-        query = "SELECT Data, TenBieuMau, Extension AS extn FROM BIEUMAU WHERE id = ? AND truong = ?"
+        query = "SELECT Data, TenBieuMau,TenFile, Extension AS extn FROM BIEUMAU WHERE id = ? AND truong = ?"
         
         # Execute the query with the provided parameters
         cursor.execute(query, (id_bieumau,id))
@@ -1113,10 +1113,10 @@ def query_pdf_path_from_database_model(id: str, id_bieumau: int) -> str:
 
         if row:
             # Extract the data, tenbieumau, and extension from the row
-            data, tenbieumau, extn = row
+            data, tenbieumau, extn, tenfile = row
             
             # Generate a unique filename based on tenbieumau and extension
-            filename = f"{tenbieumau}.{extn}"
+            filename = f"{tenfile}"
             
             # Define the directory to save the PDF files
             pdf_directory = 'pdf'
@@ -1152,10 +1152,10 @@ def vlute_chinh_sua_danh_gia_model(id_bieumau:int):
     
 #doc file pdf 
 def get_pdf_from_database(id):
-    cursor.execute("SELECT tenbieumau, extension FROM BieuMau WHERE id=?", id)
+    cursor.execute("SELECT tenfile, extension FROM BieuMau WHERE id=?", id)
     row = cursor.fetchone()
     if row:
-        pdf_data = row.tenbieumau
+        pdf_data = row.tenfile
         extension = row.extension
         return pdf_data, extension
     else:
@@ -1167,121 +1167,5 @@ def chi_tiet_bieu_mau_model(id:str, id_bieumau:int):
         """
         i = cursor.execute(query, id_bieumau, id).fetchone()
         return {'data': i[0], 'ext': i[1]}
-    except Exception as e:
-        return e
-      
-
-#BRANCH DUY ANH
-# LẤY DANH SÁCH TẤT CẢ LOẠI YÊU CẦU IN PHIẾU
-def get_ds_loai_yeu_cau():
-    try:
-        result = cursor.execute("SELECT ID, LoaiYeuCau FROM [QL_SinhVien].[dbo].[LOAIYEUCAU]").fetchall()
-        return [{'id': i[0], 'loaiyeucau': i[1]} for i in result]
-    except Exception as e:
-        return e
-    
-
-# LẤY DANH SÁCH LOẠI YÊU CẦU THEO TỪNG SINH VIÊN
-def get_ds_loai_yeu_cau_by_sv(sv_id: int):
-    try:
-        result = cursor.execute("SELECT lyc.ID, lyc.LoaiYeuCau FROM LOAIYEUCAU lyc inner join LOAIYEUCAU_TRUONG "
-                                "lyct on lyc.ID = lyct.LOAIYEUCAU inner join SINHVIEN sv on lyct.TRUONG = sv.Truong "
-                                "WHERE sv.ID = ?;", sv_id).fetchall()
-        return [{'id': i[0], 'loaiyeucau': i[1]} for i in result]
-    except Exception as e:
-        return e
-    
-    
-def get_ds_yeu_cau_in_phieu_by_sv(sv_id: int):
-    try:
-        result = cursor.execute("SELECT yc.id, loaiyeucau, CONVERT(VARCHAR, ngaygui, 103) as ngaygui, trangthai FROM YeuCauInPhieu yc inner join LOAIYEUCAU lyc on lyc.ID = yc.ID_LoaiYeuCau WHERE id_sinhvien = ? ORDER BY ngaygui DESC", sv_id)
-        return [{'id': i[0], 'loaiyeucau': i[1], 'ngaygui': i[2], 'trangthai':i[3]} for i in result.fetchall()]
-    except Exception as e:
-        return e
-    
-
-def gui_yeu_cau_in_phieu(id: int, idloaiyeucau: int):
-    try:
-        cursor.execute("EXEC InsertYeuCauInPhieu ?, ?, ?", id, idloaiyeucau, datetime.datetime.now().strftime('%Y-%m-%d'))
-        conn.commit()
-        r = cursor.rowcount
-        if r == 1:
-            return True
-        else:
-            return False
-    except Exception as e:
-        return e
-    
-    
-
-def gui_yeu_cau_in_phieu_by_nguoi_huong_dan(ids: list, idloaiyeucau: int, nhd_id: int):
-    try:
-        r = 0
-        for sv_id in ids:
-            cursor.execute("EXEC InsertYeuCauInPhieuByNguoiHuongDan ?, ?, ?, ?", sv_id, idloaiyeucau, datetime.datetime.now().strftime('%Y-%m-%d'), nhd_id)
-            conn.commit()
-            if cursor.rowcount >= 0:
-                r += cursor.rowcount
-        return r
-    except Exception as e:
-        return e
-    
-    
-def update_xoa_yeu_cau_in_phieu_by_id(ids: list):
-    try:
-        r = 0
-        for id in ids:
-            cursor.execute("EXEC UpdateXoaYeuCauInPhieuByID ?", id)
-            conn.commit()
-            r += cursor.rowcount
-        return r
-    except Exception as e:
-        return e
-
-
-def get_all_yeu_cau_in_phieu(kythuctap: str):
-    try:
-        result = cursor.execute("EXEC GetAllYeuCauInPhieu ?", kythuctap)
-        return [{'id': i[0], 'hotensv': i[1], 'emailsv': i[2], 'loaiyeucau':i[3], 'ngayguiyc':i[4], 'ngayxuly':i[5], 'trangthai':i[6]} for i in result.fetchall()]
-    except Exception as e:
-        return e
-    
-    
-def update_yeu_cau_in_phieu(ids: list, id_nxl: int, trangthai: int):
-    try:
-        r = 0
-        # Sử dụng vòng lặp để thực hiện cập nhật cho từng ID trong danh sách
-        for id in ids:
-            cursor.execute("EXEC UpdateYeuCauInPhieu ?, ?, ?, ?", id, datetime.datetime.now().strftime('%Y-%m-%d'), trangthai, id_nxl)
-            conn.commit()
-            r += cursor.rowcount
-            
-        return r
-    except Exception as e:
-        return e
-
-    
-def get_username_nguoi_huong_dan_by_sv_id(sv_id: int):
-    try:
-        result = cursor.execute("SELECT nhd.Username FROM SINHVIEN sv inner join NHOMHUONGDAN nhom on sv.NhomHuongDan=nhom.ID inner join NGUOIHUONGDAN nhd on nhom.NguoiHuongDanID=nhd.ID WHERE sv.ID = ?", sv_id).fetchone()
-        if result is None:
-            return {'error': 'Không tìm thấy thông tin người hướng dẫn'}
-        return result[0]
-    except Exception as e:
-        return e
-    
-    
-def check_yeu_cau_in_phieu(id: int):
-    try:
-        result = cursor.execute("SELECT yc.trangthai, l.LoaiYeuCau FROM YeuCauInPhieu yc inner join LOAIYEUCAU l on yc.ID_LoaiYeuCau=l.ID WHERE yc.ID = ?", id).fetchone()
-        return {'trangthai': result[0], 'loaiyeucau': result[1]}
-    except Exception as e:
-        return e
-    
-    
-def get_ky_hieu_truong_by_sv_id(id: int):
-    try:
-        result = cursor.execute("SELECT KyHieu FROM Truong t inner join SinhVien sv on sv.Truong = t.ID WHERE sv.ID = ?", id).fetchone()
-        return result[0]
     except Exception as e:
         return e
