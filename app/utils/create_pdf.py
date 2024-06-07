@@ -495,7 +495,7 @@ def ctu_xuat_phieu_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dic
 #     # Thêm văn bản vào PDF
 #     ctu_xuat_phieu_theo_doi(input_pdf_path, output_pdf_path, data, "giangpt")
 def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,username:str):
-    print(data)
+    print(data) 
     reader = PdfReader(input_pdf_path)
     writer = PdfWriter()
     
@@ -506,11 +506,11 @@ def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,us
     c = canvas.Canvas("temp.pdf")
     c.setFont("Times_New_Roman", 13)
     c.setFillColor(colors.white)
-    c.rect(75, 400, 329, 50, stroke=0, fill=1)
+    c.rect(75, 400, 332, 60, stroke=0, fill=1)
     c.setFillColor(colors.black)
     c.drawString(75,440 , data)
-
     c.save()
+    
     new_page = PdfReader("temp.pdf").pages[0]
     for page in reader.pages:
         page.merge_page(new_page)
@@ -520,4 +520,5 @@ def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,us
     output_pdf_full_path = os.path.join(output_path, output_pdf_path)
     with open(output_pdf_full_path, 'wb') as output_pdf:
         writer.write(output_pdf)
+    os.remove("temp.pdf")
     return output_pdf_full_path

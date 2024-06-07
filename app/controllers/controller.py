@@ -418,6 +418,8 @@ def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
 def ctu_chinh_phieu_tiep_nhan_controller(id: int , id_bieumau: int):
     return ctu_chinh_phieu_tiep_nhan_model(id,id_bieumau)
 
+def update_bieumau_controller(id_bieumau:int,r:str):
+    return update_bieumau_model(id_bieumau,r)
 
 def get_ds_loai_yeu_cau_controller():
     return get_ds_loai_yeu_cau()

@@ -2157,7 +2157,7 @@ async def get_templates(request: Request,token: str = Cookie(None)):
     return RedirectResponse('/login')
 
 @app.post('/chinh_sua_phieutiepnhan_ctu.pdf')
-async def get_templates(id:int,id_bieumau:int, data:str,token: str = Cookie(None)):
+async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str,token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -2166,17 +2166,21 @@ async def get_templates(id:int,id_bieumau:int, data:str,token: str = Cookie(None
             i = ctu_chinh_phieu_tiep_nhan_controller(id,id_bieumau)
             if permission == "admin" or permission == "user":
                 if i is not TypeError:
-                        headers = {
-                            # Mở tệp PDF trong trình duyệt
-                            "Content-Disposition": f"inline;",
-                            "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
-                        }
                         pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)
-                        r = ctu_chinh_phieu_tiep_nhan(pdf_path,f"{username}.pdf",data,username)
-                        if r:
-                            with open(r, 'rb') as f:
-                                pdf_content = f.read()
-                            return Response(content=pdf_content, headers=headers)
+                        if not pdf_path:
+                            raise HTTPException(status_code=404, detail="Phiếu không tìm thấy")
+                        output_pdf_path = f"{username}.pdf"
+                        r  =   ctu_chinh_phieu_tiep_nhan(pdf_path, output_pdf_path, data, username)
+                        with open(r, 'rb') as f:
+                            pdf_content = f.read()
+                        headers = {
+                            "Content-Disposition": "inline; filename={}".format(output_pdf_path),
+                            "Content-Type": "application/pdf",
+                        }
+                        cap_nhat_bm = update_bieumau_controller(id_bieumau,r),
+                        if cap_nhat_bm:
+                            return JSONResponse(content={'status': 'OK'}, status_code=200)
+                        return Response(content=pdf_content, headers=headers)    
                 else:
                     return JSONResponse(status_code=404, content={'status': 'Lỗi không nhận được phiếu'})
             else:

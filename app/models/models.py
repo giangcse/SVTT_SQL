@@ -1178,3 +1178,16 @@ def ctu_chinh_phieu_tiep_nhan_model(id:int , id_bieumau: int):
         return {'data': i[0], 'ext': i[1]}
     except Exception as e:
         return e
+    
+def update_bieumau_model(id_bieumau:int, r:str):
+    
+    try:
+        # with open('pdf/phieutiepnhan_ctu.pdf', 'rb') as f:
+        with open(r, 'rb') as f:
+            pdf_data = f.read()
+        query = "UPDATE BIEUMAU set Data = ? WHERE ID = ?"
+        result = cursor.execute(query, (pdf_data, id_bieumau)).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
