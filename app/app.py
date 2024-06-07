@@ -2156,8 +2156,8 @@ async def get_templates(request: Request,token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
-@app.get('/templates')
-async def get_templates(request: Request,token: str = Cookie(None)):
+@app.post('/chinh_sua_phieutiepnhan_ctu.pdf')
+async def get_templates(id:int,id_bieumau:int, data:str,token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
