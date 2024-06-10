@@ -99,8 +99,9 @@ $(document).ready(function () {
     const id = $(this).data("id");
     const id_bieumau = $(this).data("id_bieumau");
     const inputData = $("#inputData").val();
-    // Send the data via an AJAX request
-    console.log("Data to be sent:", { id, id_bieumau, data: inputData });
+    const encodedInputData = encodeURIComponent(inputData);
+    console.log("Data to be sent:", { id, id_bieumau, data: encodedInputData });
+
     $.ajax({
       type: "POST",
       url:
@@ -109,10 +110,10 @@ $(document).ready(function () {
         "&id_bieumau=" +
         id_bieumau +
         "&data=" +
-        inputData,
+        encodedInputData,
       success: function (response) {
         console.log("Response:", response);
-        // Handle the successful response here
+        // Handle the successful response
         Toast.fire({
           icon: "success",
           title: "Dữ liệu đã được gửi thành công!",
@@ -120,7 +121,7 @@ $(document).ready(function () {
         $("#dataModal").modal("hide");
       },
       error: function (error) {
-        // Handle errors here
+        // Handle errors
         Toast.fire({
           icon: "error",
           title: "Có lỗi xảy ra, vui lòng thử lại!",

@@ -506,9 +506,13 @@ def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,us
     c = canvas.Canvas("temp.pdf")
     c.setFont("Times_New_Roman", 13)
     c.setFillColor(colors.white)
-    c.rect(75, 400, 332, 60, stroke=0, fill=1)
+    c.rect(75, 280, 332, 170, stroke=0, fill=1)
     c.setFillColor(colors.black)
-    c.drawString(75,440 , data)
+    text_object = c.beginText(75, 440)
+    text_object.setFont("Times_New_Roman", 13)
+    for line in data.splitlines():
+        text_object.textLine(line)
+    c.drawText(text_object)
     c.save()
     
     new_page = PdfReader("temp.pdf").pages[0]
