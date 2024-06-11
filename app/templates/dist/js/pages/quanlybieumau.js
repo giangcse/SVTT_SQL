@@ -16,22 +16,6 @@ function clear_modal() {
   $("#modal_footer").empty();
 }
 
-const createDropdownMenu = (id, row) => {
-  const kyhieu = row.kyhieu ? row.kyhieu.toLowerCase() : "";
-  if (kyhieu === "vlute") {
-    return `
-    <a class="dropdown-item" href="xem_phieu_danh_gia_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu đánh giá</a>
-  `;
-  } else {
-    return `
-    <a class="dropdown-item" href="xem_phieu_tiep_nhan_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu tiếp nhận</a>
-    <a class="dropdown-item" href="xem_phieu_giao_viec_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu giao việc</a>
-    <a class="dropdown-item" href="xem_phieu_theo_doi_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu theo dõi</a>
-    <a class="dropdown-item" href="xem_phieu_danh_gia_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu đánh giá</a>
-  `;
-  }
-};
-
 let bangdsbieumau = $("#bangdsbieumau").DataTable({
   paging: true,
   lengthChange: false,
@@ -82,13 +66,14 @@ $(document).ready(function () {
     // Get the id and id_bieumau from the button's data attributes
     const id = $(this).data("id");
     const id_bieumau = $(this).data("id_bieumau");
+    if (id_bieumau == 6) {
+      // Store these values in the modal for later use
+      $("#dataForm").data("id", id);
+      $("#dataForm").data("id_bieumau", id_bieumau);
 
-    // Store these values in the modal for later use
-    $("#dataForm").data("id", id);
-    $("#dataForm").data("id_bieumau", id_bieumau);
-
-    // Open the modal
-    $("#dataModal").modal("show");
+      // Open the modal
+      $("#dataModal").modal("show");
+    }
   });
 
   // Handle the form submission
@@ -99,6 +84,8 @@ $(document).ready(function () {
     const id = $(this).data("id");
     const id_bieumau = $(this).data("id_bieumau");
     const inputData = $("#inputData").val();
+    const inputThoiGianData = $("#inputThoiGianData").val();
+    const encodedInputThoiGianData = encodeURIComponent(inputThoiGianData);
     const encodedInputData = encodeURIComponent(inputData);
     console.log("Data to be sent:", { id, id_bieumau, data: encodedInputData });
 
@@ -110,7 +97,9 @@ $(document).ready(function () {
         "&id_bieumau=" +
         id_bieumau +
         "&data=" +
-        encodedInputData,
+        encodedInputData +
+        "&thoigian=" +
+        encodedInputThoiGianData,
       success: function (response) {
         console.log("Response:", response);
         // Handle the successful response

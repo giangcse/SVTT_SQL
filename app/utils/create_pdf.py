@@ -494,8 +494,9 @@ def ctu_xuat_phieu_danh_gia(input_pdf_path: str, output_pdf_path: str, data: dic
 #     output_pdf_path = 'output.pdf'
 #     # Thêm văn bản vào PDF
 #     ctu_xuat_phieu_theo_doi(input_pdf_path, output_pdf_path, data, "giangpt")
-def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,username:str):
+def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,thoigian:str,username:str):
     print(data) 
+    print(thoigian)
     reader = PdfReader(input_pdf_path)
     writer = PdfWriter()
     
@@ -506,13 +507,22 @@ def ctu_chinh_phieu_tiep_nhan(input_pdf_path:str,output_pdf_path:str,data:str,us
     c = canvas.Canvas("temp.pdf")
     c.setFont("Times_New_Roman", 13)
     c.setFillColor(colors.white)
-    c.rect(75, 280, 332, 170, stroke=0, fill=1)
+    c.rect(75, 280, 332, 177, stroke=0, fill=1)
+    c.rect(413,280, 125, 177, stroke=0, fill=1)
     c.setFillColor(colors.black)
+    
     text_object = c.beginText(75, 440)
+    text_object_times = c.beginText(420, 440)
+    
+    text_object_times.setFont("Times_New_Roman", 13)
     text_object.setFont("Times_New_Roman", 13)
+    
     for line in data.splitlines():
         text_object.textLine(line)
+    for line in thoigian.splitlines():
+        text_object_times.textLine(line)
     c.drawText(text_object)
+    c.drawText(text_object_times)
     c.save()
     
     new_page = PdfReader("temp.pdf").pages[0]

@@ -2157,8 +2157,9 @@ async def get_templates(request: Request,token: str = Cookie(None)):
     return RedirectResponse('/login')
 
 @app.post('/chinh_sua_phieutiepnhan_ctu.pdf')
-async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str,token: str = Cookie(None)):
+async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str, thoigian:str ,token: str = Cookie(None)):
     print(data)
+    print(thoigian)
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -2171,7 +2172,7 @@ async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str,token: str = Cookie(
                         if not pdf_path:
                             raise HTTPException(status_code=404, detail="Phiếu không tìm thấy")
                         output_pdf_path = f"{username}.pdf"
-                        r  =   ctu_chinh_phieu_tiep_nhan(pdf_path, output_pdf_path, data, username)
+                        r  =   ctu_chinh_phieu_tiep_nhan(pdf_path, output_pdf_path, data,thoigian, username)
                         with open(r, 'rb') as f:
                             pdf_content = f.read()
                         headers = {
