@@ -2158,8 +2158,8 @@ async def get_templates(request: Request,token: str = Cookie(None)):
 
 @app.post('/chinh_sua_phieutiepnhan_ctu.pdf')
 async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str, thoigian:str ,token: str = Cookie(None)):
-    print(data)
-    print(thoigian)
+    # print(data)
+    # print(thoigian)
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

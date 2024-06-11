@@ -12,7 +12,7 @@ const Toast = Swal.mixin({
 // Clear modal
 function clear_modal() {
   $("#modal_title").empty();
-  $("#modal_body").empty();
+  $("#modal-body").empty();
   $("#modal_footer").empty();
 }
 
@@ -45,7 +45,7 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
         return `
         <div class="dropdown">
         <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
-        <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" href="#"><i class="fas fa-pencil-alt"></i></a>
+        <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" data-tenfile="${row.tenfile}" href="#"><i class="fas fa-pencil-alt"></i></a>
         </div>
         `;
       },
@@ -66,56 +66,125 @@ $(document).ready(function () {
     // Get the id and id_bieumau from the button's data attributes
     const id = $(this).data("id");
     const id_bieumau = $(this).data("id_bieumau");
-    if (id_bieumau == 6) {
-      // Store these values in the modal for later use
-      $("#dataForm").data("id", id);
-      $("#dataForm").data("id_bieumau", id_bieumau);
+    const tenfile = $(this).data("tenfile");
+    clear_modal();
+    // Get the form HTML based on the tenbieumau
+    let formHTML = getFormByTenFile(tenfile);
+    // Append the form HTML to the modal
+    $("#modal-body").append(formHTML);
+    // Store these values in the modal for later use
+    $("#dataForm").data("id", id);
+    $("#dataForm").data("id_bieumau", id_bieumau);
+    $("#dataForm").data("tenfile", tenfile);
+    console.log("id:", id, "id_bieumau:", id_bieumau, "tenfile:", tenfile);
+    // Open the modal
+    $("#dataModal").modal("show");
 
-      // Open the modal
-      $("#dataModal").modal("show");
-    }
-  });
+    // Handle the form submission
+    $("#dataForm").on("submit", function (event) {
+      event.preventDefault();
 
-  // Handle the form submission
-  $("#dataForm").on("submit", function (event) {
-    event.preventDefault();
+      // Get the id, id_bieumau, and input data
+      const id = $(this).data("id");
+      const id_bieumau = $(this).data("id_bieumau");
+      const tenfile = $(this).data("tenfile");
+      const inputData = $("#inputData").val();
+      const inputThoiGianData = $("#inputThoiGianData").val();
+      const encodedInputThoiGianData = encodeURIComponent(inputThoiGianData);
+      const encodedInputData = encodeURIComponent(inputData);
+      console.log("Data to be sent:", {
+        id,
+        id_bieumau,
+        data: encodedInputData,
+      });
 
-    // Get the id, id_bieumau, and input data
-    const id = $(this).data("id");
-    const id_bieumau = $(this).data("id_bieumau");
-    const inputData = $("#inputData").val();
-    const inputThoiGianData = $("#inputThoiGianData").val();
-    const encodedInputThoiGianData = encodeURIComponent(inputThoiGianData);
-    const encodedInputData = encodeURIComponent(inputData);
-    console.log("Data to be sent:", { id, id_bieumau, data: encodedInputData });
-
-    $.ajax({
-      type: "POST",
-      url:
-        "chinh_sua_phieutiepnhan_ctu.pdf?id=" +
-        id +
-        "&id_bieumau=" +
-        id_bieumau +
-        "&data=" +
-        encodedInputData +
-        "&thoigian=" +
-        encodedInputThoiGianData,
-      success: function (response) {
-        console.log("Response:", response);
-        // Handle the successful response
-        Toast.fire({
-          icon: "success",
-          title: "Dữ liệu đã được gửi thành công!",
-        });
-        $("#dataModal").modal("hide");
-      },
-      error: function (error) {
-        // Handle errors
-        Toast.fire({
-          icon: "error",
-          title: "Có lỗi xảy ra, vui lòng thử lại!",
-        });
-      },
+      $.ajax({
+        type: "POST",
+        url:
+          "chinh_sua_phieutiepnhan_ctu.pdf?id=" +
+          id +
+          "&id_bieumau=" +
+          id_bieumau +
+          "&data=" +
+          encodedInputData +
+          "&thoigian=" +
+          encodedInputThoiGianData,
+        success: function (response) {
+          console.log("Response:", response);
+          // Handle the successful response
+          Toast.fire({
+            icon: "success",
+            title: "Dữ liệu đã được gửi thành công!",
+          });
+          $("#dataModal").modal("hide");
+        },
+        error: function (error) {
+          // Handle errors
+          Toast.fire({
+            icon: "error",
+            title: "Có lỗi xảy ra, vui lòng thử lại!",
+          });
+        },
+      });
     });
   });
 });
+
+function getFormByTenFile(tenfile) {
+  switch (tenfile) {
+    case "phieutiepnhan_ctu.pdf":
+      return `
+      <form id="dataForm">
+        <div class="form-group">
+          <label for="inputData">Nội dung phiếu tiếp nhận CTU</label>
+          <textarea class="form-control mb-3" id="inputData" rows="3"></textarea>
+          <label for="inputThoiGianData">Thời biểu</label>
+          <textarea class="form-control" id="inputThoiGianData" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi</button>
+      </form>
+      `;
+    case "phieudanhgia_vlute.pdf":
+      return `  
+      <form id="dataForm">
+        <div class="form-group">
+          <label for="inputData">Nội dung phiếu đánh giá VLUTE</label>
+          <textarea class="form-control" id="inputData" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi</button>
+      </form>
+      `;
+    case "phieugiaoviec_ctu.pdf":
+      return `  
+      <form id="dataForm">
+        <div class="form-group">
+          <label for="inputData">Nội dung phiếu giao việc CTU</label>
+          <textarea class="form-control" id="inputData" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi</button>
+      </form>
+      `;
+    case "phieutheodoi_ctu.pdf":
+      return `  
+      <form id="dataForm">
+        <div class="form-group">
+          <label for="inputData">Nội dung phiếu theo dõi CTU</label>
+          <textarea class="form-control" id="inputData" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi</button>
+      </form>
+      `;
+    case "phieudanhgia_ctu.pdf":
+      return `  
+      <form id="dataForm">
+        <div class="form-group">
+          <label for="inputData">Nội dung phiếu danh giá CTU</label>
+          <textarea class="form-control" id="inputData" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi</button>
+      </form>
+      `;
+    default:
+      return `<div class="alert alert-warning">Form not available</div>`;
+  }
+}
