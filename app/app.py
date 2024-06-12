@@ -2191,3 +2191,19 @@ async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str, thoigian:str ,token
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
+# xoa biểu mẫu
+@app.post('/delete_bieumau_by_id_list')
+async def delete_bieumau_by_id_list(idList: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("permission") == "admin":
+                result = delete_bieumau_by_id_list_controller(idList.split(','))
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_DELETE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+  

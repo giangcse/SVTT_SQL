@@ -459,3 +459,6 @@ def get_username_nguoi_huong_dan_by_sv_id_controller(id: int):
 
 def check_yeu_cau_in_phieu_controller(id: int):
     return check_yeu_cau_in_phieu(id)
+
+def delete_bieumau_by_id_list_controller(idList:list):
+    return delete_bieumau_by_id_list_model(idList)

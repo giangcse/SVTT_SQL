@@ -31,6 +31,12 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
   },
   columns: [
     {
+      data: "id_bieumau",
+      render: function (data, type, row, meta) {
+        return `<center><input type="checkbox" id='child-checkbox' class="select-checkbox child-checkbox" data-id_bieumau="${row.id_bieumau}"></center>`;
+      },
+    },
+    {
       data: null,
       render: function (data, type, row, meta) {
         // Use meta.row to get the current row index, and add 1 to start from 1
@@ -188,3 +194,87 @@ function getFormByTenFile(tenfile) {
       return `<div class="alert alert-warning">Form not available</div>`;
   }
 }
+
+// Select all/none checkboxes
+$("#bangdsbieumau").on("click", ".select-all-checkbox", function () {
+  var isChecked = $(this).prop("checked");
+  $(".child-checkbox").prop("checked", isChecked);
+});
+// Xóa bieu mau
+$(document).ready(function () {
+  // Ẩn nút khi trang vừa tải
+  $("#xoadanhmucbieumauBtn").hide();
+
+  // Lắng nghe sự kiện khi checkbox thay đổi trạng thái
+  $(document).on("change", ".select-checkbox", function () {
+    if ($(".select-checkbox:checked").length > 0) {
+      // Hiển thị nút nếu có checkbox được chọn
+      $("#xoadanhmucbieumauBtn").show();
+    } else {
+      // Ẩn nút nếu không có checkbox nào được chọn
+      $("#xoadanhmucbieumauBtn").hide();
+    }
+  });
+
+  // Lắng nghe sự kiện thay đổi của checkbox "select-all-checkbox"
+  $(document).on("change", ".select-all-checkbox", function () {
+    $(".select-checkbox")
+      .prop("checked", $(this).prop("checked"))
+      .trigger("change");
+  });
+});
+
+//xoa bieu mau vĩnh viễn
+$("#xoadanhmucbieumauBtn").on("click", function () {
+  let idList = $("#child-checkbox:checked")
+    .map(function () {
+      return $(this).data("id_bieumau");
+    })
+    .get();
+  if (idList.length == 0) {
+    Toast.fire({
+      icon: "warning",
+      title: `Vui lòng chọn biểu mẫu cần xóa.`,
+    });
+  } else {
+    Swal.fire({
+      title: `Xác nhận xóa biểu mẫu?`,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          type: `POST`,
+          url: `delete_bieumau_by_id_list?idList=${idList}`,
+          contentType: "application/json",
+          success: function (res) {
+            console.log(res);
+            if (res.status == "OK") {
+              Toast.fire({
+                icon: "success",
+                title: `Đã xóa ${idList.length} biểu mẫu.`,
+              });
+              bangdsbieumau.ajax.reload();
+            } else {
+              Toast.fire({
+                icon: "warning",
+                title: "Không thể xóa ngành đang được sử dụng.",
+              });
+              bangdsbieumau.ajax.reload();
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error("Error:", status, error);
+            Toast.fire({
+              icon: "error",
+              title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+            });
+            bangdsbieumau.ajax.reload();
+          },
+        });
+      }
+    });
+  }
+});

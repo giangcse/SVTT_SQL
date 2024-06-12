@@ -3,6 +3,44 @@
   <head>
     {% include 'header.html' ignore missing %}
     <title>QUẢN LÝ BIỂU MẪU | HTQL SVTT</title>
+    <style>
+      /* Custom styles for checkbox */
+      .select-all-checkbox,
+      .select-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 15px;
+        height: 15px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        background-color: white;
+        outline: none;
+        cursor: pointer;
+      }
+      .select-all-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .select-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .select-all-checkbox:checked::after {
+        content: "\2713";
+        color: white;
+        font-size: 10px;
+        display: block;
+        text-align: center;
+      }
+      .select-checkbox:checked::after {
+        content: "\2713";
+        color: white;
+        font-size: 10px;
+        display: block;
+        text-align: center;
+      }
+    </style>
   </head>
 
   <body class="hold-transition sidebar-mini">
@@ -35,10 +73,17 @@
           <!-- Map card -->
           <div class="card">
             <div class="card-header border-0 rows">
-              <h3 class="card-title col-lg-7">
+              <h3 class="card-title col-lg-2">
                 <i class="fa-solid fa-list-ol"></i>
                 Danh sách các biểu mẫu
               </h3>
+              <button
+                class="btn btn-dark btn-xs ms-2"
+                style="hidden"
+                id="xoadanhmucbieumauBtn"
+              >
+                <i class="fa-solid fa-trash"></i> Xóa biểu mẫu đã chọn
+              </button>
             </div>
             <div class="card-body">
               <table
@@ -47,12 +92,20 @@
               >
                 <thead>
                   <tr>
-                    <th scope="col" style="text-align: center">
-                      <input type="checkbox" id="checkAll" />
+                    <th scope="col" style="text-align: center" width="5%">
+                      <input
+                        type="checkbox"
+                        id="select-all-checkbox"
+                        class="select-all-checkbox"
+                      />
                     </th>
-                    <th scope="col" style="text-align: center">Trường</th>
-
-                    <th scope="col" style="text-align: center">Thao tác</th>
+                    <th scope="col" style="text-align: center" width="5%"></th>
+                    <th scope="col" style="text-align: center" width="45%">
+                      Trường
+                    </th>
+                    <th scope="col" style="text-align: center" width="45%">
+                      Thao tác
+                    </th>
                   </tr>
                 </thead>
                 <tbody></tbody>

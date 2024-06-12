@@ -1191,3 +1191,14 @@ def update_bieumau_model(id_bieumau:int, r:str):
         return result
     except Exception as e:
         return e
+
+def delete_bieumau_by_id_list_model(idList:list):
+    try:
+        placeholders = ','.join(['?'] * len(idList))
+        query = "DELETE FROM BIEUMAU WHERE ID IN ({})".format(placeholders)
+        result = cursor.execute(query, idList).rowcount
+        cursor.commit()
+        return {'status': 'OK', 'deleted_count': result}
+    except Exception as e:
+        print(e)
+        return {'status': 'ERROR', 'message': str(e)}
