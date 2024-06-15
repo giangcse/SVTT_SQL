@@ -33,7 +33,7 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
     {
       data: "id_bieumau",
       render: function (data, type, row, meta) {
-        return `<center><input type="checkbox" id='child-checkbox' class="select-checkbox child-checkbox" data-id_bieumau="${row.id_bieumau}"></center>`;
+        return `<center><input type="checkbox" id='child-checkbox' name='select-checkbox' class="select-checkbox child-checkbox" data-id_bieumau="${row.id_bieumau}"></center>`;
       },
     },
     {
@@ -221,6 +221,14 @@ $(document).ready(function () {
     $(".select-checkbox")
       .prop("checked", $(this).prop("checked"))
       .trigger("change");
+  });
+  // Lắng nghe sự kiện thay đổi của checkbox "select-checkbox"
+  var select_checkbox_item = $("input[name='select-checkbox']");
+  $(document).on("change", ".select-checkbox", function () {
+    var checked =
+      select_checkbox_item.length ===
+      select_checkbox_item.filter(":checked").length;
+    $(".select-all-checkbox").prop("checked", checked);
   });
 });
 

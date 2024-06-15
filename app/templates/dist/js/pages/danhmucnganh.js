@@ -22,7 +22,7 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
     {
       data: "id",
       render: function (data, type, row, meta) {
-        return `<center><input type="checkbox" id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
+        return `<center><input type="checkbox" name='select-checkbox' id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
       },
     },
     {
@@ -401,5 +401,13 @@ $(document).ready(function () {
     $(".select-checkbox")
       .prop("checked", $(this).prop("checked"))
       .trigger("change");
+  });
+  //lăng  nghe sự thay đổi checkbox child
+  var select_checkbox_item = $("input[name='select-checkbox']");
+  $(document).on("change", ".select-checkbox", function () {
+    var checked =
+      select_checkbox_item.length ===
+      select_checkbox_item.filter(":checked").length;
+    $(".select-all-checkbox").prop("checked", checked);
   });
 });

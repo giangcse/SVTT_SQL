@@ -1180,7 +1180,7 @@ def ctu_chinh_phieu_tiep_nhan_model(id:int , id_bieumau: int):
         return e
     
 def update_bieumau_model(id_bieumau:int, r:str):
-    
+
     try:
         # with open('pdf/phieutiepnhan_ctu.pdf', 'rb') as f:
         with open(r, 'rb') as f:
