@@ -380,6 +380,18 @@ $("#bangdscacnganh").on("click", ".select-all-checkbox", function () {
   var isChecked = $(this).prop("checked");
   $(".child-checkbox").prop("checked", isChecked);
 });
+document.addEventListener("DOMContentLoaded", function () {
+  var checkboxAll = $("#bangdscacnganh .select-all-checkbox");
+  var CheckboxItem = $("input[name='select-checkbox[]']");
+  checkboxAll.on("change", function () {
+    CheckboxItem.prop("checked", $(this).prop("checked"));
+  });
+  CheckboxItem.on("change", function () {
+    var checked =
+      CheckboxItem.length === CheckboxItem.filter(":checked").length;
+    checkboxAll.prop("checked", checked);
+  });
+});
 // Xóa danh mục ngành
 $(document).ready(function () {
   // Ẩn nút khi trang vừa tải
@@ -394,20 +406,5 @@ $(document).ready(function () {
       // Ẩn nút nếu không có checkbox nào được chọn
       $("#xoadanhmucnganhBtn").hide();
     }
-  });
-
-  // Lắng nghe sự kiện thay đổi của checkbox "select-all-checkbox"
-  $(document).on("change", ".select-all-checkbox", function () {
-    $(".select-checkbox")
-      .prop("checked", $(this).prop("checked"))
-      .trigger("change");
-  });
-  //lăng  nghe sự thay đổi checkbox child
-  var select_checkbox_item = $("input[name='select-checkbox']");
-  $(document).on("change", ".select-checkbox", function () {
-    var checked =
-      select_checkbox_item.length ===
-      select_checkbox_item.filter(":checked").length;
-    $(".select-all-checkbox").prop("checked", checked);
   });
 });

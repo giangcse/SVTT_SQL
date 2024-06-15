@@ -33,7 +33,7 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
     {
       data: "id_bieumau",
       render: function (data, type, row, meta) {
-        return `<center><input type="checkbox" id='child-checkbox' name='select-checkbox' class="select-checkbox child-checkbox" data-id_bieumau="${row.id_bieumau}"></center>`;
+        return `<center><input type="checkbox" id='child-checkbox' name='select-checkbox[]' class="select-checkbox child-checkbox" data-id_bieumau="${row.id_bieumau}"></center>`;
       },
     },
     {
@@ -200,6 +200,19 @@ $("#bangdsbieumau").on("click", ".select-all-checkbox", function () {
   var isChecked = $(this).prop("checked");
   $(".child-checkbox").prop("checked", isChecked);
 });
+document.addEventListener("DOMContentLoaded", function () {
+  var checkboxAll = $("#bangdsbieumau .select-all-checkbox");
+  var CheckboxItem = $("input[name='select-checkbox[]']");
+  checkboxAll.on("change", function () {
+    CheckboxItem.prop("checked", $(this).prop("checked"));
+  });
+  CheckboxItem.on("change", function () {
+    var checked =
+      CheckboxItem.length === CheckboxItem.filter(":checked").length;
+    checkboxAll.prop("checked", checked);
+  });
+});
+
 // Xóa bieu mau
 $(document).ready(function () {
   // Ẩn nút khi trang vừa tải
@@ -214,21 +227,6 @@ $(document).ready(function () {
       // Ẩn nút nếu không có checkbox nào được chọn
       $("#xoadanhmucbieumauBtn").hide();
     }
-  });
-
-  // Lắng nghe sự kiện thay đổi của checkbox "select-all-checkbox"
-  $(document).on("change", ".select-all-checkbox", function () {
-    $(".select-checkbox")
-      .prop("checked", $(this).prop("checked"))
-      .trigger("change");
-  });
-  // Lắng nghe sự kiện thay đổi của checkbox "select-checkbox"
-  var select_checkbox_item = $("input[name='select-checkbox']");
-  $(document).on("change", ".select-checkbox", function () {
-    var checked =
-      select_checkbox_item.length ===
-      select_checkbox_item.filter(":checked").length;
-    $(".select-all-checkbox").prop("checked", checked);
   });
 });
 
