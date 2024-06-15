@@ -201,15 +201,17 @@ $("#bangdsbieumau").on("click", ".select-all-checkbox", function () {
   $(".child-checkbox").prop("checked", isChecked);
 });
 document.addEventListener("DOMContentLoaded", function () {
-  var checkboxAll = $("#bangdsbieumau .select-all-checkbox");
+  var checkboxAll = $("#bangdscacnganh .select-all-checkbox");
   var CheckboxItem = $("input[name='select-checkbox[]']");
   checkboxAll.on("change", function () {
-    CheckboxItem.prop("checked", $(this).prop("checked"));
+    var checked = $(this).prop("checked");
+    CheckboxItem.prop("checked", checked);
   });
   CheckboxItem.on("change", function () {
-    var checked =
-      CheckboxItem.length === CheckboxItem.filter(":checked").length;
-    checkboxAll.prop("checked", checked);
+    var checkedAll =
+      CheckboxItem.length ===
+      $('input[name="select-checkbox[]"]:checked').length;
+    checkboxAll.prop("checked", checkedAll);
   });
 });
 
