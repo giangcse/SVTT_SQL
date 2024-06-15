@@ -196,40 +196,30 @@ function getFormByTenFile(tenfile) {
 }
 
 // Select all/none checkboxes
-$("#bangdsbieumau").on("click", ".select-all-checkbox", function () {
-  var isChecked = $(this).prop("checked");
-  $(".child-checkbox").prop("checked", isChecked);
-});
-document.addEventListener("DOMContentLoaded", function () {
-  var checkboxAll = $("#bangdscacnganh .select-all-checkbox");
-  var CheckboxItem = $("input[name='select-checkbox[]']");
-  checkboxAll.on("change", function () {
+$("#bangdsbieumau").on("click", function () {
+  var selectCheckboxAll = $(".select-all-checkbox");
+  var selectCheckboxItem = $(".select-checkbox");
+
+  selectCheckboxAll.change(function () {
     var checked = $(this).prop("checked");
-    CheckboxItem.prop("checked", checked);
+    selectCheckboxItem.prop("checked", checked);
+    renderCheckAllSubmit();
   });
-  CheckboxItem.on("change", function () {
+  selectCheckboxItem.change(function () {
     var checkedAll =
-      CheckboxItem.length ===
+      selectCheckboxItem.length ===
       $('input[name="select-checkbox[]"]:checked').length;
-    checkboxAll.prop("checked", checkedAll);
+    selectCheckboxAll.prop("checked", checkedAll);
+    renderCheckAllSubmit();
   });
-});
-
-// Xóa bieu mau
-$(document).ready(function () {
-  // Ẩn nút khi trang vừa tải
-  $("#xoadanhmucbieumauBtn").hide();
-
-  // Lắng nghe sự kiện khi checkbox thay đổi trạng thái
-  $(document).on("change", ".select-checkbox", function () {
-    if ($(".select-checkbox:checked").length > 0) {
-      // Hiển thị nút nếu có checkbox được chọn
-      $("#xoadanhmucbieumauBtn").show();
+  function renderCheckAllSubmit() {
+    var checkedCount = $('input[name="select-checkbox[]"]:checked').length;
+    if (checkedCount > 0) {
+      $("#xoadanhmucbieumauBtn").prop("disabled", false);
     } else {
-      // Ẩn nút nếu không có checkbox nào được chọn
-      $("#xoadanhmucbieumauBtn").hide();
+      $("#xoadanhmucbieumauBtn").prop("disabled", true);
     }
-  });
+  }
 });
 
 //xoa bieu mau vĩnh viễn

@@ -22,7 +22,7 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
     {
       data: "id",
       render: function (data, type, row, meta) {
-        return `<center><input type="checkbox" name='select-checkbox' id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
+        return `<center><input type="checkbox" name='select-checkbox[]' id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
       },
     },
     {
@@ -376,37 +376,27 @@ $("#bangdscacnganh").on("click", "#unlockNganhBtn", function () {
   });
 });
 // Select all/none checkboxes
-$("#bangdscacnganh").on("click", ".select-all-checkbox", function () {
-  var isChecked = $(this).prop("checked");
-  $(".child-checkbox").prop("checked", isChecked);
-});
-document.addEventListener("DOMContentLoaded", function () {
-  var checkboxAll = $("#bangdscacnganh .select-all-checkbox");
-  var CheckboxItem = $("input[name='select-checkbox[]']");
-  checkboxAll.on("change", function () {
+$("#bangdscacnganh").on("click", function () {
+  var selectCheckboxAll = $(".select-all-checkbox");
+  var selectCheckboxItem = $(".select-checkbox");
+  selectCheckboxAll.change(function () {
     var checked = $(this).prop("checked");
-    CheckboxItem.prop("checked", checked);
+    selectCheckboxItem.prop("checked", checked);
+    renderCheckAllSubmit();
   });
-  CheckboxItem.on("change", function () {
+  selectCheckboxItem.change(function () {
     var checkedAll =
-      CheckboxItem.length ===
+      selectCheckboxItem.length ===
       $('input[name="select-checkbox[]"]:checked').length;
-    checkboxAll.prop("checked", checkedAll);
+    selectCheckboxAll.prop("checked", checkedAll);
+    renderCheckAllSubmit();
   });
-});
-// Xóa danh mục ngành
-$(document).ready(function () {
-  // Ẩn nút khi trang vừa tải
-  $("#xoadanhmucnganhBtn").hide();
-
-  // Lắng nghe sự kiện khi checkbox thay đổi trạng thái
-  $(document).on("change", ".select-checkbox", function () {
-    if ($(".select-checkbox:checked").length > 0) {
-      // Hiển thị nút nếu có checkbox được chọn
-      $("#xoadanhmucnganhBtn").show();
+  function renderCheckAllSubmit() {
+    var checkedCount = $('input[name="select-checkbox[]"]:checked').length;
+    if (checkedCount > 0) {
+      $("#xoadanhmucnganhBtn").prop("disabled", false);
     } else {
-      // Ẩn nút nếu không có checkbox nào được chọn
-      $("#xoadanhmucnganhBtn").hide();
+      $("#xoadanhmucnganhBtn").prop("disabled", true);
     }
-  });
+  }
 });
