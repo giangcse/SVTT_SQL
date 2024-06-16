@@ -150,7 +150,7 @@ $("#xoadanhmucnganhBtn").on("click", function () {
             if (res.status == "OK") {
               Toast.fire({
                 icon: "success",
-                title: `Đã xóa ${idList.length} ngành.`,
+                title: `Đã xóa ngành.`,
               });
               bangdscacnganh.ajax.reload();
             } else {

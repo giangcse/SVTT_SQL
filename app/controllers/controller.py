@@ -227,8 +227,9 @@ def get_danh_sach_nganh_controller():
 def them_nganh_controller(ten: str, kyhieu: str, isDeleted: int, idtruong:int):
     return them_nganh(ten, kyhieu, isDeleted, idtruong)
 
-def get_danh_sach_truong_controller():
-    return get_danh_sach_truong()
+def get_danh_sach_bieumauthuoctruong_controller():
+    return get_danh_sach_bieumauthuoctruong()
+
 def get_danh_sach_all_truong_controller():
     return get_danh_sach_all_truong()
 
@@ -463,3 +464,8 @@ def check_yeu_cau_in_phieu_controller(id: int):
 
 def delete_bieumau_by_id_list_controller(idList:list):
     return delete_bieumau_by_id_list_model(idList)
+
+def update_xoa_bieumau_by_id_controller(id_bieumau:int):
+    return update_xoa_bieumau_by_id_model(id_bieumau)
+def update_mo_khoa_bieumau_by_id_controller(id_bieumau:int):
+    return update_mo_khoa_bieumau_by_id_model(id_bieumau)

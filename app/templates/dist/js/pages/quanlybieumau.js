@@ -26,7 +26,7 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
   responsive: true,
   ajax: {
     type: "GET",
-    url: "get_danh_sach_truong",
+    url: "get_danh_sach_bieumauthuoctruong",
     dataSrc: "",
   },
   columns: [
@@ -47,13 +47,27 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
     {
       data: null,
       render: function (data, type, row) {
-        const kyhieu = row.kyhieu ? row.kyhieu.toLowerCase() : "";
-        return `
-        <div class="dropdown">
-        <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
-        <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" data-tenfile="${row.tenfile}" href="#"><i class="fas fa-pencil-alt"></i></a>
-        </div>
+        if (row.bieumau_isDelete == 1) {
+          return `
+          <div class="dropdown">
+          <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
+            <a class="btn btn-warning btn-sm" id="unlockBieuMauBtn" data-id_bieumau="${row.id_bieumau}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Mở khóa biểu mẫu">
+              <i class="fa-solid fa-key"></i>
+            </a>
+          </div>
         `;
+        } else {
+          return `
+          
+          <div class="dropdown">
+          <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
+          <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" data-tenfile="${row.tenfile}" href="#"><i class="fas fa-pencil-alt"></i></a>
+          <a class="btn btn-danger btn-sm" id="deleteBieuMauBtn" data-id_bieumau="${row.id_bieumau}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá biểu mẫu">
+            <i class="fa-solid fa-trash"></i>
+          </a>
+          </div>
+          `;
+        }
       },
     },
   ],
@@ -252,13 +266,13 @@ $("#xoadanhmucbieumauBtn").on("click", function () {
             if (res.status == "OK") {
               Toast.fire({
                 icon: "success",
-                title: `Đã xóa ${idList.length} biểu mẫu.`,
+                title: `Đã xóa biểu mẫu.`,
               });
               bangdsbieumau.ajax.reload();
             } else {
               Toast.fire({
                 icon: "warning",
-                title: "Không thể xóa ngành đang được sử dụng.",
+                title: "Không thể xóa biểu mẫu đang được sử dụng.",
               });
               bangdsbieumau.ajax.reload();
             }
@@ -275,4 +289,84 @@ $("#xoadanhmucbieumauBtn").on("click", function () {
       }
     });
   }
+});
+
+// Xoa bieu mau
+$("#bangdsbieumau").on("click", "#deleteBieuMauBtn", function () {
+  let id_bieumau = $(this).data("id_bieumau");
+
+  Swal.fire({
+    title: `Xác nhận ngưng sử dụng biểu mẫu`,
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Xác nhận",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: `POST`,
+        url: `update_xoa_bieumau_by_id?id_bieumau=${id_bieumau}`,
+        success: function (res) {
+          if (res.status == "OK") {
+            Toast.fire({
+              icon: "success",
+              title: `Ngưng sử dụng biểu mẫu thành công!.`,
+            });
+            bangdsbieumau.ajax.reload();
+          } else if (res.status == "EXISTS") {
+            Toast.fire({
+              icon: "warning",
+              title: "Biểu mẫu đang được sử dụng. Vui lòng chọn Ngừng sử dụng",
+            });
+          }
+        },
+        error: function () {
+          Toast.fire({
+            icon: "error",
+            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+          });
+        },
+      });
+    }
+  });
+});
+
+// Unlock bieumau
+$("#bangdsbieumau").on("click", "#unlockBieuMauBtn", function () {
+  let id_bieumau = $(this).data("id_bieumau");
+
+  Swal.fire({
+    title: `Xác nhận mở khóa biểu mẫu`,
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Mở khóa",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: `POST`,
+        url: `update_mo_khoa_bieumau_by_id?id_bieumau=${id_bieumau}`,
+        success: function (res) {
+          if (res.status == "OK") {
+            Toast.fire({
+              icon: "success",
+              title: `Mở khóa biểu mẫu thành công.`,
+            });
+            bangdsbieumau.ajax.reload();
+          } else {
+            Toast.fire({
+              icon: "error",
+              title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+            });
+          }
+        },
+        error: function () {
+          Toast.fire({
+            icon: "error",
+            title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+          });
+        },
+      });
+    }
+  });
 });

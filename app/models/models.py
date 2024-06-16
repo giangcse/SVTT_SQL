@@ -648,28 +648,18 @@ def update_chi_tiet_nganh_by_id(id: int, ten: str, kyhieu: str, idtruong:int):
         return True
     except Exception as e:
         return e
-def get_danh_sach_truong():
+    
+def get_danh_sach_bieumauthuoctruong():
     try:
         query = """
-        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau, bm.tenfile as tenfile
+        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu, bm.id as id_bieumau, bm.tenbieumau as tenbieumau, bm.tenfile as tenfile,bm.isDelete as bieumau_isDelete
         FROM BIEUMAU bm 
         JOIN TRUONG t 
         ON bm.truong = t.id
         ORDER BY bm.truong;
         """
         result = cursor.execute(query).fetchall()
-        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4], 'tenfile' : row[5]} for row in result]
-        return danh_sach_truong
-    except Exception as e:
-        return e
-def get_danh_sach_all_truong():
-    try:
-        query = """
-        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu
-        FROM Truong t 
-        """
-        result = cursor.execute(query).fetchall()
-        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2]} for row in result]
+        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2], 'id_bieumau': row[3] , 'tenbieumau':row[4], 'tenfile' : row[5], 'bieumau_isDelete': row[6]} for row in result]
         return danh_sach_truong
     except Exception as e:
         return e
@@ -1103,8 +1093,8 @@ def delete_nganh_by_id_list_model(idList: list):
         placeholders = ','.join(['?'] * len(idList))
         query = "DELETE FROM Nganh WHERE ID IN ({}) and isDeleted = 1".format(placeholders)
         result = cursor.execute(query, idList).rowcount
-        if result == 0:
-            return {'status': 'ERROR', 'message': 'Không thể xóa ngành đang hoạt động'}
+        if result ==0:
+            return {'status': 'NOT_DELETE'}
         cursor.commit()
         return {'status': 'OK', 'deleted_count': result}
     except Exception as e:
@@ -1208,10 +1198,41 @@ def update_bieumau_model(id_bieumau:int, r:str):
 def delete_bieumau_by_id_list_model(idList:list):
     try:
         placeholders = ','.join(['?'] * len(idList))
-        query = "DELETE FROM BIEUMAU WHERE ID IN ({})".format(placeholders)
+        query = "DELETE FROM BIEUMAU WHERE ID IN ({}) and isDelete = 1".format(placeholders)
         result = cursor.execute(query, idList).rowcount
+        if result ==0:
+            return {'status':'NOT_DELETE'}
         cursor.commit()
         return {'status': 'OK', 'deleted_count': result}
     except Exception as e:
         print(e)
         return {'status': 'ERROR', 'message': str(e)}
+    
+def get_danh_sach_all_truong():
+    try:
+        query = """
+        SELECT t.id as id, t.ten as ten, t.kyhieu as kyhieu
+        FROM Truong t 
+        """
+        result = cursor.execute(query).fetchall()
+        danh_sach_truong = [{'id': row[0], 'ten': row[1], 'kyhieu': row[2]} for row in result]
+        return danh_sach_truong
+    except Exception as e:
+        return e
+
+def update_xoa_bieumau_by_id_model(id_bieumau: int):
+    try:
+        query = "UPDATE BIEUMAU SET isDelete = 1 WHERE ID = ?"
+        result = cursor.execute(query, id_bieumau).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+def update_mo_khoa_bieumau_by_id_model(id_bieumau: int):
+    try:
+        query = "UPDATE BIEUMAU SET isDelete = 0 WHERE ID = ?"
+        result = cursor.execute(query, id_bieumau).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e

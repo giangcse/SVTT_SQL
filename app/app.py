@@ -1243,10 +1243,15 @@ async def get_ds_dia_chi_route():
 async def get_danh_sach_nganh_route():
     return JSONResponse(status_code=200, content=get_danh_sach_nganh_controller())
 
+@app.get('/get_danh_sach_bieumauthuoctruong')
+async def get_danh_sach_bieumauthuoctruong_route():
+    return JSONResponse(status_code=200, content=get_danh_sach_bieumauthuoctruong_controller())
+
 
 @app.get('/get_danh_sach_truong')
 async def get_danh_sach_truong_route():
     return JSONResponse(status_code=200, content=get_danh_sach_all_truong_controller())
+
 
 
 @app.post('/thong_tin_sinh_vien')
@@ -2207,3 +2212,36 @@ async def delete_bieumau_by_id_list(idList: str, token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
   
+# xoa bieu mau
+@app.post('/update_xoa_bieumau_by_id')
+async def update_xoa_bieumau_by_id_route(id_bieumau: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_xoa_bieumau_by_id_controller(id_bieumau)
+                print('id' , id_bieumau)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'EXISTS'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_mo_khoa_bieumau_by_id')
+async def update_mo_khoa_nganh_by_id_route(id_bieumau: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_mo_khoa_bieumau_by_id_controller(id_bieumau)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'EXISTS'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
