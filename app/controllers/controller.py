@@ -229,7 +229,8 @@ def them_nganh_controller(ten: str, kyhieu: str, isDeleted: int, idtruong:int):
 
 def get_danh_sach_truong_controller():
     return get_danh_sach_truong()
-
+def get_danh_sach_all_truong_controller():
+    return get_danh_sach_all_truong()
 
 def insert_thong_tin_sinh_vien_controller(mssv: str, hoten: str, gioitinh: int, sdt: str, email: str, diachi: str, malop: str, truong: str, nganh: str, khoa: int, password: str):
     return insert_sinh_vien(mssv, hoten, gioitinh, sdt, email, diachi, malop, truong, nganh, khoa, password)

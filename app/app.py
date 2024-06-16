@@ -1246,7 +1246,7 @@ async def get_danh_sach_nganh_route():
 
 @app.get('/get_danh_sach_truong')
 async def get_danh_sach_truong_route():
-    return JSONResponse(status_code=200, content=get_danh_sach_truong_controller())
+    return JSONResponse(status_code=200, content=get_danh_sach_all_truong_controller())
 
 
 @app.post('/thong_tin_sinh_vien')
