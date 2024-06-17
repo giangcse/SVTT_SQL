@@ -380,3 +380,91 @@ $("#bangdsbieumau").on("click", "#unlockBieuMauBtn", function () {
     }
   });
 });
+
+// Them bieu mau
+// Tạo thông tin ngành
+$("#taodanhmucbieumauBtn").on("click", function () {
+  clear_modal();
+  $.ajax({
+    type: `GET`,
+    url: `get_danh_sach_truong`,
+    success: function (res) {
+      let options = "";
+      res.forEach((school) => {
+        options += `<option value="${school.id}">${school.ten} (${school.id})</option>`;
+      });
+      $("#modal_chontruong_select").html(options);
+    },
+  });
+  $("#modal_title").text(`Tạo biểu mẫu mới`);
+  $("#modal_body").html(`
+      <div class="form-group">
+        <label for="modal_tenbieumau_input">Tên biểu mẫu (vd: Phiếu theo dõi - ctu)</label>
+        <input type="text" class="form-control" id="modal_tenbieumau_input" required />
+      </div>
+      <div class="form-group">
+        <label for="modal_data_input">File pdf</label>
+        <input type="file" class="form-control" id="modal_data_input" required />
+      </div>
+      <div class="form-group">
+        <label for="modal_chontruong_select">Chọn trường</label>
+        <select id="modal_chontruong_select" class="form-control">
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="modal_tenfile_input">Tên file (vd: phieutheodoi_ctu.pdf)</label>
+        <input type="text" class="form-control" id="modal_tenfile_input" required />
+      </div>
+    `);
+  $("#modal_footer").append(
+    `<button type="button" class="btn btn-primary" id="modal_submit_bieumau_btn">
+        <i class="fa-solid fa-floppy-disk"></i> 
+        Lưu 
+      </button>`
+  );
+
+  $("#modal_id").modal("show");
+
+  let tenbieumau = $("#modal_tenbieumau_input");
+  let data = $("#modal_data_input");
+  let idtruong = $("#modal_chontruong_select");
+  let tenfile = $("#modal_tenfile_input");
+  $("#modal_submit_bieumau_btn").on("click", function () {
+    var formData = new FormData();
+    formData.append("file", data[0].files[0]);
+    formData.append("ten", tenbieumau.val());
+    formData.append("idtruong", idtruong.val());
+    formData.append("tenfile", tenfile.val());
+    formData.append("isDelete", 0); // Assuming isDeleted is always 0
+    $.ajax({
+      type: `POST`,
+      url: `them_bieumau`,
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (res) {
+        console.log(res);
+        if (res.status == "OK") {
+          Toast.fire({
+            icon: "success",
+            title: `Đã thêm biểu mẫu ${tenbieumau.val()}.`,
+          });
+          $("#modal_id").modal("hide");
+          bangdsbieumau.ajax.reload();
+        } else if (res.status == "NOT_CREATE") {
+          Toast.fire({
+            icon: "warning",
+            title: `Vui lòng tạo lại.`,
+          });
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Error:", status, error);
+        Toast.fire({
+          icon: "error",
+          title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
+        });
+      },
+    });
+  });
+});

@@ -469,3 +469,6 @@ def update_xoa_bieumau_by_id_controller(id_bieumau:int):
     return update_xoa_bieumau_by_id_model(id_bieumau)
 def update_mo_khoa_bieumau_by_id_controller(id_bieumau:int):
     return update_mo_khoa_bieumau_by_id_model(id_bieumau)
+
+def them_bieumau_controller(ten:str,file_location:str,idtruong:int, tenfile:str):
+    return them_bieumau_model(ten,file_location,idtruong,tenfile)

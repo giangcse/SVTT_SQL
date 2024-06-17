@@ -1,5 +1,5 @@
 from pipes import Template
-from fastapi import FastAPI, Request, Depends, HTTPException, Cookie, UploadFile, File, Body
+from fastapi import FastAPI, Request, Depends, HTTPException, Cookie, UploadFile, File, Body,Form
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import Response, JSONResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -36,6 +36,10 @@ app.mount("/dist", StaticFiles(directory=os.path.join(os.getcwd(),
           "app", "templates", "dist")), name="dist")
 app.mount("/plugins", StaticFiles(directory=os.path.join(os.getcwd(),
           "app", "templates", "plugins")), name="plugins")
+
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 templates = Jinja2Templates(
     directory=os.path.join(os.getcwd(), "app", "templates"))
@@ -94,6 +98,10 @@ ALGORITHM = algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = 60*3
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+class BieuMau(BaseModel):
+    ten: str
+    idtruong: int
+    tenfile: str
 
 def verify_user_route(credentials: UserCredentials):
     if '@' in credentials.username:
@@ -120,6 +128,8 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return username
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
 # Middleware để bắt lỗi 404 và xử lý
 
 
@@ -2245,3 +2255,50 @@ async def update_mo_khoa_nganh_by_id_route(id_bieumau: int, token: str = Cookie(
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
+
+# @app.post('/them_bieumau')
+# async def them_bieumau(ten: str ,file:str ,idtruong:int, tenfile:str,isDelete:int ,token: str = Cookie(None)):
+#     print(file)
+#     print(tenfile)
+#     if token:
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#             permission = payload.get("permission")
+#             if permission == "admin":
+#                 result = them_bieumau_controller(ten,kyhieu,isDeleted,idtruong)
+#                 if result['status'] == 'OK':
+#                     return JSONResponse(status_code=200, content=result)
+#                 else:
+#                     return JSONResponse(status_code=200, content={'status': 'NOT_CREATE'})
+#         except jwt.PyJWTError:
+#             return RedirectResponse('/login')
+#     return RedirectResponse('/login')
+
+@app.post('/them_bieumau')
+async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), tenfile: str = Form(...), file: UploadFile = File(...), token: str = Cookie(None)):
+    print('ten:' ,ten)
+    print('tenfile:' ,tenfile)
+    print('file' , file)
+    print('idtruong' , idtruong)
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                if file and allowed_file(file.filename):
+                    file_location = os.path.join(UPLOAD_FOLDER, tenfile)
+                    print('file_location:',file_location)
+                    with open(file_location, "wb") as f:
+                        f.write(file.file.read())
+                    r = them_bieumau_controller(ten,file_location,idtruong,tenfile)
+                    print('r:',r)
+                    if r:
+                        return JSONResponse(status_code=200, content={"message": "File uploaded and saved to database successfully!", "status": "OK"})
+                    else:
+                        return JSONResponse(status_code=400, content={"error": "Could not save to database"})
+                else:
+                    return JSONResponse(status_code=400, content={"error": "File type not allowed"})
+        except jwt.PyJWTError:
+            return RedirectResponse(url='/login')
+    return RedirectResponse(url='/login')
+    

@@ -1236,3 +1236,20 @@ def update_mo_khoa_bieumau_by_id_model(id_bieumau: int):
         return result
     except Exception as e:
         return e
+    
+def them_bieumau_model(ten, file_location, idtruong,tenfile):
+    try:
+        with open(file_location, 'rb') as file:
+            file_content = file.read()
+        extn = file_location.split('.')[-1]
+        query = """
+        INSERT INTO BIEUMAU (tenbieumau, data, extension, truong, isDelete, tenfile)
+        VALUES (?, ?, ?,?,?,?)
+        """
+        result = cursor.execute(query, (ten, file_content ,extn, idtruong, 0,tenfile)).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+        
+    
