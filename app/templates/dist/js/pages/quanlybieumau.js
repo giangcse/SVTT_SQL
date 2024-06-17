@@ -57,8 +57,8 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
           </div>
         `;
         } else {
-          return `
-          
+          if (row.tenfile === "phieutiepnhan_ctu.pdf") {
+            return `
           <div class="dropdown">
           <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
           <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" data-tenfile="${row.tenfile}" href="#"><i class="fas fa-pencil-alt"></i></a>
@@ -67,6 +67,16 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
           </a>
           </div>
           `;
+          } else {
+            return `
+          <div class="dropdown">
+          <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
+          <a class="btn btn-danger btn-sm" id="deleteBieuMauBtn" data-id_bieumau="${row.id_bieumau}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá biểu mẫu">
+            <i class="fa-solid fa-trash"></i>
+          </a>
+          </div>
+          `;
+          }
         }
       },
     },
