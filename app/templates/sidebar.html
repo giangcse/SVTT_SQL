@@ -42,7 +42,7 @@
             <p>Dashboard</p>
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item parent" hidden>
           <a href="#" class="nav-link" id="sinhvien">
             <i class="fa-solid fa-user-graduate"></i>
             <p>
@@ -56,6 +56,7 @@
                 href="/danhgiasinhvien"
                 class="nav-link"
                 id="sinhvien_danhgiasinhvien"
+                hidden
               >
                 <i class="fa-solid fa-person-circle-check"></i>
                 <p>Đánh giá sinh viên</p>
@@ -63,7 +64,7 @@
             </li>
 
             <li class="nav-item">
-              <a href="/giaoviec" class="nav-link" id="sinhvien_giaoviec">
+              <a href="/giaoviec" class="nav-link" id="sinhvien_giaoviec" hidden>
                 <i class="fa-solid fa-business-time"></i>
                 <p>Giao việc sinh viên</p>
               </a>
@@ -73,20 +74,21 @@
                 href="/theodoitiendo"
                 class="nav-link"
                 id="sinhvien_theodoitiendo"
+                hidden
               >
                 <i class="fa-solid fa-timeline"></i>
                 <p>Theo dõi tiến độ</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="/yeucauinphieu" class="nav-link" id="sinhvien_yeucauinphieu">
+              <a href="/yeucauinphieu" class="nav-link" id="sinhvien_yeucauinphieu" hidden>
                 <i class="fa-solid fa-check-to-slot"></i>
                 <p>Yêu cầu in phiếu</p>
               </a>
             </li>
           </ul>
         </li>
-        <li class="nav-item">
+        <li class="nav-item parent" hidden>
           <a href="#" class="nav-link" id="thuctap">
             <i class="fa-solid fa-list"></i>
             <p>
@@ -100,6 +102,7 @@
                 href="/danhsachdetai"
                 class="nav-link"
                 id="thuctap_danhsachdetai"
+                hidden
               >
                 <i class="fa-solid fa-diagram-project"></i>
                 <p>Danh sách đề tài</p>
@@ -110,6 +113,7 @@
                 href="/danhsachkythuctap"
                 class="nav-link"
                 id="thuctap_danhsachkythuctap"
+                hidden
               >
                 <i class="fa-solid fa-calendar-days"></i>
                 <p>Danh sách kỳ thực tập</p>
@@ -120,6 +124,7 @@
                 href="/danhsachnhomthuctap"
                 class="nav-link"
                 id="thuctap_danhsachnhomthuctap"
+                hidden
               >
                 <i class="fa-solid fa-layer-group"></i>
                 <p>Danh sách nhóm</p>
@@ -127,7 +132,24 @@
             </li>
           </ul>
         </li>
-        <li class="nav-item">
+        <li class="nav-item parent" hidden>
+          <a href="#" class="nav-link" id="templates">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <p>
+              Danh sách biểu mẫu
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/templates" class="nav-link" id="templates_templates" hidden>
+                <i class="fa-solid fa-book"></i>
+                <p>Biểu mẫu</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item parent" hidden>
           <a href="#" class="nav-link" id="danhmuc">
             <i class="fa-solid fa-table-list"></i>
             <p>
@@ -141,31 +163,37 @@
                 href="/danhmucnganh"
                 class="nav-link"
                 id="danhmuc_danhmucnganh"
+                hidden
               >
                 <i class="fa-solid fa-code-branch"></i>
                 <p>Danh mục ngành</p>
               </a>
             </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link" id="templates">
-            <i class="fa-solid fa-book-bookmark"></i>
-            <p>
-              Danh sách biểu mẫu
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="/templates" class="nav-link" id="templates_templates">
-                <i class="fa-solid fa-book"></i>
-                <p>Biểu mẫu</p>
+              <a
+                href="/mappingchucnang"
+                class="nav-link"
+                id="danhmuc_mappingchucnang"
+                hidden
+              >
+                <i class="fa-solid fa-sitemap"></i>
+                <p>Mapping chức năng</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href="/danhmucphanquyen"
+                class="nav-link"
+                id="danhmuc_danhmucphanquyen"
+                hidden
+              >
+                <i class="fa-solid fa-user-gear"></i>
+                <p>Danh mục phân quyền</p>
               </a>
             </li>
           </ul>
         </li>
-        <li class="nav-item" id="menu_hethong">
+        <li class="nav-item parent" id="menu_hethong">
           <a href="#" class="nav-link" id="hethong">
             <i class="fa-solid fa-gears"></i>
             <p>

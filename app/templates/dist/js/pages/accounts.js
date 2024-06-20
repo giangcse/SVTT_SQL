@@ -5,6 +5,21 @@ var Toast = Swal.mixin({
   timer: 3000,
 });
 
+// Khởi tạo Map
+let roleStatusMap = new Map();
+
+$(document).ready(function () { //LẤY USERNAME TỪ COOKIE
+  let c = document.cookie.split(";");
+  let username = "";
+  c.forEach(function (val) {
+    if (val.includes("username=")) {
+      username = val.split("username=")[1];
+    }
+  });
+  // console.log(username);
+});
+
+
 let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
   paging: true,
   lengthChange: false,
@@ -16,77 +31,112 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
   ajax: {
     type: "GET",
     url: "get_ds_tai_khoan",
-    dataSrc: "",
+    dataSrc: function(json) {
+      // Nhóm dữ liệu theo idnguoihuongdan
+      var groupedData = json.reduce((acc, item) => {
+          if (!acc[item.id]) {
+              acc[item.id] = {
+                  id: item.id,
+                  hoten: item.hoten,
+                  username: item.username,
+                  email: item.email,
+                  roles: [],
+                  trangthai: item.trangthai,
+                  rolenames: []
+              };
+          }
+          // Chỉ thêm role nếu không phải là null
+          if (item.role !== null) {
+            acc[item.id].roles.push(item.role);
+            acc[item.id].rolenames.push(item.tenvaitro);
+          }
+          return acc;
+      }, {});
+
+      // Chuyển đổi dữ liệu đã nhóm thành mảng
+      var result = Object.values(groupedData).map((user, index) => {
+          return {
+              stt: index + 1, // Số thứ tự
+              id: user.id, // ID User
+              hoten: user.hoten,
+              username: user.username,
+              email: user.email,
+              roles: user.roles,
+              trangthai: user.trangthai, 
+              rolenames: user.rolenames
+          };
+      });
+
+      return result;
+    }
   },
   columns: [
-    {
-      data: null,
-      render: function (data, type, row, meta) {
-        // Use meta.row to get the current row index, and add 1 to start from 1
-        return "<center>" + (meta.row + 1) + "</center>";
-      },
+  { title: "#", data: "stt" }, // Cột số thứ tự
+  { title: "Họ tên", data: "hoten" },
+  { title: "Tài khoản", data: "username" }, 
+  { title: "Email", data: "email" }, 
+  { title: "Role", data: "rolenames",
+    render: function (data, type, row) {
+      return `<center>
+        ${data.filter(function(r) {
+            return r !== null;
+        }).map(function(r) {
+          if(r==="Quản trị"){
+            return `<span class="badge badge-success"><i class="fa-solid"></i> ${r} </span>`;
+          }
+          else {
+            return `<span class="badge badge-light"><i class="fa-solid"></i> ${r} </span>`;
+          }
+        }).join('<br>')}
+      </center>`;
     },
-    { data: "hoten" },
-    { data: "username" },
-    { data: "email" },
-    {
-      data: "role",
-      render: function (data, type, row) {
-        if (data == 0) {
-          return '<center><span class="badge badge-primary"><i class="fa-solid fa-user"></i> Người hướng dẫn</span></center>';
-        } else if (data == 1) {
-          return '<center><span class="badge badge-success"><i class="fa-solid fa-user-tie"></i> Quản trị</span></center>';
-        }
-      },
+  },
+  { title: "Trạng Thái", data: "trangthai",
+    render: function (data, type, row) {
+      if (data == 1) {
+        return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang sử dụng</span></center>';
+      } else {
+        return '<center><span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Ngưng sử dụng</span></center>';
+      }
     },
-    {
-      data: "trangthai",
-      render: function (data, type, row) {
-        if (data == 0) {
-          return '<center><span class="badge badge-danger"><i class="fa-solid fa-x"></i> Ngưng hoạt động</span></center>';
-        } else {
-          return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang hoạt động</span></center>';
-        }
-      },
+  },
+  {
+    data: "id",
+    render: function (data, type, row) {
+      if (row.trangthai == 1) {
+        return `<center>
+            <a class="btn btn-secondary btn-sm" id="resetBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reset mật khẩu">
+              <i class="fa-solid fa-key"></i>
+            </a>
+            <a class="btn btn-info btn-sm" id="editBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
+              <i class="fa-solid fa-pencil-alt"></i>
+            </a>
+            <a class="btn btn-primary btn-sm" id="roleBtn" data-id="${data}" data-roles='${JSON.stringify(row.roles)}' data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Phân quyền">
+              <i class="fa-solid fa-pen-ruler"></i>
+            </a>
+            <a class="btn btn-warning btn-sm" id="banBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
+              <i class="fa-solid fa-user-slash"></i>
+            </a>
+            <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </center>`;
+      } else {
+        return `
+          <center>
+            <a class="btn btn-success btn-sm" id="activeBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
+              <i class="fa-solid fa-user-check"></i>
+            </a>
+            <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </center>
+        `;
+      }
     },
-    {
-      data: "id",
-      render: function (data, type, row) {
-        if (row.trangthai == 1) {
-          return `<center>
-              <a class="btn btn-secondary btn-sm" id="resetBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reset mật khẩu">
-                <i class="fa-solid fa-key"></i>
-              </a>
-              <a class="btn btn-info btn-sm" id="editBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
-                <i class="fa-solid fa-pencil-alt"></i>
-              </a>
-              <a class="btn btn-primary btn-sm" id="roleBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Phân quyền">
-                <i class="fa-solid fa-pen-ruler"></i>
-              </a>
-              <a class="btn btn-warning btn-sm" id="banBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
-                <i class="fa-solid fa-user-slash"></i>
-              </a>
-              <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
-                <i class="fa-solid fa-trash"></i>
-              </a>
-            </center>`;
-        } else {
-          return `
-            <center>
-              <a class="btn btn-success btn-sm" id="activeBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ngưng sử dụng">
-                <i class="fa-solid fa-user-check"></i>
-              </a>
-              <a class="btn btn-danger btn-sm" id="deleteBtn" data-id="${data}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Xoá người dùng">
-                <i class="fa-solid fa-trash"></i>
-              </a>
-            </center>
-          `;
-        }
-      },
-    },
-  ],
+  },
+],
 });
-
 // Clear modal
 function clear_modal() {
   $("#modal_title").empty();
@@ -253,6 +303,12 @@ $("#bangdstaikhoan").on("click", "#resetBtn", function () {
 // Cập nhật quyền người dùng
 $("#bangdstaikhoan").on("click", "#roleBtn", function () {
   let id = $(this).data("id");
+  let current_roles = $(this).attr("data-roles"); // Lấy chuỗi JSON từ thuộc tính
+  try {
+    current_roles = JSON.parse(current_roles); // Chuyển đổi chuỗi JSON thành mảng
+  } catch (e) {
+    console.error("JSON parse error: ", e);
+  }  // MAPPING ĐỂ KIỂM TRA CÁC CHỨC NĂNG NÀO ĐANG ĐƯỢC CHỌN CHO VAI TRÒ
 
   clear_modal();
 
@@ -260,12 +316,28 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function () {
   $("#modal_body").html(`
     <div class="form-group">
       <label for="modal_role_select">Phân quyền</label>
-      <select id="modal_role_select" class="form-control">
-        <option value="1">Quản trị viên</option>
-        <option value="0">Người hướng dẫn</option>
+      <select id="modal_role_select" class="form-control multiple-select"  multiple="multiple>
+        <option disabled value="-1">-- Chọn các vai trò --</option>
       </select>
     </div>
   `);
+  $.ajax({
+    type: "GET",
+    url: `get_all_vai_tro`,
+    success: function (ress) {
+      $.each(ress, function (idx, val) {
+        if(current_roles.includes(val.id)){            // CHỈ HIỂN THỊ CÁC VAI TRÒ ĐANG SỬ DỤNG
+          $("#modal_role_select").append(
+            '<option selected value="' + val.id + '">' + val.tenvaitro + "</option>"
+          );
+        } else {
+          $("#modal_role_select").append(
+            '<option value="' + val.id + '">' + val.tenvaitro + "</option>"
+          );
+        }
+      });
+    },
+  });
   $("#modal_footer").append(
     `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn">
       <i class="fa-solid fa-floppy-disk"></i> 
@@ -275,21 +347,60 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function () {
 
   $("#modal_id").modal("show");
 
+  // Khởi tạo lại select2 cho các phần tử mới
+  $(".multiple-select").select2({
+    placeholder: "",
+    allowClear: true, 
+    // dropdownParent: $('#modal_body'),
+    theme: "bootstrap",
+    tokenSeparators: [',', ' '],
+    closeOnSelect: false,
+  });
+
   $("#modal_submit_btn").on("click", function () {
+    role = $("#modal_role_select").val()
+    if(role.length==0){
+      Toast.fire({
+        icon: "warning",
+        title: `Vui lòng chọn vai trò`,
+      });
+      return;
+    }
     $.ajax({
       type: `POST`,
-      url: `update_phan_quyen_nguoi_huong_dan_by_id?id=${id}&role=${$(
-        "#modal_role_select"
-      ).val()}`,
+      url: `update_phan_quyen_nguoi_huong_dan_by_id`,
+      contentType: "application/json",
+        data: JSON.stringify({
+          userid: id,
+          roles: role
+        }),
       success: function (res) {
-        if (res.status == "OK") {
+        if (res.result == 1) {
           Toast.fire({
             icon: "success",
             title: `Đã phân quyền người dùng.`,
           });
-          $("#modal_id").modal("hide");
-          bangdstaikhoan.ajax.reload();
         }
+        else if (res.result == -1) {
+          Toast.fire({
+            icon: "error",
+            title: `Thêm phân quyền không thành công`,
+          });
+        }
+        else if (res.result == -2) {
+          Toast.fire({
+            icon: "error",
+            title: `Gỡ phân quyền không thành công`,
+          });
+        }
+        else if (res.result == -3) {
+          Toast.fire({
+            icon: "error",
+            title: `Cập nhật phân quyền không thành công`,
+          });
+        }
+        $("#modal_id").modal("hide");
+        bangdstaikhoan.ajax.reload();
       },
       error: function () {
         Toast.fire({

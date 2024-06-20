@@ -355,8 +355,8 @@ def update_reset_mat_khau_nguoi_huong_dan_by_id_controller(id: int, password: st
     return update_reset_mat_khau_nguoi_huong_dan_by_id(id, password)
 
 
-def update_phan_quyen_nguoi_huong_dan_by_id_controller(id: int, role: int):
-    return update_phan_quyen_nguoi_huong_dan_by_id(id, role)
+# def update_phan_quyen_nguoi_huong_dan_by_id_controller(id: int, role: int):
+#     return update_phan_quyen_nguoi_huong_dan_by_id(id, role)
 
 
 def get_thong_tin_nguoi_huong_dan_by_id_controller(id: int):
@@ -415,7 +415,13 @@ def vlute_chinh_sua_danh_gia_controller(id_bieumau: int):
 def chi_tiet_bieu_mau_controller(id: str, id_bieumau: int):
     return chi_tiet_bieu_mau_model(id)
 
+def ctu_chinh_phieu_tiep_nhan_controller(id: int , id_bieumau: int):
+    return ctu_chinh_phieu_tiep_nhan_model(id,id_bieumau)
 
+
+
+
+# Branch DUY ANH
 def get_ds_loai_yeu_cau_controller():
     return get_ds_loai_yeu_cau()
 
@@ -454,3 +460,107 @@ def get_username_nguoi_huong_dan_by_sv_id_controller(id: int):
 
 def check_yeu_cau_in_phieu_controller(id: int):
     return check_yeu_cau_in_phieu(id)
+
+
+def get_all_chuc_nang_controller():
+    return get_all_chuc_nang()
+
+
+def insert_chuc_nang_controller(url: str, ten: str, mota: str, trangthai: int):
+    return insert_chuc_nang(url, ten, mota, trangthai)
+
+
+def update_xoa_chuc_nang_controller(id: int):
+    return update_xoa_chuc_nang (id)
+
+def get_chi_tiet_chuc_nang_by_id_controller(id: int):
+    return get_chi_tiet_chuc_nang_by_id(id)
+
+
+def update_chi_tiet_chuc_nang_by_id_controller(id: int, url: str, ten: str, mota: str, trangthai: int):
+    return update_chi_tiet_chuc_nang_by_id(id, url, ten, mota, trangthai)
+
+def get_all_vai_tro_chuc_nang_controller():
+    return get_all_vai_tro_chuc_nang()
+
+
+def update_trang_thai_vai_tro_controller(idvt: int, trangthai: int):
+    return update_trang_thai_vai_tro(idvt, trangthai)
+
+
+def insert_vai_tro_controller(ten: str, idcn: list):
+    idvt = insert_vai_tro(ten)
+    print("\n\n\n\n\nID vai trò:\n", idvt, "\n\n\n\n\n")
+    if idvt == -1:
+        return -1 #BÁO LỖI THÊM VAI TRÒ KHÔNG THÀNH CÔNG
+    return update_vai_tro_chuc_nang_controller(idvt, idcn)
+
+
+def update_vai_tro_chuc_nang_controller(idvt: int, new_func: list):
+    chi_tiet_vai_tro = get_chi_tiet_vai_tro(idvt)
+    if isinstance(chi_tiet_vai_tro, Exception):
+        print(f"Lỗi xảy ra khi lấy chi tiết vai trò: {chi_tiet_vai_tro}")
+        return -2  # BÁO LỖI LẤY CHI TIẾT VAI TRÒ KHÔNG THÀNH CÔNG
+    current_func = [item['idchucnang'] for item in chi_tiet_vai_tro if item['idchucnang'] is not None]
+    functions_to_add = list(set(new_func) - set(current_func))
+    functions_to_remove = list(set(current_func) - set(new_func))
+    ins_result = insert_vai_tro_chuc_nang(idvt, functions_to_add)
+    rem_result = delete_vai_tro_chuc_nang(idvt, functions_to_remove)
+    return 1
+    
+
+def delete_vai_tro_controller(idvt: int):
+    return delete_vai_tro(idvt)
+
+
+def get_chi_tiet_vai_tro_controller(idvt: int):
+    return get_chi_tiet_vai_tro(idvt)
+
+
+def update_vai_tro_controller(idvt: int, ten: str, func: list):
+    r = update_ten_vai_tro(idvt, ten)
+    if r != 1:
+        return -1
+    chi_tiet_vai_tro = get_chi_tiet_vai_tro(idvt)
+    if isinstance(chi_tiet_vai_tro, Exception):
+        print(f"Lỗi xảy ra khi lấy chi tiết vai trò: {chi_tiet_vai_tro}")
+        return -2  # BÁO LỖI LẤY CHI TIẾT VAI TRÒ KHÔNG THÀNH CÔNG
+    current_func = [item['idchucnang'] for item in chi_tiet_vai_tro if item['idchucnang'] is not None]
+    functions_to_add = list(set(func) - set(current_func))
+    functions_to_remove = list(set(current_func) - set(func))
+    ins_result = insert_vai_tro_chuc_nang(idvt, functions_to_add)
+    rem_result = delete_vai_tro_chuc_nang(idvt, functions_to_remove)
+    if ins_result != 0 or rem_result != 0:
+        r+=2
+    return r
+
+
+def get_all_vai_tro_controller():
+    return get_all_vai_tro();
+
+
+# update from row 358
+def update_phan_quyen_nguoi_huong_dan_by_id_controller(id: int, roles: list):
+    phan_quyen_hien_tai = get_phan_quyen_by_id(id)
+    current_roles = [item['role'] for item in phan_quyen_hien_tai if item['role'] is not None]
+    roles_to_add = list(set(roles) - set(current_roles))
+    roles_to_remove = list(set(current_roles) - set(roles))
+    ins_result = insert_user_role(id, roles_to_add)
+    rem_result = delete_user_role(id, roles_to_remove)
+    if ins_result == -1 and rem_result == -1:
+        return -3
+    elif ins_result == -1:
+        return -1
+    elif rem_result == -1:
+        return -2
+    else:
+        return 1
+    # return -1: insert fail, return -2: delete fail, return -3 fail all
+
+
+def get_ds_chuc_nang_by_user_id_controller(id: int):
+    return  get_ds_chuc_nang_by_user_id(id)
+
+
+def check_role(uid: int, url: str):
+    return check_role_by_url_and_id(uid, url)

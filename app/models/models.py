@@ -34,16 +34,16 @@ def insert_taikhoan_sinhvien(sinhvien_id: int, password: str, is_verified: int):
         return e
 
 
-def verify_user(username: str, password: str):
-    try:
-        result = cursor.execute("LoginUser ?, ?", protect_xss(
-            username), protect_xss(password)).fetchone()[0]
-        if result != None:
-            return result
-        else:
-            return False
-    except Exception as e:
-        return e
+# def verify_user(username: str, password: str):
+#     try:
+#         result = cursor.execute("LoginUser ?, ?", protect_xss(
+#             username), protect_xss(password)).fetchone()[0]
+#         if result != None:
+#             return result
+#         else:
+#             return False
+#     except Exception as e:
+#         return e
 
 
 def verify_student(email: str, password: str):
@@ -872,7 +872,7 @@ def get_phan_quyen(username: str):
 def get_ds_tai_khoan():
     try:
         result = cursor.execute("EXEC GetDSTaiKhoanNguoiHuongDan").fetchall()
-        return [{'id': i[0], 'hoten': i[1], 'username': i[2], 'email': i[3], 'role': i[4], 'trangthai': i[5]} for i in result]
+        return [{'id': i[0], 'hoten': i[1], 'username': i[2], 'email': i[3], 'role': i[4], 'trangthai': i[5], 'tenvaitro': i[6]} for i in result]
     except Exception as e:
         return e
 
@@ -917,14 +917,14 @@ def update_reset_mat_khau_nguoi_huong_dan_by_id(id: int, password: str):
         return e
 
 
-def update_phan_quyen_nguoi_huong_dan_by_id(id: int, role: int):
-    try:
-        result = cursor.execute(
-            "EXEC UpdateQuyenNguoiHuongDanByID ?, ?", id, role).fetchone()
-        cursor.commit()
-        return result[0]
-    except Exception as e:
-        return e
+# def update_phan_quyen_nguoi_huong_dan_by_id(id: int, role: int):
+#     try:
+#         result = cursor.execute(
+#             "EXEC UpdateQuyenNguoiHuongDanByID ?, ?", id, role).fetchone()
+#         cursor.commit()
+#         return result[0]
+#     except Exception as e:
+#         return e
 
 
 def get_thong_tin_nguoi_huong_dan_by_id(id: int):
@@ -953,7 +953,7 @@ def them_nguoi_huong_dan(hoten: str, sdt: str, email: str, chucdanh: str, phong:
         conn.commit()
 
         insert_phanquyen = cursor.execute(
-            "EXEC InsertPhanQuyen ?, ?", kq_insert_nhd, 0)
+            "EXEC InsertPhanQuyen ?, ?", kq_insert_nhd, 2)
         kq_insert_phanquyen = insert_phanquyen.fetchone()[0]
         conn.commit()
 
@@ -1169,6 +1169,16 @@ def chi_tiet_bieu_mau_model(id:str, id_bieumau:int):
     except Exception as e:
         return e
     
+def ctu_chinh_phieu_tiep_nhan_model(id:int , id_bieumau: int):
+    try:
+        query = """
+        select data,extension as ext from BIEUMAU where id = ? and truong = ?
+        """
+        i = cursor.execute(query ,id_bieumau, id).fetchone()
+        return {'data': i[0], 'ext': i[1]}
+    except Exception as e:
+        return e
+    
     
     
     
@@ -1285,3 +1295,219 @@ def get_ky_hieu_truong_by_sv_id(id: int):
         return result[0]
     except Exception as e:
         return e
+    
+    
+    
+# DANH MỤC CHỨC NĂNG
+def get_all_chuc_nang():
+    try:
+        result = cursor.execute("SELECT ID, URL, TENCHUCNANG, MOTA, TRANGTHAI FROM CHUCNANG ORDER BY TENCHUCNANG ASC")
+        return [{'id': i[0], 'url': i[1], 'ten': i[2], 'mota': i[3], 'trangthai': i[4]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+    
+    
+def insert_chuc_nang (url: str, ten: str, mota: str, trangthai: int):
+    try:
+        cursor.execute("EXEC InsertChucNang ?, ?, ?, ?", url, ten, mota, trangthai)
+        conn.commit()
+        r = cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+
+
+def update_xoa_chuc_nang (id: int):
+    try:
+        cursor.execute("EXEC UpdateXoaChucNang ?", id)
+        conn.commit()
+        r = cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+
+
+def get_chi_tiet_chuc_nang_by_id(id: int):
+    try:
+        result = cursor.execute("SELECT ID, URL, TENCHUCNANG, MOTA, TRANGTHAI FROM CHUCNANG WHERE id = ?", id).fetchone()
+        return {'id': result[0], 'url': result[1], 'ten': result[2], 'mota': result[3], 'trangthai': result[4]}
+    except Exception as e:
+        return e
+
+
+def update_chi_tiet_chuc_nang_by_id(id: int, url: str, ten: str, mota: str, trangthai: int):
+    try:
+        cursor.execute("EXEC UpdateChiTietChucNangByID ?, ?, ?, ?, ?", id, url, ten, mota, trangthai)
+        conn.commit()
+        r = cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+
+
+# DANH MỤC PHÂN QUYỀN (ROLE)
+def get_all_vai_tro_chuc_nang():
+    try:
+        result = cursor.execute("""SELECT vt.ID AS IDVAITRO, vt.TenVaiTro, vt.TrangThai, cn.TenChucNang, cn.ID AS IDCHUCNANG
+                                    FROM VAITRO vt left join VAITRO_CHUCNANG vtcn ON vt.ID = vtcn.ID_VaiTro
+                                    left join CHUCNANG cn ON vtcn.ID_ChucNang = cn.ID ORDER BY vt.TenVaiTro ASC""")
+        return [{'idvaitro': i[0], 'tenvaitro': i[1], 'trangthai': i[2], 'tenchucnang': i[3], 'idchucnang': i[4]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+
+
+def update_trang_thai_vai_tro(idvt: int, trangthai: int):
+    try:
+        cursor.execute("EXEC UpdateTrangThaiVaiTro ?, ?", idvt, trangthai)
+        conn.commit()
+        r = cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+    
+
+def insert_vai_tro(ten: str):
+    try:
+        cursor.execute("EXEC InsertVaiTro ?", ten)
+        result = cursor.fetchone()[0]
+        conn.commit()
+        return result
+    except Exception as e:
+        return e
+
+
+def delete_vai_tro(idvt: int):
+    try:
+        result = cursor.execute("EXEC UpdateXoaVaiTro ?", idvt).fetchone()
+        conn.commit()
+        return result[0]
+    except Exception as e:
+        return e
+
+
+# LẤY CHI TIẾT VAI TRÒ, BAO GỒM ID, TÊN, CÁC CHỨC NĂNG
+def get_chi_tiet_vai_tro(idvt: int):
+    try:
+        result = cursor.execute("""SELECT vt.ID AS IDVAITRO, vt.TenVaiTro, vt.TrangThai, cn.TenChucNang, cn.ID AS IDCHUCNANG
+                                    FROM VAITRO vt left join VAITRO_CHUCNANG vtcn ON vt.ID = vtcn.ID_VaiTro
+                                    left join CHUCNANG cn ON vtcn.ID_ChucNang = cn.ID WHERE vt.ID = ?""", idvt)
+        return [{'idvaitro': i[0], 'tenvaitro': i[1], 'trangthai': i[2], 'tenchucnang': i[3], 'idchucnang': i[4]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+    
+    
+def insert_vai_tro_chuc_nang(idvt: int, idcn: list):
+    try:
+        if len(idcn) == 0:
+            return 0
+        r=0
+        for id in idcn:
+            cursor.execute("EXEC InsertVaiTroChucNang ?, ?", idvt, id)
+            conn.commit()
+            r += cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+    
+    
+def delete_vai_tro_chuc_nang(idvt: int, idcn: list):
+    try:
+        if len(idcn) == 0:
+            return 0
+        r=0
+        for id in idcn:
+            cursor.execute("EXEC UpdateXoaVaiTroChucNang ?, ?", idvt, id)
+            conn.commit()
+            r += cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+    
+    
+def update_ten_vai_tro(idvt: int, ten: str):
+    try:
+        cursor.execute("EXEC UpdateTenVaiTro ?, ?", idvt, ten)
+        conn.commit()
+        r = cursor.rowcount
+        return r
+    except Exception as e:
+        return e
+    
+    
+def get_all_vai_tro():
+    try:
+        result = cursor.execute("SELECT ID, TENVAITRO, TRANGTHAI FROM VAITRO")
+        return [{'id': i[0], 'tenvaitro': i[1], 'trangthai': i[2]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+
+
+# update from row 920
+def insert_user_role(uid: int, roles: list):
+    try:
+        if len(roles) == 0:
+            return 0
+        for role in roles:
+            result = cursor.execute("EXEC InsertUserRole ?, ?", uid, role).fetchone()
+            conn.commit()
+            r = result[0]
+        return r
+    except Exception as e:
+        return e
+    
+    
+def delete_user_role(uid: int, roles: list):
+    try:
+        if len(roles) == 0:
+            return 0
+        for role in roles:
+            result = cursor.execute("EXEC DeleteUserRole ?, ?", uid, role).fetchone()
+            conn.commit()
+            r = result[0]
+        return r
+    except Exception as e:
+        return e
+
+
+def get_phan_quyen_by_id(id: int):
+    try:
+        result = cursor.execute(
+            "EXEC GetPhanQuyenByID ?", id)
+        return [{'role': i[0]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+
+
+# update from row 37
+def verify_user(username: str, password: str):
+    try:
+        result = cursor.execute("UserLogin ?, ?", protect_xss(
+            username), protect_xss(password)).fetchone()[0]
+        if result != None:
+            return result
+        else:
+            return False
+    except Exception as e:
+        return e
+
+
+def get_ds_chuc_nang_by_user_id(id: int):
+    try:
+        result = cursor.execute(
+            "EXEC GetDSChucNangByUserID ?", id)
+        return [{'url': i[0]} for i in result.fetchall()]
+    except Exception as e:
+        return e
+
+
+def check_role_by_url_and_id(uid: int, url: str):
+    try:
+        result = cursor.execute(
+            "EXEC CheckRoleByUrlAndID ?, ?", uid, url).fetchone()[0]
+        if result != None:
+            return result
+        else:
+            return -1
+    except Exception as e:
+        return e
+    
