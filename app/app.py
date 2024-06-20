@@ -903,7 +903,7 @@ async def xuat_danh_gia(id: str, token: str = Cookie(None)):
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 # xem phieu danh gia ctu
-@app.get('/xem_phieudanhgia_ctu.pdf')
+@app.get('/xem_file')
 async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
     if token:
         try:
@@ -927,105 +927,105 @@ async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
             raise HTTPException(status_code=401, detail="Unauthorized")
     raise HTTPException(status_code=401, detail="Unauthorized")
 
-# xem phieu theo doi ctu
-@app.get('/xem_phieutheodoi_ctu.pdf')
-async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "admin" or permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, 'rb') as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
+# # xem phieu theo doi ctu
+# @app.get('/xem_phieutheodoi_ctu.pdf')
+# async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
+#     if token:
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#             username = payload.get("sub")
+#             permission = payload.get("permission")
+#             if permission == "admin" or permission == "user":
+#                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+#                 pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+#                 if pdf_path and os.path.exists(pdf_path):
+#                     with open(pdf_path, 'rb') as f:
+#                         pdf_content = f.read()
+#                     headers = {
+#                         "Content-Disposition": "inline",
+#                         "Content-Type": "application/pdf",
+#                     }
+#                     return Response(content=pdf_content, headers=headers)
+#                 else:
+#                     raise HTTPException(status_code=404, detail="File not found")
+#         except jwt.PyJWTError:
+#             raise HTTPException(status_code=401, detail="Unauthorized")
+#     raise HTTPException(status_code=401, detail="Unauthorized")
 
-# xem phieu giao viec ctu
-@app.get('/xem_phieugiaoviec_ctu.pdf')
-async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "admin" or permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                if pdf_path and  os.path.exists(pdf_path):
-                    with open(pdf_path, 'rb') as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
+# # xem phieu giao viec ctu
+# @app.get('/xem_phieugiaoviec_ctu.pdf')
+# async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
+#     if token:
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#             username = payload.get("sub")
+#             permission = payload.get("permission")
+#             if permission == "admin" or permission == "user":
+#                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+#                 pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+#                 if pdf_path and  os.path.exists(pdf_path):
+#                     with open(pdf_path, 'rb') as f:
+#                         pdf_content = f.read()
+#                     headers = {
+#                         "Content-Disposition": "inline",
+#                         "Content-Type": "application/pdf",
+#                     }
+#                     return Response(content=pdf_content, headers=headers)
+#                 else:
+#                     raise HTTPException(status_code=404, detail="File not found")
+#         except jwt.PyJWTError:
+#             raise HTTPException(status_code=401, detail="Unauthorized")
+#     raise HTTPException(status_code=401, detail="Unauthorized")
 
-# xem phieu giao viec ctu
-@app.get('/xem_phieutiepnhan_ctu.pdf')
-async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "admin" or permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, 'rb') as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
-# xem phieu danh gia vlute
-@app.get('/xem_phieudanhgia_vlute.pdf')
-async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "admin" or permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                pdf_path = query_pdf_path_from_database_controller(id,id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                print("PDF Path:", pdf_path)
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, 'rb') as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
+# # xem phieu giao viec ctu
+# @app.get('/xem_phieutiepnhan_ctu.pdf')
+# async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
+#     if token:
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#             username = payload.get("sub")
+#             permission = payload.get("permission")
+#             if permission == "admin" or permission == "user":
+#                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+#                 pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+#                 if pdf_path and os.path.exists(pdf_path):
+#                     with open(pdf_path, 'rb') as f:
+#                         pdf_content = f.read()
+#                     headers = {
+#                         "Content-Disposition": "inline",
+#                         "Content-Type": "application/pdf",
+#                     }
+#                     return Response(content=pdf_content, headers=headers)
+#                 else:
+#                     raise HTTPException(status_code=404, detail="File not found")
+#         except jwt.PyJWTError:
+#             raise HTTPException(status_code=401, detail="Unauthorized")
+#     raise HTTPException(status_code=401, detail="Unauthorized")
+# # xem phieu danh gia vlute
+# @app.get('/xem_phieudanhgia_vlute.pdf')
+# async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
+#     if token:
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#             username = payload.get("sub")
+#             permission = payload.get("permission")
+#             if permission == "admin" or permission == "user":
+#                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+#                 pdf_path = query_pdf_path_from_database_controller(id,id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+#                 print("PDF Path:", pdf_path)
+#                 if pdf_path and os.path.exists(pdf_path):
+#                     with open(pdf_path, 'rb') as f:
+#                         pdf_content = f.read()
+#                     headers = {
+#                         "Content-Disposition": "inline",
+#                         "Content-Type": "application/pdf",
+#                     }
+#                     return Response(content=pdf_content, headers=headers)
+#                 else:
+#                     raise HTTPException(status_code=404, detail="File not found")
+#         except jwt.PyJWTError:
+#             raise HTTPException(status_code=401, detail="Unauthorized")
+#     raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 # @app.get('ctu_xuat_phieu_danh_gia')
@@ -2302,3 +2302,27 @@ async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), tenfile:
             return RedirectResponse(url='/login')
     return RedirectResponse(url='/login')
     
+
+# @app.get('/xem_phieutheodoi_dnc.pdf')
+# async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
+#     if token:
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#             username = payload.get("sub")
+#             permission = payload.get("permission")
+#             if permission == "admin" or permission == "user":
+#                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+#                 pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+#                 if pdf_path and os.path.exists(pdf_path):
+#                     with open(pdf_path, 'rb') as f:
+#                         pdf_content = f.read()
+#                     headers = {
+#                         "Content-Disposition": "inline",
+#                         "Content-Type": "application/pdf",
+#                     }
+#                     return Response(content=pdf_content, headers=headers)
+#                 else:
+#                     raise HTTPException(status_code=404, detail="File not found")
+#         except jwt.PyJWTError:
+#             raise HTTPException(status_code=401, detail="Unauthorized")
+#     raise HTTPException(status_code=401, detail="Unauthorized")
