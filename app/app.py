@@ -2173,8 +2173,6 @@ async def get_templates(request: Request,token: str = Cookie(None)):
 
 @app.post('/chinh_sua_phieutiepnhan_ctu.pdf')
 async def chinh_sua_ptn_ctu(id:int,id_bieumau:int, data:str, thoigian:str ,token: str = Cookie(None)):
-    # print(data)
-    # print(thoigian)
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -2231,7 +2229,6 @@ async def update_xoa_bieumau_by_id_route(id_bieumau: int, token: str = Cookie(No
             permission = payload.get("permission")
             if permission == "admin":
                 result = update_xoa_bieumau_by_id_controller(id_bieumau)
-                print('id' , id_bieumau)
                 if result == 1:
                     return JSONResponse(status_code=200, content={'status': 'OK'})
                 else:
@@ -2256,30 +2253,8 @@ async def update_mo_khoa_nganh_by_id_route(id_bieumau: int, token: str = Cookie(
             return RedirectResponse('/login')
     return RedirectResponse('/login')
 
-# @app.post('/them_bieumau')
-# async def them_bieumau(ten: str ,file:str ,idtruong:int, tenfile:str,isDelete:int ,token: str = Cookie(None)):
-#     print(file)
-#     print(tenfile)
-#     if token:
-#         try:
-#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#             permission = payload.get("permission")
-#             if permission == "admin":
-#                 result = them_bieumau_controller(ten,kyhieu,isDeleted,idtruong)
-#                 if result['status'] == 'OK':
-#                     return JSONResponse(status_code=200, content=result)
-#                 else:
-#                     return JSONResponse(status_code=200, content={'status': 'NOT_CREATE'})
-#         except jwt.PyJWTError:
-#             return RedirectResponse('/login')
-#     return RedirectResponse('/login')
-
 @app.post('/them_bieumau')
 async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), tenfile: str = Form(...), file: UploadFile = File(...), token: str = Cookie(None)):
-    print('ten:' ,ten)
-    print('tenfile:' ,tenfile)
-    print('file' , file)
-    print('idtruong' , idtruong)
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -2287,11 +2262,9 @@ async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), tenfile:
             if permission == "admin":
                 if file and allowed_file(file.filename):
                     file_location = os.path.join(UPLOAD_FOLDER, tenfile)
-                    print('file_location:',file_location)
                     with open(file_location, "wb") as f:
                         f.write(file.file.read())
                     r = them_bieumau_controller(ten,file_location,idtruong,tenfile)
-                    print('r:',r)
                     if r:
                         return JSONResponse(status_code=200, content={"message": "File uploaded and saved to database successfully!", "status": "OK"})
                     else:
@@ -2301,28 +2274,3 @@ async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), tenfile:
         except jwt.PyJWTError:
             return RedirectResponse(url='/login')
     return RedirectResponse(url='/login')
-    
-
-# @app.get('/xem_phieutheodoi_dnc.pdf')
-# async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
-#     if token:
-#         try:
-#             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#             username = payload.get("sub")
-#             permission = payload.get("permission")
-#             if permission == "admin" or permission == "user":
-#                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-#                 pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-#                 if pdf_path and os.path.exists(pdf_path):
-#                     with open(pdf_path, 'rb') as f:
-#                         pdf_content = f.read()
-#                     headers = {
-#                         "Content-Disposition": "inline",
-#                         "Content-Type": "application/pdf",
-#                     }
-#                     return Response(content=pdf_content, headers=headers)
-#                 else:
-#                     raise HTTPException(status_code=404, detail="File not found")
-#         except jwt.PyJWTError:
-#             raise HTTPException(status_code=401, detail="Unauthorized")
-#     raise HTTPException(status_code=401, detail="Unauthorized")
