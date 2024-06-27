@@ -434,7 +434,6 @@ $("#taodanhmucbieumauBtn").on("click", function () {
     formData.append("file", data[0].files[0]);
     formData.append("ten", tenbieumau.val());
     formData.append("idtruong", idtruong.val());
-    formData.append("tenfile", tenfile.val());
     formData.append("isDelete", 0); // Assuming isDeleted is always 0
     $.ajax({
       type: `POST`,
@@ -451,10 +450,10 @@ $("#taodanhmucbieumauBtn").on("click", function () {
           });
           $("#modal_id").modal("hide");
           bangdsbieumau.ajax.reload();
-        } else if (res.status == "NOT_CREATE") {
+        } else if (res.status == "NOT_ALLOWED") {
           Toast.fire({
             icon: "warning",
-            title: `Vui lòng tạo lại.`,
+            title: `Loại file không được hỗ trợ, vui lòng chọn lại file khác (.doc, .docx, pdf).`,
           });
         }
       },

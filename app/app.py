@@ -127,9 +127,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except jwt.PyJWTError:
         raise credentials_exception
     return username
-
+allow_file  = {'pdf','doc','docx'}
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allow_file
 # Middleware để bắt lỗi 404 và xử lý
 
 
@@ -904,7 +904,7 @@ async def xuat_danh_gia(id: str, token: str = Cookie(None)):
     return RedirectResponse('/login')
 # xem phieu danh gia ctu
 @app.get('/xem_file')
-async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
+async def view_pdf(id: str, id_bieumau:int, tenfile:str, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -912,14 +912,21 @@ async def view_pdf(id: str,id_bieumau:int, token: str = Cookie(None)):
             permission = payload.get("permission")
             if permission == "admin" or permission == "user":
                 # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                pdf_path = query_pdf_path_from_database_controller(id,id_bieumau)  # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                pdf_path = query_pdf_path_from_database_controller(id,id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                file_type = tenfile.rsplit('.', 1)[1].lower()
                 if pdf_path and os.path.exists(pdf_path):
                     with open(pdf_path, 'rb') as f:
                         pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
+                    if file_type == 'pdf':
+                        headers = {
+                            "Content-Disposition": f"inline; filename={tenfile}",
+                            "Content-Type": "application/pdf",
+                        }
+                    else:
+                        headers = {
+                            "Content-Disposition": f"inline; filename={tenfile}",
+                            "Content-Type": "application/msword",
+                        }
                     return Response(content=pdf_content, headers=headers)
                 else:
                     raise HTTPException(status_code=404, detail="File not found")
@@ -2254,23 +2261,26 @@ async def update_mo_khoa_nganh_by_id_route(id_bieumau: int, token: str = Cookie(
     return RedirectResponse('/login')
 
 @app.post('/them_bieumau')
-async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), tenfile: str = Form(...), file: UploadFile = File(...), token: str = Cookie(None)):
+async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), file: UploadFile = File(...), token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             permission = payload.get("permission")
+            tenfile = file.filename
             if permission == "admin":
-                if file and allowed_file(file.filename):
+                if not allowed_file(file.filename):
+                    return JSONResponse(status_code=200, content={"status": "NOT_ALLOWED"})
+                elif file and allowed_file(file.filename):
                     file_location = os.path.join(UPLOAD_FOLDER, tenfile)
                     with open(file_location, "wb") as f:
                         f.write(file.file.read())
                     r = them_bieumau_controller(ten,file_location,idtruong,tenfile)
                     if r:
-                        return JSONResponse(status_code=200, content={"message": "File uploaded and saved to database successfully!", "status": "OK"})
+                        return JSONResponse(status_code=200, content={"status": "OK"})
                     else:
                         return JSONResponse(status_code=400, content={"error": "Could not save to database"})
                 else:
-                    return JSONResponse(status_code=400, content={"error": "File type not allowed"})
+                    return JSONResponse(status_code=200, content={"status": "NOT_CREATE"})
         except jwt.PyJWTError:
             return RedirectResponse(url='/login')
     return RedirectResponse(url='/login')
