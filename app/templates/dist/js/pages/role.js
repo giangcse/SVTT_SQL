@@ -277,7 +277,14 @@ $("#bangdsvaitro").on("click", "#banBtn", function () {
               icon: "success",
               title: "Đã ngưng sử dụng vai trò<br>" + MapIdTen[id],
             });
-          }else{
+          }
+          else if(res.result==-1){
+            Toast.fire({
+              icon: "warning",
+              title: "Không thể ngưng sử dụng Quản trị!",
+            });
+          }
+          else{
             Toast.fire({
               icon: "warning",
               title: "Thực hiện không thành công, vui lòng thử lại"

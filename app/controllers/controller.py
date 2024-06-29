@@ -462,6 +462,10 @@ def check_yeu_cau_in_phieu_controller(id: int):
     return check_yeu_cau_in_phieu(id)
 
 
+def check_trang_thai_yeu_cau_in_phieu_controller(id: int):#hàm này dùng cho telegram check trạng thái
+    return check_trang_thai_yeu_cau_in_phieu(id)
+
+
 def get_all_chuc_nang_controller():
     return get_all_chuc_nang()
 

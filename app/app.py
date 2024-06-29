@@ -2260,8 +2260,10 @@ async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None
                     if i is not None and i is not TypeError:
                         result = gui_yeu_cau_in_phieu_controller(
                             sv_id, idloaiyeucau)
-                        if result==True:
-                            return JSONResponse(status_code=200, content={'status': 'OK'})
+                        
+                        print("\n\n\n\n\n\n\n\n", result)
+                        if result != -1:
+                            return JSONResponse(status_code=200, content={'status': result})
                         else:
                             return JSONResponse(status_code=200, content={'status': 'NOT OK'})
                     else:
@@ -2269,8 +2271,8 @@ async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None
                 else:
                     result = gui_yeu_cau_in_phieu_controller(
                         sv_id, idloaiyeucau)
-                    if result==True:
-                        return JSONResponse(status_code=200, content={'status': 'OK'})
+                    if result != -1:
+                        return JSONResponse(status_code=200, content={'status': result})
                     else:
                         return JSONResponse(status_code=200, content={'status': 'NOT OK'})
         except jwt.PyJWTError:
@@ -2365,7 +2367,7 @@ async def update_yeu_cau_in_phieu_route(yeucau: ListRequest, token: str = Cookie
 
 
 @app.post('/canh_bao_yeu_cau_in_phieu')
-async def canh_bao_yeu_cau_in_phieu_route(loaiyeucau: str, token: str = Cookie(None)):
+async def canh_bao_yeu_cau_in_phieu_route(loaiyeucau: str, id: int, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -2375,7 +2377,8 @@ async def canh_bao_yeu_cau_in_phieu_route(loaiyeucau: str, token: str = Cookie(N
                 time=datetime.datetime.now().strftime('%H:%M:%S %d/%m/%Y')
                 asyncio.create_task(sendMessageTelegram(message=f"<b>Yêu cầu in phiếu mới.</b>\n\n<code><b>Tài khoản:</b> {username}\n"
                                                         f"<b>Vào lúc: </b>{time}\n"
-                                                        f"<b>Loại yêu cầu: </b>{loaiyeucau}</code>", chat_id=admin_chat_id, format='HTML'))
+                                                        f"<b>Loại yêu cầu: </b>{loaiyeucau}\n"
+                                                        f"<b>ID phiếu: </b>{id}</code>", chat_id=admin_chat_id, format='HTML'))
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')

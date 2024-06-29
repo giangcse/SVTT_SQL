@@ -15,3 +15,4 @@ requests
 reportlab
 PyPDF2
 redis
+nest_asyncio

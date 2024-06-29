@@ -1212,13 +1212,9 @@ def get_ds_yeu_cau_in_phieu_by_sv(sv_id: int):
 
 def gui_yeu_cau_in_phieu(id: int, idloaiyeucau: int):
     try:
-        cursor.execute("EXEC InsertYeuCauInPhieu ?, ?, ?", id, idloaiyeucau, datetime.datetime.now().strftime('%Y-%m-%d'))
+        result = cursor.execute("EXEC InsertYeuCauInPhieu ?, ?, ?", id, idloaiyeucau, datetime.datetime.now().strftime('%Y-%m-%d')).fetchone()[0]
         conn.commit()
-        r = cursor.rowcount
-        if r == 1:
-            return True
-        else:
-            return False
+        return result
     except Exception as e:
         return e
     
@@ -1267,6 +1263,15 @@ def update_yeu_cau_in_phieu(ids: list, id_nxl: int, trangthai: int):
             r += cursor.rowcount
             
         return r
+    except Exception as e:
+        return e
+    
+    
+def check_trang_thai_yeu_cau_in_phieu(id: int):
+    try:
+        result = cursor.execute("EXEC CheckYeuCauInPhieu ?", id).fetchone()[0]
+        conn.commit()
+        return result
     except Exception as e:
         return e
 
@@ -1358,9 +1363,8 @@ def get_all_vai_tro_chuc_nang():
 
 def update_trang_thai_vai_tro(idvt: int, trangthai: int):
     try:
-        cursor.execute("EXEC UpdateTrangThaiVaiTro ?, ?", idvt, trangthai)
+        r = cursor.execute("EXEC UpdateTrangThaiVaiTro ?, ?", idvt, trangthai).fetchone()[0]
         conn.commit()
-        r = cursor.rowcount
         return r
     except Exception as e:
         return e

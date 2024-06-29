@@ -77,7 +77,11 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
   { title: "Email", data: "email" }, 
   { title: "Role", data: "rolenames",
     render: function (data, type, row) {
-      return `<center>
+      if(row.id==1){  // CHECK SUPERVISOR ROLE (UID = 1)
+        return `<center><span class="badge badge-danger"><i class="fa-solid"></i> Supervisor </span></center>`;
+      }
+      else{
+        return `<center>
         ${data.filter(function(r) {
             return r !== null;
         }).map(function(r) {
@@ -88,7 +92,9 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
             return `<span class="badge badge-light"><i class="fa-solid"></i> ${r} </span>`;
           }
         }).join('<br>')}
-      </center>`;
+        </center>`;
+      }
+      
     },
   },
   { title: "Trạng Thái", data: "trangthai",

@@ -135,14 +135,14 @@ $(document).ready(function () {
           "/gui_yeu_cau_in_phieu?idloaiyeucau=" +
           idloaiyeucau,
         success: function (res) {
-          if (res.status == "OK") {
+          if (res.status != "NOT OK") {
             Toast.fire({
               icon: "success",
               title: "Gửi yêu cầu thành công!",
             });
             $.ajax({
               type: `POST`,
-              url: `canh_bao_yeu_cau_in_phieu?loaiyeucau=`+loaiyeucau,
+              url: `canh_bao_yeu_cau_in_phieu?loaiyeucau=`+loaiyeucau+`&id=`+res.status,
               success: ()=>{},
               error: ()=>{}
             });
