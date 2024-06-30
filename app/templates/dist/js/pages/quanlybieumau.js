@@ -411,10 +411,6 @@ $("#taodanhmucbieumauBtn").on("click", function () {
         <select id="modal_chontruong_select" class="form-control">
         </select>
       </div>
-      <div class="form-group">
-        <label for="modal_tenfile_input">Tên file (vd: phieutheodoi_ctu.pdf)</label>
-        <input type="text" class="form-control" id="modal_tenfile_input" required />
-      </div>
     `);
   $("#modal_footer").append(
     `<button type="button" class="btn btn-primary" id="modal_submit_bieumau_btn">
@@ -454,6 +450,11 @@ $("#taodanhmucbieumauBtn").on("click", function () {
           Toast.fire({
             icon: "warning",
             title: `Loại file không được hỗ trợ, vui lòng chọn lại file khác (.doc, .docx, pdf).`,
+          });
+        } else if (res.status == "EXIST") {
+          Toast.fire({
+            icon: "warning",
+            title: `Văn bản đã tồn tại, thử lại sau`,
           });
         }
       },

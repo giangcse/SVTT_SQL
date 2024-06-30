@@ -1239,6 +1239,14 @@ def update_mo_khoa_bieumau_by_id_model(id_bieumau: int):
     
 def them_bieumau_model(ten, file_location, idtruong,tenfile):
     try:
+        check_query = """
+        SELECT COUNT(*) FROM BIEUMAU WHERE tenbieumau = ? or tenfile = ?
+        """
+        cursor.execute(check_query, (ten, tenfile))
+        count = cursor.fetchone()[0]
+        print(count)
+        if count > 0:
+            return {'status': 'EXIST'}
         with open(file_location, 'rb') as file:
             file_content = file.read()
         extn = file_location.split('.')[-1]
@@ -1248,7 +1256,7 @@ def them_bieumau_model(ten, file_location, idtruong,tenfile):
         """
         result = cursor.execute(query, (ten, file_content ,extn, idtruong, 0,tenfile)).rowcount
         cursor.commit()
-        return result
+        return {'status': 'OK', 'result': result}
     except Exception as e:
         return e
         

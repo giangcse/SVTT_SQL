@@ -2275,8 +2275,11 @@ async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), file: Up
                     with open(file_location, "wb") as f:
                         f.write(file.file.read())
                     r = them_bieumau_controller(ten,file_location,idtruong,tenfile)
-                    if r:
-                        return JSONResponse(status_code=200, content={"status": "OK"})
+                    print(r)
+                    if r['status'] == 'OK':
+                        return JSONResponse(status_code=200, content=r)
+                    if r['status'] == 'EXIST':
+                        return JSONResponse(status_code=200, content=r)
                     else:
                         return JSONResponse(status_code=400, content={"error": "Could not save to database"})
                 else:
