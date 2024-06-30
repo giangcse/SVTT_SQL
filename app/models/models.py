@@ -1,12 +1,24 @@
+import datetime
+import hashlib
+import json
+import os
+from typing import List, Optional
+
+import bleach
+import pyodbc
+from fastapi import UploadFile
+
 from ..config import create_connection
 from ..send_otp import is_otp_valid
-import datetime
-import bleach
-import json
 
 conn = create_connection()
 cursor = conn.cursor()
 
+def hash_file_content(file_content):
+    """ Returns the SHA-256 hash of the file content """
+    sha256_hash = hashlib.sha256()
+    sha256_hash.update(file_content)
+    return sha256_hash.hexdigest()
 
 def protect_xss(input: str):
     return bleach.clean(input, tags=['br'], attributes={})
@@ -635,8 +647,8 @@ def get_danh_sach_nganh():
 
 def get_danh_sach_truong():
     try:
-        result = cursor.execute("SELECT ID, Ten FROM Truong").fetchall()
-        return [{'id': i[0], 'ten': i[1]} for i in result]
+        result = cursor.execute("SELECT ID, Ten, KyHieu, isDeleted FROM Truong").fetchall()
+        return [{'id': i[0], 'ten': i[1], 'kyhieu': i[2], 'isDeleted': i[3]} for i in result]
     except Exception as e:
         return e
 
@@ -952,11 +964,342 @@ def update_thong_tin_sv(sv_id: int, mssv: str, hoten: str, gioitinh: int, sdt: s
 
 def ctu_xuat_phieu_giao_viec_model(sv_id: int, username: str):
     try:
-        r = cursor.execute("EXEC GetCongViecByIDSinhVien ?, ?",
-                           sv_id, protect_xss(username)).fetchall()
+        r = cursor.execute("EXEC GetCongViecByIDSinhVien ?, ?", sv_id, protect_xss(username)).fetchall()
         if len(r) >= 1:
             return {'sv_hoten': r[0][0], 'sv_mssv': r[0][1], 'nguoihuongdan_hoten': r[0][2], 'kyhieu_truong': r[0][9], 'ktt_ngaybatdau': r[0][3], 'ktt_ngayketthuc': r[0][4], 'congviec': [{'ngaybatdau': i[5], 'ngayketthuc': i[6], 'tencongviec': i[7], 'mota': str(i[8]).replace('<br>', '\n')} for i in r]}
         else:
             return None
     except Exception as e:
         return e
+
+def them_truong_model(ten: str ,kyhieu: str ,isDeleted: int):
+    try:
+        ten = protect_xss(ten)
+        kyhieu = protect_xss(kyhieu)
+        
+        # Check if kyhieu exists and truong
+        check_query = "SELECT COUNT(*) FROM Truong WHERE kyhieu = ? or ten = ?"
+        cursor.execute(check_query, (kyhieu,ten))
+        exists = cursor.fetchone()[0]
+        if exists > 0:
+            return {'status': 'EXIST'}
+        else:
+            
+            query = """
+                INSERT INTO Truong (Ten, KyHieu, isDeleted)
+                OUTPUT INSERTED.ID
+                VALUES (?, ?, ?)
+            """
+            cursor.execute(query, (protect_xss(ten), protect_xss(kyhieu), isDeleted))
+            kq_insert_truong = cursor.fetchone()[0]
+            conn.commit()
+            return {'status': 'OK', 'result': kq_insert_truong}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {'status': 'ERROR', 'message': str(e)}
+
+def update_xoa_truong_by_id(id: int):
+    try:
+        query = "UPDATE Truong SET isDeleted = 1 WHERE ID = ?"
+        result = cursor.execute(query, id).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+
+def update_mo_khoa_truong_by_id(id: int):
+    try:
+        query = "UPDATE Truong SET isDeleted = 0 WHERE ID = ?"
+        result = cursor.execute(query, id).rowcount
+        cursor.commit()
+        return result
+    except Exception as e:
+        return e
+    
+def update_chi_tiet_truong_by_id(id: int, ten: str, kyhieu: str, isDeleted: int):
+    try:
+        ten = protect_xss(ten)
+        kyhieu = protect_xss(kyhieu)
+        
+        # Check if kyhieu exists
+        check_query = "SELECT COUNT(*) FROM Truong WHERE (kyhieu = ? AND id != ?) OR (ten = ? AND id != ?)"
+        cursor.execute(check_query, (kyhieu,id,ten,id))
+        exists = cursor.fetchone()[0]
+        
+        if exists > 0:
+            return {'status': 'EXIST'}
+        query = "UPDATE Truong SET Ten = ?, KyHieu = ?, isDeleted = ? WHERE ID = ?"
+        result = cursor.execute(query, protect_xss(ten), protect_xss(kyhieu), isDeleted,id).rowcount
+        cursor.commit()
+        return {'status': 'OK', 'result': result}
+    except Exception as e:
+        return e
+    
+def get_chi_tiet_truong_by_id_model(id:str):
+    try:
+        result = cursor.execute("EXEC GetChiTietTruongByID ?", id).fetchone()
+        return {'id': result[0], 'ten': result[1], 'kyhieu': result[2], 'isDeleted': result[3]}
+    except Exception as e:
+        return e
+    
+
+def delete_truong_by_id_model(idList: list):
+    print('list', idList)
+    try:
+        placeholders = ','.join(['?'] * len(idList))
+        query =  """
+            DELETE FROM Truong
+            WHERE ID IN ({})
+            and isDeleted = 1
+        """.format(placeholders)
+        print('query',query)
+        result = cursor.execute(query, (idList)).rowcount
+        if result == 0:
+            return {'status': 'ERROR'} 
+        cursor.commit()
+        return {'status': 'OK', 'deleted_count': result}
+    except Exception as e:
+        print(e)
+        return {'status': 'ERROR', 'message': str(e)}
+
+
+def vanban_query_pdf_path_from_database_model(id_file:int) -> Optional[str]:
+    try:
+        query = "SELECT DuongDan as duongdan, TenFile as tenfile FROM FILES WHERE ID = ?"
+        cursor.execute(query, (id_file,))
+        row = cursor.fetchone()
+        if row:
+            duongdan, tenfile = row
+            filename =  f"{tenfile}"
+            word_directory = 'word'
+            if not os.path.exists(word_directory):
+                os.makedirs(word_directory)
+            output_file_path = os.path.join(word_directory, filename)
+            with open(output_file_path, 'wb') as f:
+                f.write(duongdan)
+            return output_file_path
+        else:
+            print("No file found for the provided ID")
+            return None
+    except Exception as e:
+        # Print any errors that occur during the process
+        print(f"Error retrieving file: {e}")
+        return None
+
+
+def get_danh_sach_van_ban():
+    try:
+        query = """
+                SELECT VanBan.ID, VanBan.isDeleted, NguoiHuongDan.HoTen as NguoiDangTai, Truong.Ten as TenTruong, NguoiHuongDan.ID as id_nhd, Truong.ID as id_t, VanBan.TenVanBan,
+                Files.id as id_file, Files.tenfile as tenfile, CONVERT(VARCHAR, Files.NgayDang, 103) AS NgayDang
+                FROM VanBan
+                INNER JOIN NguoiHuongDan
+                ON VanBan.NguoiDangTaiID = NguoiHuongDan.ID
+                INNER JOIN Truong
+                ON VanBan.TruongID = Truong.ID
+                LEFT JOIN Files ON VanBan.ID = Files.VanBanID
+        """
+        result = cursor.execute(query)
+        raw_data = [{'id': i[0], 'xoa':i[1] , 'nguoidangtai':i[2], 'tentruong':i[3] , 'id_nhd': i[4],
+                    'id_t':i[5], 'tenvanban':i[6], 'id_file':i[7], 'tenfile':i[8], 'ngaydang':i[9]} for i in result]
+
+        data = {}
+        for row in raw_data:
+            key = (row['tenvanban'], row['tentruong'])
+            if key not in data:
+                data[key] = {
+                    'id': row['id'],
+                    'xoa': row['xoa'],
+                    'nguoidangtai': row['nguoidangtai'],
+                    'tentruong': row['tentruong'],
+                    'id_nhd': row['id_nhd'],
+                    'id_t': row['id_t'],
+                    'tenvanban': row['tenvanban'],
+                    'files': []
+                }
+            if row['id_file'] is not None:  # Only add file details if they exist
+                data[key]['files'].append({
+                    'id_file': row['id_file'],
+                    'tenfile': row['tenfile'],
+                    'ngaydang': row['ngaydang']
+                })
+        return list(data.values())
+    except Exception as e:
+        return str(e)
+
+def get_danh_sach_file():
+    try:
+        query = """
+                SELECT Files.ID, Files.isDeleted, Files.DuongDan, Files.LoaiTep, VanBan.ID as id_vb, CONVERT(VARCHAR, Files.NgayDang, 103) AS NgayDang
+                FROM Files
+                INNER JOIN VanBan
+                ON Files.VanBanID = VanBan.ID
+        """
+        result = cursor.execute(query)
+        data = [{'id': i[0], 'xoa':i[1] , 'loaitep':i[3], 'duongdan':i[2] , 'id_vb': i[4],
+                    'ngaydang':i[5]} for i in result]
+        return data
+    except Exception as e:
+        return e
+
+    
+def get_chi_tiet_van_ban():
+    try:
+        truong_obj = cursor.execute(
+            "SELECT ID, Ten FROM Truong WHERE isDeleted != 1").fetchall()
+        ndt_obj = cursor.execute(
+            "SELECT ID, HoTen FROM NguoiHuongDan").fetchall()
+        vb_obj = cursor.execute(
+            "SELECT VANBAN.ID, VANBAN.tenvanban, Truong.Ten FROM VANBAN INNER JOIN Truong ON VANBAN.TruongID = Truong.ID ").fetchall()
+        truong = [{'id': i[0], 'ten': i[1]} for i in truong_obj]
+        ndt = [{'id': i[0], 'hoten': i[1]} for i in ndt_obj]
+        vanban = [{'id': i[0], 'tenvanban': f"{i[1]} ({i[2]})"} for i in vb_obj]
+        return {'tentruong': truong, 'nguoidangtai': ndt, 'tenvanban': vanban}
+    except Exception as e:
+        return e
+
+
+def them_vanban_db_model(tenvanban:str, ndt:int, idtruong:int, isDeleted:int):
+    try:
+        tenvanban = protect_xss(tenvanban)
+
+        check_query = "SELECT COUNT(*) FROM VanBan WHERE tenvanban = ? and truongid = ?"
+        cursor.execute(check_query, (tenvanban,idtruong))
+        exists = cursor.fetchone()[0]
+        if exists == 1:
+            return {'status': 'EXIST'}
+        else:
+            query = """
+            insert into VANBAN (TenVanBan,isDeleted,TruongID,NguoiDangTaiID) values (?,?,?,?)
+            """
+            cursor.execute(query,(tenvanban,isDeleted,idtruong,ndt))
+            conn.commit()
+            return {'status':'OK'}
+    except Exception as e:
+        return e
+
+
+def them_files_model(tenvanban:str, file_location:str, tenfile:str):
+    try:
+        with open(file_location, 'rb') as file:
+            file_content = file.read()
+        extn = file_location.split('.')[-1]
+        ngaydang = datetime.datetime.now()
+        tenfile = protect_xss(tenfile)
+        check_query = "SELECT COUNT(*) FROM Files WHERE tenfile = ?"
+        cursor.execute(check_query,(tenfile))
+        exists = cursor.fetchone()[0]
+        if exists > 0:
+            return {'status': 'EXIST'}
+        else:
+            query = """
+            INSERT INTO FILES (DuongDan, LoaiTep, isDeleted, NgayDang, VanBanID, TenFile)
+            VALUES (?,?,?,?,?,?)
+            """
+            cursor.execute(query, (file_content,extn,0,ngaydang,tenvanban,tenfile)).rowcount
+            cursor.commit()
+            return {'status': 'OK'}
+    except Exception as e:
+        return e
+
+
+def xoa_file_by_id_model(fileid: int):
+    print('idfle',fileid)
+    try:
+        query = """
+        DELETE FROM FILES WHERE id = ?
+        """
+        deleted_count = cursor.execute(query, (fileid,)).rowcount
+        cursor.commit()
+        if deleted_count == 1:
+            return {'status': 'OK', 'deleted_count': deleted_count}
+        else:
+            return {'status': 'ERROR'}
+    except Exception as e:
+        return {'status': 'ERROR', 'message': str(e)}
+
+
+def get_chi_tiet_van_ban_by_id(id:str):
+    try:
+        result = cursor.execute("EXEC GetChiTietVanBanByID ?", id).fetchone()
+        return {'id': result[0], 'tenvanban': result[1], 'isDeleted': result[2]}
+    except Exception as e:
+        return e
+
+
+def update_chi_tiet_van_ban_by_id(id: int, tenvanban: str, isDeleted: int):
+    try:
+        tenvanban = protect_xss(tenvanban)
+        
+        check_query = "SELECT COUNT(*) FROM VANBAN WHERE tenvanban = ? or id = ?"
+        cursor.execute(check_query, (tenvanban,id))
+        exists = cursor.fetchone()[0]
+        
+        if exists > 0:
+            return {'status': 'EXIST'}
+        query = "UPDATE VANBAN SET TenVanBan = ?, isDeleted = ? WHERE ID = ?"
+        result = cursor.execute(query, protect_xss(tenvanban), isDeleted, id).rowcount
+        cursor.commit()
+        return {'status': 'OK', 'result': result}
+    except Exception as e:
+        return e
+
+
+def update_xoa_van_ban_by_id(id:str):
+    try:
+        query = """
+        DELETE FROM VANBAN WHERE id = ?
+        """
+        deleted_count = cursor.execute(query, (id,)).rowcount
+        cursor.commit()
+        if deleted_count == 1:
+            return {'status': 'OK', 'deleted_count': deleted_count}
+        else:
+            return {'status': 'ERROR'}
+    except Exception as e:
+        return {'status': 'ERROR', 'message': str(e)}
+
+def update_vanban_model(id:int, tenvanban: str, file_location = None, tenfile = None):
+    try:
+        query_update_vanban = """
+            UPDATE VanBan
+            SET TenVanBan = ?
+            WHERE ID = ?
+        """
+        cursor.execute(query_update_vanban, (tenvanban, id))
+        if file_location and tenfile is not None:
+            with open(file_location, 'rb') as file:
+                file_content = file.read()
+            
+            extn = file_location.split('.')[-1]
+            ngaydang = datetime.datetime.now()
+            tenfile = protect_xss(tenfile)
+            
+            check_query = "SELECT COUNT(*) FROM Files WHERE TenFile = ?"
+            cursor.execute(check_query, (tenfile,))
+            exists = cursor.fetchone()[0]
+            if exists > 0:
+                return {'status': 'EXIST'}
+            else:
+                query_insert_file = """
+                    INSERT INTO Files (DuongDan, LoaiTep, isDeleted, NgayDang, VanBanID, TenFile)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """
+                cursor.execute(query_insert_file, (file_content, extn, 0, ngaydang, id, tenfile))
+        cursor.commit()
+        return {'status': 'OK'}
+    except Exception as e:
+        return e
+    
+def delete_vanban_by_id_list_model(idList:list):
+    try:
+        placeholders = ','.join(['?'] * len(idList))
+        query = "DELETE FROM VANBAN WHERE ID IN ({})".format(placeholders)
+        result = cursor.execute(query, idList).rowcount
+        if result == 0:
+            return {'status':'NOT_DELETE'}
+        cursor.commit()
+        return {'status': 'OK', 'deleted_count': result}
+    except Exception as e:
+        print(e)
+        return {'status': 'ERROR', 'message': str(e)}

@@ -1,7 +1,10 @@
+from typing import List
+
+from fastapi import UploadFile
+
+from ..config import algorithm, default_password, secret_key
 from ..models.models import *
 from ..utils.create_pdf import *
-
-from ..config import default_password, secret_key, algorithm
 
 
 def insert_sinh_vien_controller(MSSV, HoTen: str, GioiTinh: int, SDT: str, Email: str, DiaChi: str, MaLop: str, Truong: int, Nganh: int, Khoa: int, Password: str) -> bool:
@@ -380,6 +383,59 @@ def ctu_xuat_phieu_tiep_nhan_controller(sv_id: int):
 def ctu_xuat_phieu_giao_viec_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
 
-
 def ctu_xuat_phieu_theo_doi_controller(sv_id: int, username: str):
     return ctu_xuat_phieu_giao_viec_model(sv_id, username)
+
+def them_truong_controller(ten: str, kyhieu: str, isDeleted: int):
+    return them_truong_model(ten,kyhieu,isDeleted)
+
+def update_xoa_truong_by_id_controller(id: int):
+    return update_xoa_truong_by_id(id)
+
+def update_mo_khoa_truong_by_id_controller(id: int):
+    return update_mo_khoa_truong_by_id(id)
+
+def update_truong_by_id_controller(id: int, ten: str, kyhieu: str, isDeleted: int):
+    return update_chi_tiet_truong_by_id(id, ten, kyhieu, isDeleted)
+
+def get_chi_tiet_truong_by_id_controller(id:str):
+    return get_chi_tiet_truong_by_id_model(id)
+
+def delete_truong_by_id_controller(idList: list):
+    return delete_truong_by_id_model(idList)
+
+def vanban_query_pdf_path_from_database_controller(id_file:int):
+    return vanban_query_pdf_path_from_database_model(id_file)
+
+def get_danh_sach_van_ban_controller():
+    return get_danh_sach_van_ban()
+
+def get_danh_sach_file_controller():
+    return get_danh_sach_file()
+
+def get_chi_tiet_van_ban_controller():
+    return get_chi_tiet_van_ban()
+
+def them_files_controller(tenvanban: str, file_location:str, tenfile:str):
+    return them_files_model(tenvanban, file_location,tenfile)
+
+def get_chi_tiet_van_ban_by_id_controller(id: int):
+    return get_chi_tiet_van_ban_by_id(id)
+
+def them_vanban_db(tenvanban:str, ndt:int, idtruong:int, isDeleted:int):
+    return them_vanban_db_model(tenvanban,ndt,idtruong,isDeleted)
+
+def xoa_file_by_id_controller(fileid: int):
+    return xoa_file_by_id_model(fileid)
+
+def update_xoa_van_ban_by_id_controller(id: str):
+    return update_xoa_van_ban_by_id(id)
+
+def update_van_ban_by_id_controller(id: int, tenvanban: str, isDeleted: int):
+    return update_chi_tiet_van_ban_by_id(id, tenvanban, isDeleted)
+
+def update_vanban_controller(id:int, tenvanban=None, file_location= None, tenfile = None):
+    return update_vanban_model(id,tenvanban,file_location,tenfile)
+
+def delete_vanban_by_id_list_controller(idList:list):
+    return delete_vanban_by_id_list_model(idList)

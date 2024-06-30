@@ -42,9 +42,11 @@ let bangdsdetai = $("#bangdsdetai").DataTable({
       data: "id",
       render: function (data, type, row) {
         return (
-          '<center><a class="btn btn-info btn-sm" id="editBtn" data-id="' +
+          '<center>
+            <a class="btn btn-info btn-sm" id="editBtn" data-id="' +
           data +
-          '"><i class="fas fa-pencil-alt"></i></a>  <a class="btn btn-danger btn-sm" data-id="' +
+          '"><i class="fas fa-pencil-alt"></i></a>
+          <a class="btn btn-danger btn-sm" data-id="' +
           data +
           '" id="deleteBtn"><i class="fas fa-trash"></i></a></center>'
         );

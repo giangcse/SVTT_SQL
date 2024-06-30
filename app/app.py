@@ -1,25 +1,28 @@
-from fastapi import FastAPI, Request, Depends, HTTPException, Cookie, UploadFile, File, Body
+import asyncio
+import datetime
+import json
+import os
+import shutil
+import zipfile
+from hashlib import sha3_256
+from typing import List, Optional
+
+import jwt
+import pandas as pd
+import pyodbc
+from fastapi import (Body, Cookie, Depends, FastAPI, File, Form, HTTPException,
+                     Query, Request, UploadFile)
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import (FileResponse, JSONResponse, RedirectResponse,
+                               Response)
 from fastapi.security import OAuth2PasswordBearer
-from fastapi.responses import Response, JSONResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from hashlib import sha3_256
-from typing import List
 
 from .controllers.controller import *
-from .send_otp import send_otp_email, is_otp_valid
-from .send_telegram_message import sendMessageTelegram, admin_chat_id
-
-import os
-import jwt
-import datetime
-import pandas as pd
-import zipfile
-import shutil
-import asyncio
-import json
+from .send_otp import is_otp_valid, send_otp_email
+from .send_telegram_message import admin_chat_id, sendMessageTelegram
 
 app = FastAPI()
 app.add_middleware(
@@ -30,9 +33,13 @@ app.add_middleware(
     allow_headers=['*']
 )
 app.mount("/dist", StaticFiles(directory=os.path.join(os.getcwd(),
-          "app", "templates", "dist")), name="dist")
+    "app", "templates", "dist")), name="dist")
 app.mount("/plugins", StaticFiles(directory=os.path.join(os.getcwd(),
-          "app", "templates", "plugins")), name="plugins")
+    "app", "templates", "plugins")), name="plugins")
+
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 templates = Jinja2Templates(
     directory=os.path.join(os.getcwd(), "app", "templates"))
@@ -117,6 +124,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return username
 
+
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc', 'xlsx', 'xls'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 # Middleware để bắt lỗi 404 và xử lý
 
 
@@ -1034,6 +1046,33 @@ async def get_danh_sach_nganh_route():
 async def get_danh_sach_truong_route():
     return JSONResponse(status_code=200, content=get_danh_sach_truong_controller())
 
+@app.get('/quanlytruong')
+async def quan_ly_truong(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                return templates.TemplateResponse('quanlytruong.html', context={'request': request})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/them_truong')
+async def them_truong(ten: str,kyhieu:str,isDeleted:int ,token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = them_truong_controller(ten,kyhieu,isDeleted)
+                if result['status']=='OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_CREATE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')\
 
 @app.post('/thong_tin_sinh_vien')
 async def thong_tin_sinh_vien_route(sv: ThongTinSV):
@@ -1764,6 +1803,397 @@ async def canhbaodangnhap_route(noidung: str, token: str = Cookie(None)):
             if permission == "admin":
                 asyncio.create_task(sendMessageTelegram(message=f"<code>Cảnh báo đăng nhập</code>\n\n<b>Tài khoản:</b> <code>{username}</code>\n<b>Thông tin thiết bị đăng nhập:</b>\n<pre language='json'>"+json.loads(
                     json.dumps(noidung, indent=2)).replace('","', '",\n"')+"</pre>", chat_id=admin_chat_id, format='HTML'))
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_xoa_truong_by_id')
+async def update_xoa_truong_by_id_route(id: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_xoa_truong_by_id_controller(id)
+                print('id' , id)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'EXISTS'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_mo_khoa_truong_by_id')
+async def update_mo_khoa_truong_by_id_route(id: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_mo_khoa_truong_by_id_controller(id)
+                if result == 1:
+                    return JSONResponse(status_code=200, content={'status': 'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'EXISTS'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_chi_tiet_truong_by_id')
+async def update_chi_tiet_truong_by_id(id: int, ten: str,kyhieu:str,isDeleted:int ,token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = update_truong_by_id_controller(id, ten,kyhieu,isDeleted)
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_UPDATE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.get('/get_chi_tiet_truong_by_id')
+async def get_chi_tiet_truong_by_id_route(id: str):
+    return JSONResponse(status_code=200, content=get_chi_tiet_truong_by_id_controller(id))
+
+@app.post('/delete_truong_by_id')
+async def delete_truong_by_id(idList: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("permission") == "admin":
+                result = delete_truong_by_id_controller(idList.split(','))
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_DELETE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+# xem phieu danh gia ctu
+@app.get('/xem_phieudanhgia_ctu.pdf')
+async def view_pdf(id_bieumau:int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+                pdf_path = query_pdf_path_from_database_controller(id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                print("PDF Path:", pdf_path)
+                if pdf_path and os.path.exists(pdf_path):
+                    with open(pdf_path, 'rb') as f:
+                        pdf_content = f.read()
+                    headers = {
+                        "Content-Disposition": "inline",
+                        "Content-Type": "application/pdf",
+                    }
+                    return Response(content=pdf_content, headers=headers)
+                else:
+                    raise HTTPException(status_code=404, detail="File not found")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+# xem phieu danh gia ctu
+@app.get('/xem_phieugiaoviec_ctu.pdf')
+async def view_pdf(id_bieumau:int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+                pdf_path = query_pdf_path_from_database_controller(id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                print("PDF Path:", pdf_path)
+                if pdf_path and os.path.exists(pdf_path):
+                    with open(pdf_path, 'rb') as f:
+                        pdf_content = f.read()
+                    headers = {
+                        "Content-Disposition": "inline",
+                        "Content-Type": "application/pdf",
+                    }
+                    return Response(content=pdf_content, headers=headers)
+                else:
+                    raise HTTPException(status_code=404, detail="File not found")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+@app.get('/xem_phieutiepnhan_ctu.pdf')
+async def view_pdf(id_bieumau:int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+                pdf_path = query_pdf_path_from_database_controller(id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                print("PDF Path:", pdf_path)
+                if pdf_path and os.path.exists(pdf_path):
+                    with open(pdf_path, 'rb') as f:
+                        pdf_content = f.read()
+                    headers = {
+                        "Content-Disposition": "inline",
+                        "Content-Type": "application/pdf",
+                    }
+                    return Response(content=pdf_content, headers=headers)
+                else:
+                    raise HTTPException(status_code=404, detail="File not found")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+# xem phieu theo doi ctu
+@app.get('/xem_phieutheodoi_ctu.pdf')
+async def view_pdf(id_bieumau:int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+                pdf_path = query_pdf_path_from_database_controller(id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                print("PDF Path:", pdf_path)
+                if pdf_path and os.path.exists(pdf_path):
+                    with open(pdf_path, 'rb') as f:
+                        pdf_content = f.read()
+                    headers = {
+                        "Content-Disposition": "inline",
+                        "Content-Type": "application/pdf",
+                    }
+                    return Response(content=pdf_content, headers=headers)
+                else:
+                    raise HTTPException(status_code=404, detail="File not found")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+# xem phieu danh gia vlute
+@app.get('/xem_phieudanhgia_vlute.pdf')
+async def view_pdf(id_bieumau:int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+                pdf_path = query_pdf_path_from_database_controller(id_bieumau) # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
+                print("PDF Path:", pdf_path)
+                if pdf_path and os.path.exists(pdf_path):
+                    with open(pdf_path, 'rb') as f:
+                        pdf_content = f.read()
+                    headers = {
+                        "Content-Disposition": "inline",
+                        "Content-Type": "application/pdf",
+                    }
+                    return Response(content=pdf_content, headers=headers)
+                else:
+                    raise HTTPException(status_code=404, detail="File not found")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+@app.get('/quanlyvanban')
+async def quan_ly_van_ban(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                return templates.TemplateResponse('documents.html', context={'request': request})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+
+@app.get('/get_danh_sach_van_ban')
+async def get_danh_sach_van_ban_route():
+    return JSONResponse(status_code=200, content=get_danh_sach_van_ban_controller())
+
+
+@app.get('/get_danh_sach_file')
+async def get_danh_sach_file_route():
+    return JSONResponse(status_code=200, content=get_danh_sach_file_controller())
+
+
+@app.get('/get_chi_tiet_van_ban')
+async def get_chi_tiet_van_ban_route(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                return get_chi_tiet_van_ban_controller()
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/them_files')
+async def them_files_route(tenvanban: str = Form(...), files: UploadFile = File(...), token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                tenfile = files.filename
+                if not allowed_file(tenfile):
+                    return JSONResponse(status_code=200, content={"status":"INVALID"})
+                file_location = os.path.join(UPLOAD_FOLDER, tenfile)
+                with open(file_location, "wb") as f:
+                    f.write(await files.read())
+                result = them_files_controller(tenvanban,file_location,tenfile)
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={"status":"EXIST"})
+            else:
+                return JSONResponse(status_code=200, content={"status":"ERROR"})
+        except jwt.PyJWTError:
+            return RedirectResponse(url='/login')
+    return RedirectResponse(url='/login')
+
+@app.post('/them_vanban')
+async def them_van_ban_route(tenvanban: str, ndt:int, idtruong: int, isDeleted:int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = them_vanban_db(tenvanban,ndt,idtruong,isDeleted)
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={"status": "EXIST"})
+            else:
+                return JSONResponse(status_code=200, content={"status":"ERROR"})
+        except jwt.PyJWTError:
+            return RedirectResponse(url='/login')
+    return RedirectResponse(url='/login')
+
+@app.get('/xem_file')
+async def view_file(id_file: int, tenfile: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
+                duongdan = vanban_query_pdf_path_from_database_controller(id_file)
+                if duongdan and os.path.exists(duongdan):
+                    with open(duongdan, 'rb') as f:
+                        word_content = f.read()
+                    file_extension = os.path.splitext(tenfile)[1].lower()
+                    print('file',file_extension)
+                    if file_extension == '.pdf':
+                        content_type = "application/pdf"
+                    elif file_extension in ['.doc', '.docx']:
+                        content_type = "application/msword"
+                    elif file_extension in ['.xls', '.xlsx']:
+                        content_type = "application/vnd.ms-excel"
+                    else:
+                        raise HTTPException(status_code=400, detail="Unsupported file type")
+                    headers = {
+                        "Content-Disposition": f'inline; filename="{tenfile}"',
+                        "Content-Type": content_type,
+                    }
+                    print('header', headers)
+                    return Response(content=word_content, headers=headers)
+                else:
+                    raise HTTPException(status_code=404, detail="File not found")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+@app.get('/get_chi_tiet_van_ban_by_id')
+async def get_chi_tiet_van_ban_by_id_route(id: int):
+    return JSONResponse(status_code=200, content=get_chi_tiet_van_ban_by_id_controller(id))
+
+
+@app.post('/xoa_file_by_id')
+async def update_xoa_file_by_id_route(fileid: int, token: str = Cookie(None)):
+    print('fileid',fileid)
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                result = xoa_file_by_id_controller(fileid)
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'ERROR'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_xoa_van_ban_by_id')
+async def update_xoa_van_ban_by_id_route(id: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin" or permission == "user":
+                result = update_xoa_van_ban_by_id_controller(id)
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_DELETE'})
+        except jwt.PyJWTError:
+            return RedirectResponse('/login')
+    return RedirectResponse('/login')
+
+@app.post('/update_chi_tiet_van_ban_by_id')
+async def update_chi_tiet_van_ban_by_id(id: int, tenvanban: str = Form(None), files: UploadFile = File(None), token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            if permission == "admin":
+                if files is not None:
+                    tenfile = files.filename
+                    if not allowed_file(tenfile):
+                        return JSONResponse(status_code=200, content={"status": "INVALID"})
+                    file_location = os.path.join(UPLOAD_FOLDER, tenfile)
+                    with open(file_location, "wb") as f:
+                        f.write(await files.read())
+                    result = update_vanban_controller(id, tenvanban, file_location, tenfile)
+                else:
+                    result = update_vanban_controller(id, tenvanban)
+                if result:
+                    return JSONResponse(status_code=200, content={'status':'OK'})
+                else:
+                    return JSONResponse(status_code=200, content={"status": "EXIST"})
+            else:
+                return JSONResponse(status_code=200, content={"status": "ERROR"})
+        except jwt.PyJWTError:
+            return RedirectResponse(url='/login')
+    return RedirectResponse(url='/login')
+
+@app.post('/delete_vanban_by_id_list')
+async def delete_vanban_by_id_list(idList: str, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("permission") == "admin":
+                result = delete_vanban_by_id_list_controller(idList.split(','))
+                if result['status'] == 'OK':
+                    return JSONResponse(status_code=200, content=result)
+                else:
+                    return JSONResponse(status_code=200, content={'status': 'NOT_DELETE'})
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')
