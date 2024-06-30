@@ -428,7 +428,7 @@ $("#taodanhmucbieumauBtn").on("click", function () {
   $("#modal_submit_bieumau_btn").on("click", function () {
     var formData = new FormData();
     formData.append("file", data[0].files[0]);
-    formData.append("ten", tenbieumau.val());
+    formData.append("ten", tenbieumau.val().trim());
     formData.append("idtruong", idtruong.val());
     formData.append("isDelete", 0); // Assuming isDeleted is always 0
     $.ajax({

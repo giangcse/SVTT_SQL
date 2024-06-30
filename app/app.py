@@ -2262,6 +2262,7 @@ async def update_mo_khoa_nganh_by_id_route(id_bieumau: int, token: str = Cookie(
 
 @app.post('/them_bieumau')
 async def them_bieumau(ten: str = Form(...), idtruong: int = Form(...), file: UploadFile = File(...), token: str = Cookie(None)):
+    print('ten', ten)
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
