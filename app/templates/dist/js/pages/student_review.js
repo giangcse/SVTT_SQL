@@ -1,5 +1,5 @@
 let currentDate = new Date();
-currentDate.setDate(currentDate.getDate() + 3);
+currentDate.setDate(currentDate.getDate() + 0);
 let currentTimestamp = parseInt(currentDate.getTime() / 1000);
 
 var Toast = Swal.mixin({
@@ -124,7 +124,7 @@ function create_table(kythuctap, nhomthuctap) {
                     </div>
                   </div>
                 </center>`;
-            } else {
+            } else if (row.kyhieu_truong == "CTU") {
               return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
                     <i class="fas fa-pencil-alt"></i>
