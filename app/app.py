@@ -970,7 +970,8 @@ async def xem_bieumau(id: int, token: str = Cookie(None)):
             permission = payload.get("permission")
             if permission == "user":
                 bieumau = get_chi_tiet_bieu_mau_by_id_controller(id)
-                filePath = os.path.join(os.getcwd(), 'uploaded', 'bieumau', bieumau['path'])
+                filePath = os.path.join(
+                    os.getcwd(), 'uploaded', 'bieumau', bieumau['path'])
                 return FileResponse(filePath)
             else:
                 raise HTTPException(
@@ -2285,7 +2286,7 @@ async def chinh_sua_ptn_ctu(id: int, id_bieumau: int, data: str, token: str = Co
                     pdf_path = query_pdf_path_from_database_controller(
                         id, id_bieumau)
                     r = ctu_chinh_phieu_tiep_nhan(
-                         pdf_path, f"{username}.pdf", data, username)
+                        pdf_path, f"{username}.pdf", data, username)
                     if r:
                         with open(r, 'rb') as f:
                             pdf_content = f.read()

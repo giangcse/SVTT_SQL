@@ -50,7 +50,7 @@ $("#thembieumau_btn").click(function () {
         );
       });
     },
-    error: function(){
+    error: function () {
       Toast.fire({
         icon: 'error',
         text: 'Lỗi không load được danh sách trường'
@@ -70,14 +70,14 @@ $("#thembieumau_btn").click(function () {
       data: form,
       processData: false,
       contentType: false,
-      success: function(){
+      success: function () {
         Toast.fire({
           icon: "success",
           text: "Đã thêm biểu mẫu"
         });
         bangdsbieumau.ajax.reload();
       },
-      error: function(){
+      error: function () {
         Toast.fire({
           icon: "error",
           text: "Thêm biểu mẫu không thành công"
@@ -127,15 +127,17 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
   ],
 });
 
-$("#bangdsbieumau").on("click", "#editBtn", function() {
+$("#bangdsbieumau").on("click", "#editBtn", function () {
   let id_bieumau = $(this).data("id");
+  NProgress.start();
   $.ajax({
     type: "GET",
     url: `xem_bieumau?id=${id_bieumau}`,
     xhrFields: {
-        responseType: 'blob' // Để xử lý dữ liệu nhị phân
+      responseType: 'blob' // Để xử lý dữ liệu nhị phân
     },
-    success: function(data){
+    success: function (data) {
+      NProgress.done();
       clear_modal();
       $("#modal_title_large").text("Xem biểu mẫu");
       $("#modal_body_large").html(`
@@ -145,16 +147,17 @@ $("#bangdsbieumau").on("click", "#editBtn", function() {
       var url = window.URL.createObjectURL(data);
       $('#pdfViewer').attr('src', url);
     },
-    error: function(){
+    error: function () {
+      NProgress.done();
       Toast.fire({
         icon: 'error',
         text: 'Không thể load biểu mẫu'
       })
     }
-  })
+  });
 });
 
-$("#bangdsbieumau").on("click", "#deleteBtn", function() {
+$("#bangdsbieumau").on("click", "#deleteBtn", function () {
   let id_bieumau = $(this).data("id");
 
   Swal.fire({
@@ -168,14 +171,14 @@ $("#bangdsbieumau").on("click", "#deleteBtn", function() {
       $.ajax({
         type: "POST",
         url: `xoa_bieumau?id=${id_bieumau}`,
-        success: function(){
+        success: function () {
           Toast.fire({
             icon: 'success',
             text: 'Đã xoá biểu mẫu'
           })
           bangdsbieumau.ajax.reload();
         },
-        error: function(){
+        error: function () {
           Toast.fire({
             icon: 'error',
             text: 'Không thể xoá biểu mẫu'
