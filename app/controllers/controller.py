@@ -568,3 +568,6 @@ def get_ds_chuc_nang_by_user_id_controller(id: int):
 
 def check_role(uid: int, url: str):
     return check_role_by_url_and_id(uid, url)
+
+def get_thong_tin_nhom_by_sv_email_controller(email: str):
+    return get_thong_tin_nhom_by_sv_email(email)

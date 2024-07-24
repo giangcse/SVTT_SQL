@@ -1346,6 +1346,10 @@ async def get_chi_tiet_sinh_vien_moi_nhap_thong_tin(id: str):
 async def them_nhom_thuc_tap_sv_route(email: str, idnhom: int):
     result = update_nhom_thuc_tap_by_sv_id_controller(email, idnhom)
     if result:
+        thongtinsv = get_thong_tin_nhom_by_sv_email_controller(email)
+        print(thongtinsv)
+        if thongtinsv != -1:
+            asyncio.create_task(sendMessageTelegram(message=f"<code>Sinh viên đăng kí nhóm</code>\n\n<b>Sinh viên:</b> <code>[{thongtinsv[0]}] {thongtinsv[1]}</code>\n<b>Đã đăng kí nhóm:</b> <pre>{thongtinsv[2]}</pre>", chat_id=admin_chat_id, format='HTML'))
         response = JSONResponse(status_code=200, content={'status': 'OK'})
         response.set_cookie('groupid', result, max_age=5356800)
         return response
@@ -2077,9 +2081,9 @@ async def canhbaodangnhap_route(noidung: str, token: str = Cookie(None)):
             permission = payload.get("permission")
             username = payload.get("sub")
             uid = payload.get("id")
-            if permission == "user" and check_role(uid, '/canhbaodangnhap'):
-                asyncio.create_task(sendMessageTelegram(message=f"<code>Cảnh báo đăng nhập</code>\n\n<b>Tài khoản:</b> <code>{username}</code>\n<b>Thông tin thiết bị đăng nhập:</b>\n<pre language='json'>"+json.loads(
-                    json.dumps(noidung, indent=2)).replace('","', '",\n"')+"</pre>", chat_id=admin_chat_id, format='HTML'))
+            # if permission == "user" and check_role(uid, '/canhbaodangnhap'):
+            #     asyncio.create_task(sendMessageTelegram(message=f"<code>Cảnh báo đăng nhập</code>\n\n<b>Tài khoản:</b> <code>{username}</code>\n<b>Thông tin thiết bị đăng nhập:</b>\n<pre language='json'>"+json.loads(
+            #         json.dumps(noidung, indent=2)).replace('","', '",\n"')+"</pre>", chat_id=admin_chat_id, format='HTML'))
         except jwt.PyJWTError:
             return RedirectResponse('/login')
     return RedirectResponse('/login')

@@ -570,8 +570,8 @@ def xoa_cong_viec_by_id(id: int):
 
 def them_cong_viec_nhom(id: int, ngaybatdau: str, ngayketthuc: str, ten: str, mota: str):
     try:
-        result = cursor.execute("EXEC InsertCongViec ?, ?, ?, ?, ?", id, protect_xss(
-            ngaybatdau), protect_xss(ngayketthuc), protect_xss(ten), protect_xss(mota)).fetchone()
+        result = cursor.execute("EXEC InsertCongViec ?, ?, ?, ?, ?", id, 
+            ngaybatdau, ngayketthuc, ten, mota).fetchone()
         cursor.commit()
         if result[0] == 1:
             return True
@@ -1515,3 +1515,14 @@ def check_role_by_url_and_id(uid: int, url: str):
     except Exception as e:
         return e
     
+    
+def get_thong_tin_nhom_by_sv_email(email: str):
+    try:
+        result = cursor.execute(
+            "GetTTNhomSVByEmail ?", email).fetchone()
+        if result != None:
+            return result
+        else:
+            return -1
+    except Exception as e:
+        return e
