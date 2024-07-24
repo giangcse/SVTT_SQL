@@ -35,10 +35,13 @@
           <!-- Map card -->
           <div class="card">
             <div class="card-header border-0 rows">
-              <h3 class="card-title col-lg-7">
+              <h3 class="card-title col-lg-2">
                 <i class="fa-solid fa-list-ol"></i>
                 Danh sách các biểu mẫu
               </h3>
+              <button class="btn btn-success btn-xs ms-auto" id="thembieumau_btn">
+                <i class="fa-solid fa-plus"></i> Thêm biểu mẫu
+              </button>
             </div>
             <div class="card-body">
               <table
@@ -50,8 +53,8 @@
                     <th scope="col" style="text-align: center">
                       <input type="checkbox" id="checkAll" />
                     </th>
+                    <th scope="col" style="text-align: center">Tên biểu mẫu</th>
                     <th scope="col" style="text-align: center">Trường</th>
-
                     <th scope="col" style="text-align: center">Thao tác</th>
                   </tr>
                 </thead>
@@ -64,8 +67,9 @@
         <!-- /.content -->
       </div>
       <!-- /.content-wrapper -->
-      {% include 'modal.html' ignore missing %} {% include 'footer.html' ignore
-      missing %}
+      {% include 'modal.html' ignore missing %} 
+      {% include 'modal_large.html' ignore missing %} 
+      {% include 'footer.html' ignore missing %}
 
       <!-- Control Sidebar -->
       <aside class="control-sidebar control-sidebar-dark">
@@ -106,55 +110,6 @@
       referrerpolicy="no-referrer"
     />
     <script src="dist/js/pages/quanlybieumau.js"></script>
-    <!-- Modal để thêm và chỉnh sửa biểu mẫu -->
-    <div id="pdfModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <iframe
-          id="pdfViewer"
-          width="100%"
-          height="500px"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </div>
-    <!-- Modal -->
-    <div
-      class="modal fade"
-      id="dataModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="dataModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="dataModalLabel">Nhập dữ liệu</h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="dataForm">
-              <div class="form-group">
-                <label for="inputData">Nội dung phiếu tiếp nhận</label>
-                <textarea
-                  class="form-control"
-                  id="inputData"
-                  rows="3"
-                ></textarea>
-              </div>
-              <button type="submit" class="btn btn-primary">Gửi</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    
   </body>
 </html>

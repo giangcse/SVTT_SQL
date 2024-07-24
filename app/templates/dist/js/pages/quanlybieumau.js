@@ -16,21 +16,77 @@ function clear_modal() {
   $("#modal_footer").empty();
 }
 
-const createDropdownMenu = (id, row) => {
-  const kyhieu = row.kyhieu ? row.kyhieu.toLowerCase() : "";
-  if (kyhieu === "vlute") {
-    return `
-    <a class="dropdown-item" href="xem_phieu_danh_gia_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu đánh giá</a>
-  `;
-  } else {
-    return `
-    <a class="dropdown-item" href="xem_phieu_tiep_nhan_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu tiếp nhận</a>
-    <a class="dropdown-item" href="xem_phieu_giao_viec_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu giao việc</a>
-    <a class="dropdown-item" href="xem_phieu_theo_doi_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu theo dõi</a>
-    <a class="dropdown-item" href="xem_phieu_danh_gia_${kyhieu}?id=${id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem phiếu đánh giá</a>
-  `;
-  }
-};
+// Modal biểu mẫu
+$("#thembieumau_btn").click(function () {
+  // Clear modal
+  clear_modal();
+  $("#modal_title").text("Thêm biểu mẫu");
+  html =
+    `<div class="form-group">
+      <label for="modal_tenbieumau_input">Tên biểu mẫu</label>
+      <input type="text" class="form-control" id="modal_tenbieumau_input" placeholder="Nhập tên biểu mẫu">
+    </div>
+    <div class="form-group">
+      <label for="modal_truong_select">Trường</label>
+      <select id="modal_truong_select" class="form-control select2"></select>
+    </div>
+    <div class="form-group">
+      <label for="modal_file_input">Chọn file biểu mẫu</label>
+      <input type="file" id="modal_file_input" class="form-control" accept=".pdf, .docx, .pptx, .xlsx">
+    </div>`;
+  $("#modal_body").append(html);
+  $("#modal_footer").append(
+    '<button type="button" class="btn btn-primary" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>'
+  );
+  $("#modal_id").modal("show");
+
+  $.ajax({
+    type: 'GET',
+    url: 'get_danh_sach_truong',
+    success: function (data) {
+      $.each(data, function (idx, val) {
+        $("#modal_truong_select").append(
+          `<option value="${val['id']}">${val['ten']}</option>`
+        );
+      });
+    },
+    error: function(){
+      Toast.fire({
+        icon: 'error',
+        text: 'Lỗi không load được danh sách trường'
+      })
+    }
+  })
+
+  $("#modal_submit_btn").click(function () {
+    const form = new FormData();
+    form.append("tenbieumau", $("#modal_tenbieumau_input").val());
+    form.append("id_truong", $("#modal_truong_select").val());
+    form.append("file", document.getElementById("modal_file_input").files[0]);
+
+    $.ajax({
+      type: "POST",
+      url: "import_bieumau",
+      data: form,
+      processData: false,
+      contentType: false,
+      success: function(){
+        Toast.fire({
+          icon: "success",
+          text: "Đã thêm biểu mẫu"
+        });
+        bangdsbieumau.ajax.reload();
+      },
+      error: function(){
+        Toast.fire({
+          icon: "error",
+          text: "Thêm biểu mẫu không thành công"
+        })
+      }
+    });
+    $("#modal_id").modal("hide");
+  });
+});
 
 let bangdsbieumau = $("#bangdsbieumau").DataTable({
   paging: true,
@@ -42,7 +98,7 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
   responsive: true,
   ajax: {
     type: "GET",
-    url: "get_danh_sach_truong",
+    url: "get_danh_sach_bieu_mau",
     dataSrc: "",
   },
   columns: [
@@ -54,83 +110,78 @@ let bangdsbieumau = $("#bangdsbieumau").DataTable({
       },
     },
     { data: "ten" },
+    { data: "tentruong" },
     {
-      data: null,
+      data: "id",
       render: function (data, type, row) {
-        const kyhieu = row.kyhieu ? row.kyhieu.toLowerCase() : "";
-        return `
-        <div class="dropdown">
-        <a class='text-dark' href="xem_${row.tenfile}?id=${row.id}&id_bieumau=${row.id_bieumau}" target="_blank">Xem ${row.tenbieumau}</a>
-        <a class="btn btn-outline-warning btn-sm mx-2 editbieumau" id='editbieumau' data-id="${row.id}" data-id_bieumau="${row.id_bieumau}" href="#"><i class="fas fa-pencil-alt"></i></a>
-        </div>
-        `;
+        return `<center>
+                  <a class="btn btn-info btn-sm" id="editBtn" data-id="${data}">
+                    <i class="fas fa-pencil-alt"></i>
+                  </a>  
+                  <a class="btn btn-danger btn-sm" data-id="${data}" id="deleteBtn">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </center>`;
       },
     },
   ],
 });
 
-$("#dashboard-select-districts").on("change", function () {
-  const selectedValue = $(this).val();
-  loadChiSo(selectedValue);
-  bangdsbieumau.columns(7).search(selectedValue).draw();
+$("#bangdsbieumau").on("click", "#editBtn", function() {
+  let id_bieumau = $(this).data("id");
+  $.ajax({
+    type: "GET",
+    url: `xem_bieumau?id=${id_bieumau}`,
+    xhrFields: {
+        responseType: 'blob' // Để xử lý dữ liệu nhị phân
+    },
+    success: function(data){
+      clear_modal();
+      $("#modal_title_large").text("Xem biểu mẫu");
+      $("#modal_body_large").html(`
+          <iframe id="pdfViewer" width="100%" height="800"></iframe>
+      `);
+      $("#modal_id_large").modal("show");
+      var url = window.URL.createObjectURL(data);
+      $('#pdfViewer').attr('src', url);
+    },
+    error: function(){
+      Toast.fire({
+        icon: 'error',
+        text: 'Không thể load biểu mẫu'
+      })
+    }
+  })
 });
 
-$(document).ready(function () {
-  // Add an event listener for opening the modal
-  $("#bangdsbieumau").on("click", ".editbieumau", function (e) {
-    e.preventDefault();
-    // Get the id and id_bieumau from the button's data attributes
-    const id = $(this).data("id");
-    const id_bieumau = $(this).data("id_bieumau");
+$("#bangdsbieumau").on("click", "#deleteBtn", function() {
+  let id_bieumau = $(this).data("id");
 
-    // Store these values in the modal for later use
-    $("#dataForm").data("id", id);
-    $("#dataForm").data("id_bieumau", id_bieumau);
-
-    // Open the modal
-    $("#dataModal").modal("show");
-  });
-
-  // Handle the form submission
-  $("#dataForm").on("submit", function (event) {
-    event.preventDefault();
-
-    // Get the id, id_bieumau, and input data
-    const id = $(this).data("id");
-    const id_bieumau = $(this).data("id_bieumau");
-    const inputData = $("#inputData").val();
-    // Send the data via an AJAX request
-    console.log("Data to be sent:", { id, id_bieumau, data: inputData });
-    $.ajax({
-      type: "POST",
-      url:
-        "chinh_sua_phieutiepnhan_ctu.pdf?id=" +
-        id +
-        "&id_bieumau=" +
-        id_bieumau +
-        "&data=" +
-        inputData,
-      success: function (response) {
-        // Handle the successful response here
-        Toast.fire({
-          icon: "success",
-          title: "Dữ liệu đã được gửi thành công!",
-        });
-        $("#dataModal").modal("hide");
-        var pdfWindow = window.open("");
-        pdfWindow.document.write(
-          "<iframe width='100%' height='100%' src='data:application/pdf;base64," +
-            encodeURI(response) +
-            "'></iframe>"
-        );
-      },
-      error: function (error) {
-        // Handle errors here
-        Toast.fire({
-          icon: "error",
-          title: "Có lỗi xảy ra, vui lòng thử lại!",
-        });
-      },
-    });
+  Swal.fire({
+    title: "Bạn muốn xoá biểu mẫu",
+    showDenyButton: false,
+    showCancelButton: true,
+    confirmButtonText: "Xoá",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: "POST",
+        url: `xoa_bieumau?id=${id_bieumau}`,
+        success: function(){
+          Toast.fire({
+            icon: 'success',
+            text: 'Đã xoá biểu mẫu'
+          })
+          bangdsbieumau.ajax.reload();
+        },
+        error: function(){
+          Toast.fire({
+            icon: 'error',
+            text: 'Không thể xoá biểu mẫu'
+          })
+        }
+      });
+    }
   });
 });
