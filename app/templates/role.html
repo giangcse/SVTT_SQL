@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     {% include 'header.html' ignore missing %}
-    <title>Đề tài | HTQL SVTT</title>
+    <title>Danh mục phân quyền | HTQL SVTT</title>
   </head>
 
   <body class="hold-transition sidebar-mini">
@@ -17,12 +17,12 @@
           <div class="container-fluid">
             <div class="row mb-2">
               <div class="col-sm-6">
-                <h1>Đề tài</h1>
+                <h1>Danh mục phân quyền</h1>
               </div>
               <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                   <li class="breadcrumb-item"><a href="#">Home</a></li>
-                  <li class="breadcrumb-item active">Đề tài</li>
+                  <li class="breadcrumb-item active">Danh mục phân quyền</li>
                 </ol>
               </div>
             </div>
@@ -35,27 +35,27 @@
           <!-- Map card -->
           <div class="card">
             <div class="card-header border-0 rows">
-              <h3 class="card-title col-lg-2">
+              <h3 class="card-title pr-2">
                 <i class="fa-solid fa-list-ol"></i>
-                Danh sách đề tài
+                Danh sách vai trò
               </h3>
-              <button class="btn btn-success btn-xs ms-auto" id="themdetai_btn">
-                <i class="fa-solid fa-plus"></i> Thêm đề tài
+              <button class="btn btn-success btn-xs ms-auto" id="themvaitro_btn">
+                <i class="fa-solid fa-plus"></i> Thêm vai trò
               </button>
             </div>
             <div class="card-body">
-              <table class="table table-bordered table-hover" id="bangdsdetai">
+              <table class="table table-bordered table-hover" id="bangdsvaitro">
                 <thead>
                   <tr>
                     <th scope="col" style="text-align: center" width="5%">#</th>
-                    <th scope="col" style="text-align: center" width="25%">
-                      Tên đề tài
+                    <th scope="col" style="text-align: center" width="30%">
+                      Tên vai trò
                     </th>
-                    <th scope="col" style="text-align: center">Mô tả</th>
-                    <th scope="col" style="text-align: center" width="8%">
+                    <th scope="col" style="text-align: center">Các chức năng</th>
+                    <th scope="col" style="text-align: center" width="10%">
                       Trạng thái
                     </th>
-                    <th scope="col" style="text-align: center" width="8%">
+                    <th scope="col" style="text-align: center" width="12%">
                       Thao tác
                     </th>
                   </tr>
@@ -78,7 +78,6 @@
       </aside>
       <!-- /.control-sidebar -->
     </div>
-
     <!-- ./wrapper -->
 
     <!-- jQuery -->
@@ -89,6 +88,9 @@
     <script src="../../dist/js/adminlte.min.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="../../dist/js/demo.js"></script>
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
+    integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- DataTables -->
@@ -111,6 +113,6 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <script src="dist/js/pages/projects.js"></script>
+    <script src="dist/js/pages/role.js"></script>
   </body>
 </html>

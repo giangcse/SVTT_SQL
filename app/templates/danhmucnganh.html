@@ -2,7 +2,45 @@
 <html lang="en">
   <head>
     {% include 'header.html' ignore missing %}
-    <title>Đề tài | HTQL SVTT</title>
+    <title>Quản lý các ngành | HTQL SVTT</title>
+    <style>
+      /* Custom styles for checkbox */
+      .select-all-checkbox,
+      .select-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 15px;
+        height: 15px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        background-color: white;
+        outline: none;
+        cursor: pointer;
+      }
+      .select-all-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .select-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .select-all-checkbox:checked::after {
+        content: "\2713";
+        color: white;
+        font-size: 10px;
+        display: block;
+        text-align: center;
+      }
+      .select-checkbox:checked::after {
+        content: "\2713";
+        color: white;
+        font-size: 10px;
+        display: block;
+        text-align: center;
+      }
+    </style>
   </head>
 
   <body class="hold-transition sidebar-mini">
@@ -17,12 +55,12 @@
           <div class="container-fluid">
             <div class="row mb-2">
               <div class="col-sm-6">
-                <h1>Đề tài</h1>
+                <h1>Quản lý các ngành</h1>
               </div>
               <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                   <li class="breadcrumb-item"><a href="#">Home</a></li>
-                  <li class="breadcrumb-item active">Đề tài</li>
+                  <li class="breadcrumb-item active">Quản lý ngành</li>
                 </ol>
               </div>
             </div>
@@ -37,25 +75,50 @@
             <div class="card-header border-0 rows">
               <h3 class="card-title col-lg-2">
                 <i class="fa-solid fa-list-ol"></i>
-                Danh sách đề tài
+                Danh sách các ngành
               </h3>
-              <button class="btn btn-success btn-xs ms-auto" id="themdetai_btn">
-                <i class="fa-solid fa-plus"></i> Thêm đề tài
+              <button
+                class="btn btn-success btn-xs ms-auto"
+                id="taodanhmucnganhBtn"
+              >
+                <i class="fa-solid fa-plus"></i> Tạo ngành mới
+              </button>
+              <button
+                class="btn btn-dark btn-xs ms-2"
+                style="hidden"
+                id="xoadanhmucnganhBtn"
+              >
+                <i class="fa-solid fa-trash"></i> Xóa ngành đã chọn
               </button>
             </div>
             <div class="card-body">
-              <table class="table table-bordered table-hover" id="bangdsdetai">
+              <table
+                class="table table-bordered table-hover"
+                id="bangdscacnganh"
+              >
                 <thead>
                   <tr>
-                    <th scope="col" style="text-align: center" width="5%">#</th>
-                    <th scope="col" style="text-align: center" width="25%">
-                      Tên đề tài
+                    <th scope="col" style="text-align: center" width="5%">
+                      <input
+                        type="checkbox"
+                        id="select-all-checkbox"
+                        class="select-all-checkbox"
+                      />
                     </th>
-                    <th scope="col" style="text-align: center">Mô tả</th>
-                    <th scope="col" style="text-align: center" width="8%">
-                      Trạng thái
+                    <th scope="col" style="text-align: center" width="5%"></th>
+                    <th scope="col" style="text-align: center" width="15%">
+                      Tên ngành
                     </th>
-                    <th scope="col" style="text-align: center" width="8%">
+                    <th scope="col" style="text-align: center" width="15%">
+                      Ký hiệu
+                    </th>
+                    <th scope="col" style="text-align: center" width="15%">
+                      Trang thái
+                    </th>
+                    <th scope="col" style="text-align: center" width="15%">
+                      Thuộc trường
+                    </th>
+                    <th scope="col" style="text-align: center" width="20%">
                       Thao tác
                     </th>
                   </tr>
@@ -78,7 +141,6 @@
       </aside>
       <!-- /.control-sidebar -->
     </div>
-
     <!-- ./wrapper -->
 
     <!-- jQuery -->
@@ -111,6 +173,6 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <script src="dist/js/pages/projects.js"></script>
+    <script src="dist/js/pages/danhmucnganh.js"></script>
   </body>
 </html>

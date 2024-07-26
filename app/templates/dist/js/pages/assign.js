@@ -81,7 +81,7 @@ $(document).ready(function () {
                               <div class="timeline-item">
                                 <h3 class="timeline-header ${header_color} row">
                                   <b id="ngay" class="col-lg-10">${val.ngaybatdau} <i class="fa-solid fa-arrow-right"></i> ${val.ngayketthuc}</b>
-                                  <div class="btn-group dropright col-lg-2">
+                                  <div class="btn-group dropleft col-lg-2">
                                     <button type="button" class="btn btn-sm ${btn_color} dropdown-toggle ms-auto" data-toggle="dropdown" aria-expanded="false">
                                       <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>

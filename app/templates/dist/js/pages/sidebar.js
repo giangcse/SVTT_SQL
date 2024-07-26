@@ -51,16 +51,42 @@ function active_nav_link() {
 active_nav_link();
 
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
+  $('[data-toggle="tooltip"]').tooltip();
 });
 
 // Kiểm tra nếu là admin thì hiện menu hệ thống
+// $.ajax({
+//   type: `GET`,
+//   url: `checkIsAdmin`,
+//   success: function (res) {
+//     if (res.status == "OK") {
+//       var element = $('[href="/quanlytaikhoan"]');
+//       if (element.length) {
+//         element.prop('hidden', false);
+//         var parentElement = element.closest('.parent');
+//         parentElement.prop('hidden', false);
+//       }
+//       // $("#menu_hethong").prop("hidden", false);
+//       // $("#hethong_quanlytaikhoan").prop("hidden", false);
+//     }
+//   },
+// });
+
 $.ajax({
-  type: `GET`,
-  url: `checkIsAdmin`,
-  success: function(res){
-    if(res.status=='OK'){
-      $("#hethong_quanlytaikhoan").prop("hidden", false);
-    }
-  }
+  type: "GET",
+  url: `get_ds_chuc_nang_by_user_id`,
+  success: function (res) {
+    $.each(res, function (idx, val) {
+      var element = $(`[href="${val.url}"]`);
+      if (element.length) {
+        element.prop('hidden', false);
+        var parentElement = element.closest('.parent');
+        if (parentElement.length) {
+          parentElement.prop('hidden', false);
+        }
+      }
+    });
+  },
 });
+
+

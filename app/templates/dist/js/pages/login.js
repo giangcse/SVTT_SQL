@@ -27,10 +27,13 @@ function login() {
             success: ()=>{},
             error: ()=>{}
           });
+          window.location.href = "/";
         },
-        error: ()=>{}
+        error: function () {
+          // Chuyển hướng đến trang chủ nếu yêu cầu bị lỗi hoặc hết thời gian chờ
+          window.location.href = "/";
+        }
       });
-      window.location.href = "/";
     },
     error: function (xhr, status, error) {
       Toast.fire({
