@@ -20,12 +20,12 @@ function login() {
       $.ajax({
         type: `GET`,
         url: `https://ipinfo.io/json`,
-        success: function(noidung){
+        success: function (noidung) {
           $.ajax({
             type: `POST`,
             url: `canhbaodangnhap?noidung=${JSON.stringify(noidung)}`,
-            success: ()=>{},
-            error: ()=>{}
+            success: () => { },
+            error: () => { }
           });
           window.location.href = "/";
         },

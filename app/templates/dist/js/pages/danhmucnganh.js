@@ -208,10 +208,9 @@ $("#bangdscacnganh").on("click", "#editBtn", function () {
           let options = schools
             .map(
               (school) =>
-                `<option value="${school.id}" ${
-                  school.id == nganh.id_truong ? "selected" : ""
+                `<option value="${school.id}" ${school.id == nganh.id_truong ? "selected" : ""
                 }>
-            ${school.ten} (${school.id})
+            ${school.ten}
           </option>`
             )
             .join("");

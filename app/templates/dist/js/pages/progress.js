@@ -71,7 +71,7 @@ function loadKyThucTap() {
     url: `get_ky_thuc_tap_by_username`,
     success: function (res) {
       $.each(res, function (idx, val) {
-        if(val['thoihan']!==1){
+        if (val['thoihan'] !== 1) {
           $("#filter_kythuctap").append(`
             <option value="${val["id"]}">${val["ngaybatdau"]} - ${val["ngayketthuc"]}</option>
           `);

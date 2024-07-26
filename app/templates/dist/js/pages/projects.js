@@ -70,10 +70,10 @@ $("#bangdsdetai").on("click", "#editBtn", function () {
       $("#modal_title").text(res.ten);
       $("#modal_body").append(
         '<div class="form-group"><label for="modal_tendetai_input">Tên đề tài</label><input type="text" class="form-control" id="modal_tendetai_input" placeholder="Nhập tên đề tài" value="' +
-          res.ten +
-          '"></div><div class="form-group"><label for="modal_motadetai_input">Mô tả đề tài</label><textarea id="modal_motadetai_input" rows="10" class="form-control" placeholder="Nhập mô tả đề tài">' +
-          res.mota.replace(/<br>/g, "\r\n") +
-          '</textarea></div><div class="form-check"><input type="checkbox" class="form-check-input" id="modal_hoatdong_check"><label class="form-check-label" for="modal_hoatdong_check">Sử dụng đề tài</label></div>'
+        res.ten +
+        '"></div><div class="form-group"><label for="modal_motadetai_input">Mô tả đề tài</label><textarea id="modal_motadetai_input" rows="10" class="form-control" placeholder="Nhập mô tả đề tài">' +
+        res.mota.replace(/<br>/g, "\r\n") +
+        '</textarea></div><div class="form-check"><input type="checkbox" class="form-check-input" id="modal_hoatdong_check"><label class="form-check-label" for="modal_hoatdong_check">Sử dụng đề tài</label></div>'
       );
       if (res.xoa == 0) {
         $("#modal_hoatdong_check").prop("checked", true);
@@ -82,8 +82,8 @@ $("#bangdsdetai").on("click", "#editBtn", function () {
       }
       $("#modal_footer").append(
         '<button type="button" class="btn btn-primary" data-id="' +
-          res.id +
-          '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
+        res.id +
+        '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
       );
       $("#modal_id").modal("show");
       // Tính năng lưu thay đổi
@@ -152,13 +152,13 @@ $("#bangdsdetai").on("click", "#deleteBtn", function () {
         type: "POST",
         url: "update_xoa_de_tai_by_id?id=" + parseInt(id),
         success: function (res) {
-          if(res.status=='OK'){
+          if (res.status == 'OK') {
             Toast.fire({
               icon: "success",
               title: "Đã xoá",
             });
             bangdsdetai.ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Đề tài đã có nhóm sử dụng"

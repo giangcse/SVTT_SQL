@@ -84,13 +84,13 @@ function create_table(kythuctap) {
           } else {
             return '<center><span class="badge badge-danger"><i class="fa-solid fa-xmark"></i>&nbsp; Bị từ chối</span></center>';
           }
-  
+
         },
       },
       {
         data: "id",
         render: function (data, type, row) {
-          if(row.trangthai==0){
+          if (row.trangthai == 0) {
             return (
               `<center>
                 <a class="btn btn-success btn-sm" id="checkBtn" data-id="${data}"><i class="fas fa-check"></i></a>
@@ -111,7 +111,7 @@ function create_table(kythuctap) {
 
 
   // Sự kiện khi nhấn vào hàng để chọn checkbox tương ứng
-  $('#bangdsyeucau tbody').on('click', 'tr', function() {
+  $('#bangdsyeucau tbody').on('click', 'tr', function () {
     var checkbox = $(this).find('.row-checkbox');
     checkbox.prop('checked', !checkbox.prop('checked'));
     updateSelectedIds(checkbox);
@@ -127,7 +127,7 @@ function create_table(kythuctap) {
       }
     } else {
       // Nếu checkbox bị bỏ chọn, xóa ID khỏi mảng
-      selectedIds = selectedIds.filter(function(selectedId) {
+      selectedIds = selectedIds.filter(function (selectedId) {
         return selectedId !== id;
       });
     }
@@ -138,7 +138,7 @@ function create_table(kythuctap) {
     let id = $(this).data("id");
 
     Swal.fire({
-      title: "Bạn chắc chắn muốn xoá yêu cầu này?" ,
+      title: "Bạn chắc chắn muốn xoá yêu cầu này?",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Xoá",
@@ -155,14 +155,14 @@ function create_table(kythuctap) {
             trangthai: 0
           }),
           success: function (res) {
-            if(res.total==1){
+            if (res.total == 1) {
               Toast.fire({
                 icon: "success",
                 title: "Đã xoá 1 yêu cầu",
               });
               // Tải lại bảng bangdsyeucau
               bangdsyeucau.ajax.reload();
-            }else{
+            } else {
               Toast.fire({
                 icon: "warning",
                 title: "Xóa yêu cầu không thành công"
@@ -188,7 +188,7 @@ function create_table(kythuctap) {
     let id = $(this).data("id");
 
     Swal.fire({
-      title: "Phê duyệt yêu cầu này?" ,
+      title: "Phê duyệt yêu cầu này?",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Đồng ý",
@@ -205,14 +205,14 @@ function create_table(kythuctap) {
             trangthai: 1
           }),
           success: function (res) {
-            if(res.total==1){
+            if (res.total == 1) {
               Toast.fire({
                 icon: "success",
                 title: "Đã duyệt 1 yêu cầu",
               });
               // Tải lại bảng bangdsyeucau
               bangdsyeucau.ajax.reload();
-            }else{
+            } else {
               Toast.fire({
                 icon: "warning",
                 title: "Duyệt yêu cầu không thành công"
@@ -237,7 +237,7 @@ function create_table(kythuctap) {
   $("#bangdsyeucau").on("click", "#rejectBtn", function () {
     let id = $(this).data("id");
     Swal.fire({
-      title: "Từ chối yêu cầu này?" ,
+      title: "Từ chối yêu cầu này?",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Đồng ý",
@@ -254,14 +254,14 @@ function create_table(kythuctap) {
             trangthai: -1
           }),
           success: function (res) {
-            if(res.total==1){
+            if (res.total == 1) {
               Toast.fire({
                 icon: "success",
                 title: "Đã từ chối 1 yêu cầu",
               });
               // Tải lại bảng bangdsyeucau
               bangdsyeucau.ajax.reload();
-            }else{
+            } else {
               Toast.fire({
                 icon: "warning",
                 title: "Từ chối yêu cầu không thành công"
@@ -291,7 +291,7 @@ $("#checkSelectedBtn").click(function () {
     return; // Ngăn chặn việc thực hiện các hành động tiếp theo
   }
   Swal.fire({
-    title: "Phê duyệt "+selectedIds.length+" yêu cầu đã chọn?" ,
+    title: "Phê duyệt " + selectedIds.length + " yêu cầu đã chọn?",
     showDenyButton: false,
     showCancelButton: true,
     confirmButtonText: "Đồng ý",
@@ -308,14 +308,14 @@ $("#checkSelectedBtn").click(function () {
           trangthai: 1
         }),
         success: function (res) {
-          if(res.total!=0){
+          if (res.total != 0) {
             Toast.fire({
               icon: "success",
-              title: "Đã duyệt "+res.total+" yêu cầu",
+              title: "Đã duyệt " + res.total + " yêu cầu",
             });
             // Tải lại bảng bangdsyeucau
             bangdsyeucau.ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Duyệt yêu cầu không thành công"
@@ -346,7 +346,7 @@ $("#rejectSelectedBtn").click(function () {
     return; // Ngăn chặn việc thực hiện các hành động tiếp theo
   }
   Swal.fire({
-    title: "Từ chối "+selectedIds.length+" yêu cầu đã chọn?" ,
+    title: "Từ chối " + selectedIds.length + " yêu cầu đã chọn?",
     showDenyButton: false,
     showCancelButton: true,
     confirmButtonText: "Đồng ý",
@@ -363,14 +363,14 @@ $("#rejectSelectedBtn").click(function () {
           trangthai: -1
         }),
         success: function (res) {
-          if(res.total!=0){
+          if (res.total != 0) {
             Toast.fire({
               icon: "success",
-              title: "Đã từ chối "+res.total+" yêu cầu",
+              title: "Đã từ chối " + res.total + " yêu cầu",
             });
             // Tải lại bảng bangdsyeucau
             bangdsyeucau.ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Từ chối yêu cầu không thành công"
@@ -401,7 +401,7 @@ $("#deleteSelectedBtn").click(function () {
     return; // Ngăn chặn việc thực hiện các hành động tiếp theo
   }
   Swal.fire({
-    title: "Xóa "+selectedIds.length+" yêu cầu đã chọn?" ,
+    title: "Xóa " + selectedIds.length + " yêu cầu đã chọn?",
     showDenyButton: false,
     showCancelButton: true,
     confirmButtonText: "Đồng ý",
@@ -418,14 +418,14 @@ $("#deleteSelectedBtn").click(function () {
           trangthai: 0
         }),
         success: function (res) {
-          if(res.total!=0){
+          if (res.total != 0) {
             Toast.fire({
               icon: "success",
-              title: "Đã xóa "+res.total+" yêu cầu",
+              title: "Đã xóa " + res.total + " yêu cầu",
             });
             // Tải lại bảng bangdsyeucau
             bangdsyeucau.ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Xóa yêu cầu không thành công"
@@ -521,19 +521,19 @@ $("#thembanin_btn").click(function () {
         });
 
 
-        
+
         let kythuctap = $("#filter_kythuctap").val();
         let nhomthuctap = $("#filter_nhomthuctap").val();
         $.ajax({
           type: "GET",
           url: `get_ds_sinh_vien_by_username?kythuctap=${kythuctap}&nhomthuctap=${nhomthuctap}`,
           dataSrc: "",
-          success: function(data) {
-            data.forEach(function(sinhvien) {
+          success: function (data) {
+            data.forEach(function (sinhvien) {
               listID_sv.push(sinhvien.id); // Thêm id của sinh viên vào listID_sv
             });
           },
-          error: function(xhr, status, error) {
+          error: function (xhr, status, error) {
             alert("Lỗi khi lấy danh sách sinh viên:");
           }
         });
@@ -550,12 +550,12 @@ $("#thembanin_btn").click(function () {
       type: "GET",
       url: `get_ds_sinh_vien_by_username?kythuctap=${kythuctap}&nhomthuctap=${nhomthuctap}`,
       dataSrc: "",
-      success: function(data) {
-        data.forEach(function(sinhvien) {
+      success: function (data) {
+        data.forEach(function (sinhvien) {
           listID_sv.push(sinhvien.id); // Thêm id của sinh viên vào listID_sv
         });
       },
-      error: function(xhr, status, error) {
+      error: function (xhr, status, error) {
         alert("Lỗi khi lấy danh sách sinh viên:");
       }
     });
@@ -568,21 +568,21 @@ $("#thembanin_btn").click(function () {
     let id_kythuctap = $("#filter_kythuctap").val();
     let id_nhomthuctap = $("#filter_nhomthuctap").val();
     let nhomthuctap = $("#filter_nhomthuctap option:selected").text();
-    if (idloaiyeucau==null){
+    if (idloaiyeucau == null) {
       Toast.fire({
         icon: "error",
         title: "Chưa chọn loại yêu cầu",
       });
       return
     }
-    if (id_kythuctap==null){
+    if (id_kythuctap == null) {
       Toast.fire({
         icon: "error",
         title: "Chưa chọn kỳ thực tập",
       });
       return
     }
-    if (id_nhomthuctap==null){
+    if (id_nhomthuctap == null) {
       Toast.fire({
         icon: "error",
         title: "Chưa chọn nhóm thực tập",
@@ -597,7 +597,7 @@ $("#thembanin_btn").click(function () {
       return; // Ngăn chặn việc thực hiện các hành động tiếp theo
     }
     Swal.fire({
-      title: "Xác nhận in phiếu cho nhóm\n" + nhomthuctap +"?" ,
+      title: "Xác nhận in phiếu cho nhóm\n" + nhomthuctap + "?",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Đồng ý",
@@ -614,14 +614,14 @@ $("#thembanin_btn").click(function () {
             trangthai: idloaiyeucau
           }),
           success: function (res) {
-            if(res.total!=0){
+            if (res.total != 0) {
               Toast.fire({
                 icon: "success",
-                title: "Đã thêm "+res.total+" yêu cầu được duyệt",
+                title: "Đã thêm " + res.total + " yêu cầu được duyệt",
               });
               // Tải lại bảng bangdsyeucau
               bangdsyeucau.ajax.reload();
-            }else{
+            } else {
               Toast.fire({
                 icon: "warning",
                 title: "Không thêm mới yêu cầu nào!"

@@ -27,6 +27,7 @@ admin_chat_id = os.getenv('ADMIN_CHAT_ID')
 
 default_password = os.getenv('DEFAULT_PASSWORD')
 
+
 def create_connection():
     try:
         # Sử dụng ODBC Driver

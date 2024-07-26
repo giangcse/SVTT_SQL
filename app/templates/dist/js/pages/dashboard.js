@@ -56,9 +56,9 @@ $(function () {
       // eslint-disable-next-line no-alert
       alert(
         "You chose: " +
-          start.format("MMMM D, YYYY") +
-          " - " +
-          end.format("MMMM D, YYYY")
+        start.format("MMMM D, YYYY") +
+        " - " +
+        end.format("MMMM D, YYYY")
       );
     }
   );
@@ -428,8 +428,8 @@ $("#dashboard_bangdssv").on("click", "#viewBtn", function () {
       $("#gioitinh_sv").val(res.gioitinh);
       $("#modal_footer").append(
         '<button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>  <button type="button" id="modal_save_button" data-id="' +
-          id +
-          '" class="btn btn-primary">Lưu</button>'
+        id +
+        '" class="btn btn-primary">Lưu</button>'
       );
       $("#modal_id").modal("show");
 
@@ -519,13 +519,13 @@ $("#dashboard_bangdssv").on("click", "#deleteBtn", function () {
         type: "POST",
         url: "update_xoa_sinh_vien_by_id?id=" + parseInt(id),
         success: function (res) {
-          if(res.status=='OK'){
+          if (res.status == 'OK') {
             Toast.fire({
               icon: "success",
               title: "Đã xoá",
             });
             $("#dashboard_bangdssv").DataTable().ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Xoá sinh viên thất bại do sinh viên đã có nhóm thực tập"

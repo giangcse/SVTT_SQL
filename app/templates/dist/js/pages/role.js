@@ -11,7 +11,7 @@ var MapIdTen = {};
 
 // Mapping url - tên vai trò mỗi khi reload
 function reloadMapping() {
-  bangdsvaitro.data().toArray().forEach(function(row) {
+  bangdsvaitro.data().toArray().forEach(function (row) {
     MapIdTen[row.idvaitro] = row.tenvaitro;
   });
 }
@@ -25,45 +25,46 @@ let bangdsvaitro = $("#bangdsvaitro").DataTable({
   autoWidth: false,
   responsive: true,
   ajax: {
-      type: "GET",
-      url: "get_all_vai_tro_chuc_nang",
-      dataSrc: function(json) {
-          // Nhóm dữ liệu theo idvaitro
-          var groupedData = json.reduce((acc, item) => {
-              if (!acc[item.idvaitro]) {
-                  acc[item.idvaitro] = {
-                      idvaitro: item.idvaitro,
-                      tenvaitro: item.tenvaitro,
-                      trangthai: item.trangthai,
-                      chucnangs: []
-                  };
-              }
-              // Chỉ thêm chức năng nếu không phải là null
-              if (item.tenchucnang !== null) {
-                acc[item.idvaitro].chucnangs.push(item.tenchucnang);
-              }
-              return acc;
-          }, {});
+    type: "GET",
+    url: "get_all_vai_tro_chuc_nang",
+    dataSrc: function (json) {
+      // Nhóm dữ liệu theo idvaitro
+      var groupedData = json.reduce((acc, item) => {
+        if (!acc[item.idvaitro]) {
+          acc[item.idvaitro] = {
+            idvaitro: item.idvaitro,
+            tenvaitro: item.tenvaitro,
+            trangthai: item.trangthai,
+            chucnangs: []
+          };
+        }
+        // Chỉ thêm chức năng nếu không phải là null
+        if (item.tenchucnang !== null) {
+          acc[item.idvaitro].chucnangs.push(item.tenchucnang);
+        }
+        return acc;
+      }, {});
 
-          // Chuyển đổi dữ liệu đã nhóm thành mảng
-          var result = Object.values(groupedData).map((role, index) => {
-              return {
-                  stt: index + 1, // Số thứ tự
-                  idvaitro: role.idvaitro, // ID Vai Trò
-                  tenvaitro: role.tenvaitro, // Tên Vai Trò
-                  trangthai: role.trangthai, // Trạng Thái
-                  chucnangs: role.chucnangs.length > 0 ? role.chucnangs.map(chucnang => `<div>${chucnang}</div>`).join('') : '' // Gộp các tên chức năng hoặc để trống nếu null
-              };
-          });
+      // Chuyển đổi dữ liệu đã nhóm thành mảng
+      var result = Object.values(groupedData).map((role, index) => {
+        return {
+          stt: index + 1, // Số thứ tự
+          idvaitro: role.idvaitro, // ID Vai Trò
+          tenvaitro: role.tenvaitro, // Tên Vai Trò
+          trangthai: role.trangthai, // Trạng Thái
+          chucnangs: role.chucnangs.length > 0 ? role.chucnangs.map(chucnang => `<div>${chucnang}</div>`).join('') : '' // Gộp các tên chức năng hoặc để trống nếu null
+        };
+      });
 
-          return result;
-      }
+      return result;
+    }
   },
   columns: [
     { title: "#", data: "stt" }, // Cột số thứ tự
     { title: "Tên Vai Trò", data: "tenvaitro" },
-    { title: "Chức Năng", data: "chucnangs" }, 
-    { title: "Trạng Thái", data: "trangthai",
+    { title: "Chức Năng", data: "chucnangs" },
+    {
+      title: "Trạng Thái", data: "trangthai",
       render: function (data, type, row) {
         if (data == 1) {
           return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang sử dụng</span></center>';
@@ -72,36 +73,36 @@ let bangdsvaitro = $("#bangdsvaitro").DataTable({
         }
       },
     },
-    { 
-        title: "Thao tác",
-        data: "idvaitro",
-        render: function (data, type, row) {
-          if(row.trangthai==1){
-            return (
-                '<center><a class="btn btn-info btn-sm" id="editBtn" data-id="' +
-                data +
-                '"><i class="fas fa-pencil-alt"></i></a>  <a class="btn btn-warning btn-sm" data-id="' +
-                data +
-                '" id="banBtn"><i class="fa-solid fa-user-slash"></i></a> <a class="btn btn-danger btn-sm" data-id="' +
-                data +
-                '" id="deleteBtn"><i class="fa-solid fa-trash"></i></a></center>'
-            );
-          } else {
-            return (
-              '<center><a class="btn btn-info btn-sm" id="editBtn" data-id="' +
-              data +
-              '"><i class="fas fa-pencil-alt"></i></a>  <a class="btn btn-success btn-sm" data-id="' +
-              data +
-              '" id="activeBtn"><i class="fa-solid fa-user-check"></i></a> <a class="btn btn-danger btn-sm" data-id="' +
-              data +
-              '" id="deleteBtn"><i class="fa-solid fa-trash"></i></a></center>'
+    {
+      title: "Thao tác",
+      data: "idvaitro",
+      render: function (data, type, row) {
+        if (row.trangthai == 1) {
+          return (
+            '<center><a class="btn btn-info btn-sm" id="editBtn" data-id="' +
+            data +
+            '"><i class="fas fa-pencil-alt"></i></a>  <a class="btn btn-warning btn-sm" data-id="' +
+            data +
+            '" id="banBtn"><i class="fa-solid fa-user-slash"></i></a> <a class="btn btn-danger btn-sm" data-id="' +
+            data +
+            '" id="deleteBtn"><i class="fa-solid fa-trash"></i></a></center>'
           );
-          }
-        },
+        } else {
+          return (
+            '<center><a class="btn btn-info btn-sm" id="editBtn" data-id="' +
+            data +
+            '"><i class="fas fa-pencil-alt"></i></a>  <a class="btn btn-success btn-sm" data-id="' +
+            data +
+            '" id="activeBtn"><i class="fa-solid fa-user-check"></i></a> <a class="btn btn-danger btn-sm" data-id="' +
+            data +
+            '" id="deleteBtn"><i class="fa-solid fa-trash"></i></a></center>'
+          );
+        }
+      },
     }
   ],
   initComplete: function () {
-    bangdsvaitro.data().toArray().forEach(function(row) {
+    bangdsvaitro.data().toArray().forEach(function (row) {
       MapIdTen[row.idvaitro] = row.tenvaitro;
     });
   }
@@ -123,7 +124,7 @@ $("#bangdsvaitro").on("click", "#editBtn", function () {
     type: "GET",
     url: "get_chi_tiet_vai_tro?idvt=" + id,
     success: function (res) {
-      $("#modal_title").text("Chức năng " +res[0].tenvaitro);
+      $("#modal_title").text("Chức năng " + res[0].tenvaitro);
       $("#modal_body").append(
         `<div class="form-group"><label for="modal_tenvaitro_input">Tên vai trò</label>
         <input type="text" class="form-control" id="modal_tenvaitro_input" placeholder="Nhập tên vai trò" value="${res[0].tenvaitro}"></div>
@@ -142,7 +143,7 @@ $("#bangdsvaitro").on("click", "#editBtn", function () {
         url: `get_all_chuc_nang`,
         success: function (ress) {
           $.each(ress, function (idx, val) {
-            if(idchucnangArray.includes(val.id)){
+            if (idchucnangArray.includes(val.id)) {
               $("#modal_chonchucnang").append(
                 '<option selected value="' + val.id + '">' + val.ten + "</option>"
               );
@@ -156,27 +157,27 @@ $("#bangdsvaitro").on("click", "#editBtn", function () {
       });
       $("#modal_footer").append(
         '<button type="button" class="btn btn-primary" data-id="' +
-          res.idvaitro +
-          '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
+        res.idvaitro +
+        '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
       );
       $("#modal_id").modal("show");
-      
+
       // Khởi tạo lại select2 cho các phần tử mới
       $(".multiple-select").select2({
         placeholder: "",
-        allowClear: true, 
+        allowClear: true,
         // dropdownParent: $('#modal_body'),
         theme: "bootstrap",
         tokenSeparators: [',', ' '],
         closeOnSelect: false,
       });
- 
+
       // Tính năng lưu thay đổi
       $("#modal_submit_btn").click(function () {
         let ten = $('#modal_tenvaitro_input').val().trim();
         let selectedFunc = $('#modal_chonchucnang').val();
 
-        if(ten == null || ten.trim()==""){
+        if (ten == null || ten.trim() == "") {
           Toast.fire({
             icon: "error",
             title: "Vui lòng điền tên vai trò"
@@ -185,13 +186,13 @@ $("#bangdsvaitro").on("click", "#editBtn", function () {
         } else {
           // Lấy tất cả dữ liệu hiện tại trong bảng
           var allData = bangdsvaitro.data().toArray();
-    
+
           // Kiểm tra xem tên vai trò đã tồn tại trong bảng chưa
-          var existTen = allData.some(function(row) {
+          var existTen = allData.some(function (row) {
             return row.tenvaitro.toLowerCase() === ten.toLowerCase().trim() && ten.toLowerCase().trim() !== res[0].tenvaitro.toLowerCase();
           });
-    
-           if (existTen) {
+
+          if (existTen) {
             Toast.fire({
               icon: "error",
               title: "Tên vai trò này đã được sử dụng."
@@ -209,10 +210,10 @@ $("#bangdsvaitro").on("click", "#editBtn", function () {
               func: selectedFunc
             }),
             success: function (res) {
-              if(res.result == 1){
+              if (res.result == 1) {
                 Toast.fire({
                   icon: "success",
-                  title: "Đã cập nhật tên vai trò!" ,
+                  title: "Đã cập nhật tên vai trò!",
                 });
               }
               else if (res.result == 3) {
@@ -272,19 +273,19 @@ $("#bangdsvaitro").on("click", "#banBtn", function () {
         type: "POST",
         url: "update_trang_thai_vai_tro?idvt=" + id + "&trangthai=0",
         success: function (res) {
-          if(res.result==1){
+          if (res.result == 1) {
             Toast.fire({
               icon: "success",
               title: "Đã ngưng sử dụng vai trò<br>" + MapIdTen[id],
             });
           }
-          else if(res.result==-1){
+          else if (res.result == -1) {
             Toast.fire({
               icon: "warning",
               title: "Không thể ngưng sử dụng Quản trị!",
             });
           }
-          else{
+          else {
             Toast.fire({
               icon: "warning",
               title: "Thực hiện không thành công, vui lòng thử lại"
@@ -321,12 +322,12 @@ $("#bangdsvaitro").on("click", "#activeBtn", function () {
         type: "POST",
         url: "update_trang_thai_vai_tro?idvt=" + id + "&trangthai=1",
         success: function (res) {
-          if(res.result==1){
+          if (res.result == 1) {
             Toast.fire({
               icon: "success",
               title: "Đã sử dụng vai trò<br>" + MapIdTen[id],
             });
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Thực hiện không thành công, vui lòng thử lại"
@@ -363,18 +364,18 @@ $("#bangdsvaitro").on("click", "#deleteBtn", function () {
         type: "POST",
         url: "delete_vai_tro?idvt=" + id,
         success: function (res) {
-          if(res.result==1){
+          if (res.result == 1) {
             Toast.fire({
               icon: "success",
               title: "Đã xóa vai trò<br>" + MapIdTen[id],
             });
-          } else if(res.result==2){
+          } else if (res.result == 2) {
             Toast.fire({
               icon: "warning",
               title: "Không thể xóa vai trò Quản trị!",
             });
           }
-          else{
+          else {
             Toast.fire({
               icon: "error",
               title: "Thực hiện không thành công, vui lòng thử lại"
@@ -409,19 +410,19 @@ $("#themvaitro_btn").click(function () {
             <option disabled>-- Chọn các chức năng --</option>
         </select>
     </div>`;
-  
-    $.ajax({
-      type: "GET",
-      url: `get_all_chuc_nang`,
-      success: function (res) {
-        $.each(res, function (idx, val) {
-          $("#modal_chonchucnang_input").append(
-            '<option value="' + val.id + '">' + val.ten + "</option>"
-          );
-        });
-      },
-    });
-  
+
+  $.ajax({
+    type: "GET",
+    url: `get_all_chuc_nang`,
+    success: function (res) {
+      $.each(res, function (idx, val) {
+        $("#modal_chonchucnang_input").append(
+          '<option value="' + val.id + '">' + val.ten + "</option>"
+        );
+      });
+    },
+  });
+
   $("#modal_body").append(html);
   $("#modal_footer").append(
     '<button type="button" class="btn btn-primary" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>'
@@ -430,7 +431,7 @@ $("#themvaitro_btn").click(function () {
   // Khởi tạo lại select2 cho các phần tử mới
   $(".multiple-select").select2({
     placeholder: "",
-    allowClear: true, 
+    allowClear: true,
     // dropdownParent: $('#modal_body'),
     theme: "bootstrap",
     tokenSeparators: [',', ' '],
@@ -441,7 +442,7 @@ $("#themvaitro_btn").click(function () {
     let ten = $("#modal_tenvaitro_input").val();
     let selectedFunc = $('#modal_chonchucnang_input').val();
 
-    if(ten == null || ten.trim()==""){
+    if (ten == null || ten.trim() == "") {
       Toast.fire({
         icon: "error",
         title: "Vui lòng điền tên vai trò"
@@ -452,11 +453,11 @@ $("#themvaitro_btn").click(function () {
       var allData = bangdsvaitro.data().toArray();
 
       // Kiểm tra xem tên vai trò đã tồn tại trong bảng chưa
-      var existTen = allData.some(function(row) {
+      var existTen = allData.some(function (row) {
         return row.tenvaitro.toLowerCase() === ten.toLowerCase().trim();
       });
 
-       if (existTen) {
+      if (existTen) {
         Toast.fire({
           icon: "error",
           title: "Tên vai trò này đã được sử dụng."
@@ -474,10 +475,10 @@ $("#themvaitro_btn").click(function () {
           func: selectedFunc
         }),
         success: function (res) {
-          if(res.result==1){
+          if (res.result == 1) {
             Toast.fire({
               icon: "success",
-              title: "Đã thêm vai trò<br>" + ten ,
+              title: "Đã thêm vai trò<br>" + ten,
             });
           }
           else if (res.result == -1) {

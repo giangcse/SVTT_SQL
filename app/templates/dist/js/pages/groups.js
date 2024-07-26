@@ -61,7 +61,7 @@ let bangdsnhomthuctap = $("#bangdsnhomthuctap").DataTable({
     {
       data: "id",
       render: function (data, type, row, meta) {
-        if(row.thoihan==0){
+        if (row.thoihan == 0) {
           return (
             `<center>
               <a class="btn btn-info btn-sm" id="editBtn" data-id="${data}">
@@ -72,7 +72,7 @@ let bangdsnhomthuctap = $("#bangdsnhomthuctap").DataTable({
               </a>
             </center>`
           );
-        }else{
+        } else {
           return `<center>
                     <button class="btn btn-info btn-sm" id="editBtn" disabled>
                       <i class="fas fa-pencil-alt"></i>
@@ -209,8 +209,8 @@ $("#bangdsnhomthuctap").on("click", "#editBtn", function () {
       }
       $("#modal_footer").append(
         '<button type="button" class="btn btn-primary" data-id="' +
-          res.id +
-          '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
+        res.id +
+        '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
       );
 
       $("#modal_id").modal("show");
@@ -362,10 +362,10 @@ $("#themkythuctap_btn").click(function () {
       $.each(res.kythuctap, function (idx, val) {
         $("#modal_kythuctap_select").append(
           '<option value="' +
-            val.id +
-            '">' +
-            moment(val.ngay, "YYYY-MM-DD").format("DD/MM/YYYY") +
-            "</option>"
+          val.id +
+          '">' +
+          moment(val.ngay, "YYYY-MM-DD").format("DD/MM/YYYY") +
+          "</option>"
         );
       });
       $.each(res.detai, function (idx, val) {

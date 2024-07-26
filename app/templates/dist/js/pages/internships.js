@@ -157,8 +157,8 @@ $("#bangdskythuctap").on("click", "#editBtn", function () {
       }
       $("#modal_footer").append(
         '<button type="button" class="btn btn-primary" data-id="' +
-          res.id +
-          '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
+        res.id +
+        '" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>'
       );
       $("#modal_id").modal("show");
       // Tính năng lưu thay đổi
@@ -231,13 +231,13 @@ $("#bangdskythuctap").on("click", "#deleteBtn", function () {
         type: "POST",
         url: "update_xoa_ky_thuc_tap_by_id?id=" + parseInt(id),
         success: function (res) {
-          if(res.status=='OK'){
+          if (res.status == 'OK') {
             Toast.fire({
               icon: "success",
               title: "Đã xoá",
             });
             bangdskythuctap.ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Kỳ thực tập đang được nhóm sử dụng"

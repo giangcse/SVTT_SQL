@@ -75,19 +75,19 @@ $(document).ready(function () {
           } else {
             return '<center><span class="badge badge-danger"><i class="fa-solid fa-xmark"></i>&nbsp; Bị từ chối</span></center>';
           }
-  
+
         },
       },
       {
         data: "id",
         render: function (data, type, row) {
-          if(row.trangthai==0){
+          if (row.trangthai == 0) {
             return (
               '<center><a class="btn btn-danger btn-sm" data-id="' +
               data +
               '" id="deleteBtn"><i class="fas fa-trash"></i></a></center>'
             );
-          } else if(row.trangthai==1){
+          } else if (row.trangthai == 1) {
             return (
               `<center>
               <a class="btn btn-info btn-sm" id="printBtn" href="/sv_xuat_phieu?id=${data}""><i class="fas fa-print"></i></a>
@@ -113,7 +113,7 @@ $(document).ready(function () {
     let loaiyeucau = $("#filter_chonloaiyeucau option:selected").text();
 
     // Kiểm tra nếu nhóm id chưa được chọn
-    if (idloaiyeucau===null || idloaiyeucau === "-- CHỌN LOẠI YÊU CẦU --") {
+    if (idloaiyeucau === null || idloaiyeucau === "-- CHỌN LOẠI YÊU CẦU --") {
       return; // Ngăn chặn việc thực hiện các hành động tiếp theo
     }
 
@@ -128,7 +128,7 @@ $(document).ready(function () {
 
     $("#modal_submit_btn").click(function () {
       let idloaiyeucau = $("#filter_chonloaiyeucau").val();
-      
+
       $.ajax({
         type: "POST",
         url:
@@ -142,18 +142,18 @@ $(document).ready(function () {
             });
             $.ajax({
               type: `POST`,
-              url: `canh_bao_yeu_cau_in_phieu?loaiyeucau=`+loaiyeucau+`&id=`+res.status,
-              success: ()=>{},
-              error: ()=>{}
+              url: `canh_bao_yeu_cau_in_phieu?loaiyeucau=` + loaiyeucau + `&id=` + res.status,
+              success: () => { },
+              error: () => { }
             });
             // Tải lại bảng bangdsyeucau
             bangdsyeucau.ajax.reload();
-          } else if(res.status == "INVALID"){
+          } else if (res.status == "INVALID") {
             Toast.fire({
               icon: "warning",
               title: "Chưa đến thời hạn in phiếu đánh giá",
             });
-          }  else if(res.status == "NOT OK"){
+          } else if (res.status == "NOT OK") {
             Toast.fire({
               icon: "warning",
               title: "Yêu cầu này đã được gửi",
@@ -183,7 +183,7 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
   let id = $(this).data("id");
 
   Swal.fire({
-    title: "Bạn chắc chắn muốn xoá yêu cầu này?" ,
+    title: "Bạn chắc chắn muốn xoá yêu cầu này?",
     showDenyButton: false,
     showCancelButton: true,
     confirmButtonText: "Xoá",
@@ -200,14 +200,14 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function () {
           trangthai: 0
         }),
         success: function (res) {
-          if(res.total==1){
+          if (res.total == 1) {
             Toast.fire({
               icon: "success",
               title: "Đã xoá 1 yêu cầu",
             });
             // Tải lại bảng bangdsyeucau
             bangdsyeucau.ajax.reload();
-          }else{
+          } else {
             Toast.fire({
               icon: "warning",
               title: "Xóa yêu cầu không thành công"

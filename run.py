@@ -3,8 +3,10 @@ import subprocess
 import uvicorn
 import atexit
 
+
 def kill_telegram_process():
     os.system('taskkill /f /im python.exe')
+
 
 if __name__ == '__main__':
     # # Chạy file telegram_reply.py trong một CMD mới và ngầm
