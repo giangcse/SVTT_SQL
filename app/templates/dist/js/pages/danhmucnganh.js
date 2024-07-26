@@ -270,7 +270,7 @@ $("#taodanhmucnganhBtn").on("click", function () {
     success: function (res) {
       let options = "";
       res.forEach((school) => {
-        options += `<option value="${school.id}">${school.ten} (${school.id})</option>`;
+        options += `<option value="${school.id}">${school.ten}</option>`;
       });
       $("#modal_chontruong_select").html(options);
     },
