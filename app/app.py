@@ -2976,6 +2976,7 @@ def verify_user_route(credentials: UserCredentials):
             bytes(credentials.password, 'utf-8')).hexdigest())
         if id:
             return {"isVerified": True, "permission": "user", "id": int(id)}
+    return {"isVerified": False, "permission": None, "id": -1}
 
 
 # update from row 205
