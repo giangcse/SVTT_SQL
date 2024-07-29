@@ -11,7 +11,7 @@ from hashlib import sha3_256
 from typing import List
 
 from .controllers.controller import *
-from .send_otp import send_otp_email, is_otp_valid
+from .send_otp import  is_otp_valid
 from .send_telegram_message import sendMessageTelegram, admin_chat_id
 
 import os
@@ -1359,7 +1359,7 @@ async def thong_tin_sinh_vien_route(sv: ThongTinSV):
     result = insert_sinh_vien_controller(
         sv.mssv, sv.hoten, sv.gioitinh, sv.sdt, sv.email, sv.diachi, sv.malop, sv.truong, sv.nganh, sv.khoa, sha3_256(bytes(default_password, 'utf-8')).hexdigest())
     if result:
-        sent = send_otp_email(sv.email, sv.hoten)
+        sent = ''
         if sent:
             insert_taikhoan = insert_taikhoan_sinhvien_controller(
                 result, sha3_256(bytes(default_password, 'utf-8')).hexdigest(), 1)
@@ -1544,7 +1544,7 @@ async def gui_mail_otp(email: str):
         hoten = get_ho_ten_sv_by_email_controller(email)
         ngayHetHan = check_sv_con_han_thuc_tap(email)
         if (True):
-            send_otp_email(email, hoten)
+            # send_otp_email(email, hoten)
             return JSONResponse(status_code=200, content={'status': 'OK'})
         else:
             return JSONResponse(status_code=200, content={'status': 'Expired'})
@@ -2976,7 +2976,6 @@ def verify_user_route(credentials: UserCredentials):
             bytes(credentials.password, 'utf-8')).hexdigest())
         if id:
             return {"isVerified": True, "permission": "user", "id": int(id)}
-    return {"isVerified": False, "permission": None, "id": -1}
 
 
 # update from row 205
