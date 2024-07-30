@@ -70,27 +70,38 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
       return result;
     }
   },
-  columns: [
-    { title: "#", data: "stt" }, // Cột số thứ tự
-    { title: "Họ tên", data: "hoten" },
-    { title: "Tài khoản", data: "username" },
-    { title: "Email", data: "email" },
+  columns: [{
+    title: "#",
+    data: "stt"
+  }, // Cột số thứ tự
     {
-      title: "Role", data: "rolenames",
+      title: "Họ tên",
+      data: "hoten"
+    },
+    {
+      title: "Tài khoản",
+      data: "username"
+    },
+    {
+      title: "Email",
+      data: "email"
+    },
+    {
+      title: "Role",
+      data: "rolenames",
       render: function (data, type, row) {
-        if (row.id == 1) {  // CHECK SUPERVISOR ROLE (UID = 1)
+        if (row.id == 1) { // CHECK SUPERVISOR ROLE (UID = 1)
           return `<center><span class="badge badge-danger"><i class="fa-solid"></i> Supervisor </span></center>`;
-        }
-        else {
+        } else {
           return `<center>
         ${data.filter(function (r) {
             return r !== null;
           }).map(function (r) {
             if (r === "Quản trị") {
-              return `<span class="badge badge-success"><i class="fa-solid"></i> ${r} </span>`;
+              return ` < span class = "badge badge-success" > < i class = "fa-solid" > < /i> ${r} </span > `;
             }
             else {
-              return `<span class="badge badge-light"><i class="fa-solid"></i> ${r} </span>`;
+              return ` < span class = "badge badge-light" > < i class = "fa-solid" > < /i> ${r} </span > `;
             }
           }).join('<br>')}
         </center>`;
@@ -99,7 +110,8 @@ let bangdstaikhoan = $("#bangdstaikhoan").DataTable({
       },
     },
     {
-      title: "Trạng Thái", data: "trangthai",
+      title: "Trạng Thái",
+      data: "trangthai",
       render: function (data, type, row) {
         if (data == 1) {
           return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang sử dụng</span></center>';
@@ -177,8 +189,7 @@ $("#bangdstaikhoan").on("click", "#deleteBtn", function () {
           } else if (res.status == "EXISTS") {
             Toast.fire({
               icon: "warning",
-              title:
-                "Người dùng đang hướng dẫn nhóm. Vui lòng chọn Ngừng sử dụng.",
+              title: "Người dùng đang hướng dẫn nhóm. Vui lòng chọn Ngừng sử dụng.",
             });
           }
         },
@@ -316,7 +327,7 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function () {
     current_roles = JSON.parse(current_roles); // Chuyển đổi chuỗi JSON thành mảng
   } catch (e) {
     console.error("JSON parse error: ", e);
-  }  // MAPPING ĐỂ KIỂM TRA CÁC CHỨC NĂNG NÀO ĐANG ĐƯỢC CHỌN CHO VAI TRÒ
+  } // MAPPING ĐỂ KIỂM TRA CÁC CHỨC NĂNG NÀO ĐANG ĐƯỢC CHỌN CHO VAI TRÒ
 
   clear_modal();
 
@@ -334,7 +345,7 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function () {
     url: `get_all_vai_tro`,
     success: function (ress) {
       $.each(ress, function (idx, val) {
-        if (current_roles.includes(val.id)) {            // CHỈ HIỂN THỊ CÁC VAI TRÒ ĐANG SỬ DỤNG
+        if (current_roles.includes(val.id)) { // CHỈ HIỂN THỊ CÁC VAI TRÒ ĐANG SỬ DỤNG
           $("#modal_role_select").append(
             '<option selected value="' + val.id + '">' + val.tenvaitro + "</option>"
           );
@@ -388,20 +399,17 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function () {
             icon: "success",
             title: `Đã phân quyền người dùng.`,
           });
-        }
-        else if (res.result == -1) {
+        } else if (res.result == -1) {
           Toast.fire({
             icon: "error",
             title: `Thêm phân quyền không thành công`,
           });
-        }
-        else if (res.result == -2) {
+        } else if (res.result == -2) {
           Toast.fire({
             icon: "error",
             title: `Gỡ phân quyền không thành công`,
           });
-        }
-        else if (res.result == -3) {
+        } else if (res.result == -3) {
           Toast.fire({
             icon: "error",
             title: `Cập nhật phân quyền không thành công`,
@@ -589,7 +597,7 @@ $("#taoTaiKhoanBtn").on("click", function () {
     </div>
   `);
   $("#modal_footer").append(
-    `<button type="button" class="btn btn-primary" id="modal_submit_btn">
+		`<button type="button" class="btn btn-primary" id="modal_submit_btn">
       <i class="fa-solid fa-floppy-disk"></i> 
       Thêm
     </button>`

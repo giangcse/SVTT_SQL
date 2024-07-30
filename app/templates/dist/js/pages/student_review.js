@@ -3,16 +3,16 @@ currentDate.setDate(currentDate.getDate() + 0);
 let currentTimestamp = parseInt(currentDate.getTime() / 1000);
 
 var Toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
+	toast: true,
+	position: "top-end",
+	showConfirmButton: false,
+	timer: 3000,
 });
 
 function empty_modal() {
-  $("#modal_title").empty();
-  $("#modal_body").empty();
-  $("#modal_footer").empty();
+	$("#modal_title").empty();
+	$("#modal_body").empty();
+	$("#modal_footer").empty();
 }
 
 // Khởi tạo dropdown
@@ -20,98 +20,107 @@ $(".dropdown-toggle").dropdown();
 
 // load filter
 function loadFilter() {
-  // load kỳ thực tập
-  $.ajax({
-    type: "GET",
-    url: "/get_ky_thuc_tap_by_username",
-    success: function (data) {
-      let filter_kythuctap = $("#filter_kythuctap");
-      data.forEach((element) => {
-        filter_kythuctap.append(
-          `<option value="${element.id}">${element.ngaybatdau} - ${element.ngayketthuc}</option>`
-        );
-      });
-    },
-  });
+	// load kỳ thực tập
+	$.ajax({
+		type: "GET",
+		url: "/get_ky_thuc_tap_by_username",
+		success: function(data) {
+			let filter_kythuctap = $("#filter_kythuctap");
+			data.forEach((element) => {
+				filter_kythuctap.append(
+					`<option value="${element.id}">${element.ngaybatdau} - ${element.ngayketthuc}</option>`
+				);
+			});
+		},
+	});
 }
 
-$(document).ready(function () {
-  $(".select2").select2({
-    theme: "bootstrap",
-  });
-  empty_modal();
-  loadFilter();
-  create_table("-1", "-1");
-  $("#filter_kythuctap").on("change", function () {
-    let id = $("#filter_kythuctap").val();
-    let filter_nhomthuctap = $("#filter_nhomthuctap");
-    create_table(id, "-1");
+$(document).ready(function() {
+	$(".select2").select2({
+		theme: "bootstrap",
+	});
+	empty_modal();
+	loadFilter();
+	create_table("-1", "-1");
+	$("#filter_kythuctap").on("change", function() {
+		let id = $("#filter_kythuctap").val();
+		let filter_nhomthuctap = $("#filter_nhomthuctap");
+		create_table(id, "-1");
 
-    $.ajax({
-      type: `GET`,
-      url: `get_danh_sach_nhom_theo_ky_id?id=${id}`,
-      success: function (res) {
-        // empty first
-        filter_nhomthuctap.empty();
+		$.ajax({
+			type: `GET`,
+			url: `get_danh_sach_nhom_theo_ky_id?id=${id}`,
+			success: function(res) {
+				// empty first
+				filter_nhomthuctap.empty();
 
-        $.each(res, function (idx, val) {
-          filter_nhomthuctap.append(`
+				$.each(res, function(idx, val) {
+					filter_nhomthuctap.append(`
             <option value="${val.id}">${val.tennhom}</option>
           `);
-        });
-      },
-    });
+				});
+			},
+		});
 
-    filter_nhomthuctap.on(`change`, function () {
-      create_table(id, filter_nhomthuctap.val());
-    });
-  });
+		filter_nhomthuctap.on(`change`, function() {
+			create_table(id, filter_nhomthuctap.val());
+		});
+	});
 });
 
 function create_table(kythuctap, nhomthuctap) {
-  var bangdssv = $("#bangdssv").DataTable({
-    paging: true,
-    lengthChange: false,
-    searching: true,
-    ordering: true,
-    info: true,
-    destroy: true,
-    autoWidth: false,
-    responsive: true,
-    ajax: {
-      type: "GET",
-      url: `get_ds_sinh_vien_by_username?kythuctap=${kythuctap}&nhomthuctap=${nhomthuctap}`,
-      dataSrc: "",
-    },
-    columns: [
-      {
-        data: null,
-        render: function (data, type, row, meta) {
-          // Use meta.row to get the current row index, and add 1 to start from 1
-          return "<center>" + (meta.row + 1) + "</center>";
-        },
-      },
-      { data: "mssv" },
-      { data: "hoten" },
-      { data: "nganh" },
-      { data: "detai" },
-      { data: "tennhom" },
-      {
-        data: "trangthai",
-        render: function (data, type, row) {
-          if (data == 1) {
-            return '<center><span class="badge badge-warning"><i class="fa-solid fa-circle-exclamation"></i> Chưa đánh giá</span></center>';
-          } else {
-            return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đã đánh giá</span></center>';
-          }
-        },
-      },
-      {
-        data: "id",
-        render: function (data, type, row, meta) {
-          if (row.handanhgia >= currentTimestamp) {
-            if (row.kyhieu_truong == "VLUTE") {
-              return `<center>
+	var bangdssv = $("#bangdssv").DataTable({
+		paging: true,
+		lengthChange: false,
+		searching: true,
+		ordering: true,
+		info: true,
+		destroy: true,
+		autoWidth: false,
+		responsive: true,
+		ajax: {
+			type: "GET",
+			url: `get_ds_sinh_vien_by_username?kythuctap=${kythuctap}&nhomthuctap=${nhomthuctap}`,
+			dataSrc: "",
+		},
+		columns: [{
+				data: null,
+				render: function(data, type, row, meta) {
+					// Use meta.row to get the current row index, and add 1 to start from 1
+					return "<center>" + (meta.row + 1) + "</center>";
+				},
+			},
+			{
+				data: "mssv"
+			},
+			{
+				data: "hoten"
+			},
+			{
+				data: "nganh"
+			},
+			{
+				data: "detai"
+			},
+			{
+				data: "tennhom"
+			},
+			{
+				data: "trangthai",
+				render: function(data, type, row) {
+					if (data == 1) {
+						return '<center><span class="badge badge-warning"><i class="fa-solid fa-circle-exclamation"></i> Chưa đánh giá</span></center>';
+					} else {
+						return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đã đánh giá</span></center>';
+					}
+				},
+			},
+			{
+				data: "id",
+				render: function(data, type, row, meta) {
+					if (row.handanhgia >= currentTimestamp) {
+						if (row.kyhieu_truong == "VLUTE") {
+							return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
                     <i class="fas fa-pencil-alt"></i>
                   </a> 
@@ -124,8 +133,8 @@ function create_table(kythuctap, nhomthuctap) {
                     </div>
                   </div>
                 </center>`;
-            } else if (row.kyhieu_truong == "CTU") {
-              return `<center>
+						} else if (row.kyhieu_truong == "CTU") {
+							return `<center>
                   <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}">
                     <i class="fas fa-pencil-alt"></i>
                   </a> 
@@ -141,9 +150,9 @@ function create_table(kythuctap, nhomthuctap) {
                     </div>
                   </div>
                 </center>`;
-            }
-          } else {
-            return `<center>
+						}
+					} else {
+						return `<center>
                 <a class="btn btn-outline-info btn-sm" id="editBtn" data-id="${data}" data-truong="${row.kyhieu_truong}" data-edit="false">
                   <i class="fa-solid fa-eye"></i>
                 </a>
@@ -156,28 +165,30 @@ function create_table(kythuctap, nhomthuctap) {
                     </div>
                 </div>
               </center>`;
-          }
-        },
-      },
-    ],
-    columnDefs: [
-      { orderable: false, targets: 0 }, // Tắt tính năng sắp xếp cho cột 0
-    ],
-  });
+					}
+				},
+			},
+		],
+		columnDefs: [{
+				orderable: false,
+				targets: 0
+			}, // Tắt tính năng sắp xếp cho cột 0
+		],
+	});
 
-  $("#bangdssv").on("click", "#editBtn", function () {
-    let id = $(this).data("id");
-    let kyhieu_truong = $(this).data("truong");
+	$("#bangdssv").on("click", "#editBtn", function() {
+		let id = $(this).data("id");
+		let kyhieu_truong = $(this).data("truong");
 
-    empty_modal();
-    if (kyhieu_truong == "VLUTE") {
-      $.ajax({
-        url: "get_chi_tiet_danh_gia_sv_by_id?id=" + id,
-        type: "GET",
-        success: function (res) {
-          $(".modal-dialog").addClass("modal-lg");
-          $("#modal_title").text("Đánh giá sinh viên");
-          let html = `
+		empty_modal();
+		if (kyhieu_truong == "VLUTE") {
+			$.ajax({
+				url: "get_chi_tiet_danh_gia_sv_by_id?id=" + id,
+				type: "GET",
+				success: function(res) {
+					$(".modal-dialog").addClass("modal-lg");
+					$("#modal_title").text("Đánh giá sinh viên");
+					let html = `
             <form id="editForm">
               <div class="form-group row"> 
                 <div class="col-sm-10"> 
@@ -265,146 +276,146 @@ function create_table(kythuctap, nhomthuctap) {
               </div> 
             </div> 
           </form>`;
-          $("#modal_body").empty();
-          $("#modal_body").append(html);
+					$("#modal_body").empty();
+					$("#modal_body").append(html);
 
-          $("input, textarea").val("");
-          let ythuckyluat_number = $("#ythuckyluat_number");
-          let ythuckyluat_text = $("#ythuckyluat_text");
-          let tuanthuthoigian_number = $("#tuanthuthoigian_number");
-          let tuanthuthoigian_text = $("#tuanthuthoigian_text");
-          let kienthuc_number = $("#kienthuc_number");
-          let kienthuc_text = $("#kienthuc_text");
-          let kynangnghe_number = $("#kynangnghe_number");
-          let kynangnghe_text = $("#kynangnghe_text");
-          let khanangdoclap_number = $("#khanangdoclap_number");
-          let khanangdoclap_text = $("#khanangdoclap_text");
-          let khanangnhom_number = $("#khanangnhom_number");
-          let khanangnhom_text = $("#khanangnhom_text");
-          let khananggiaiquyetcongviec_number = $(
-            "#khananggiaiquyetcongviec_number"
-          );
-          let khananggiaiquyetcongviec_text = $(
-            "#khananggiaiquyetcongviec_text"
-          );
-          let danhgiachung_number = $("#danhgiachung_number");
+					$("input, textarea").val("");
+					let ythuckyluat_number = $("#ythuckyluat_number");
+					let ythuckyluat_text = $("#ythuckyluat_text");
+					let tuanthuthoigian_number = $("#tuanthuthoigian_number");
+					let tuanthuthoigian_text = $("#tuanthuthoigian_text");
+					let kienthuc_number = $("#kienthuc_number");
+					let kienthuc_text = $("#kienthuc_text");
+					let kynangnghe_number = $("#kynangnghe_number");
+					let kynangnghe_text = $("#kynangnghe_text");
+					let khanangdoclap_number = $("#khanangdoclap_number");
+					let khanangdoclap_text = $("#khanangdoclap_text");
+					let khanangnhom_number = $("#khanangnhom_number");
+					let khanangnhom_text = $("#khanangnhom_text");
+					let khananggiaiquyetcongviec_number = $(
+						"#khananggiaiquyetcongviec_number"
+					);
+					let khananggiaiquyetcongviec_text = $(
+						"#khananggiaiquyetcongviec_text"
+					);
+					let danhgiachung_number = $("#danhgiachung_number");
 
-          if (Object.keys(res).length > 0) {
-            ythuckyluat_number.val(res.ythuckyluat_number);
-            ythuckyluat_text.val(res.ythuckyluat_text);
-            tuanthuthoigian_number.val(res.tuanthuthoigian_number);
-            tuanthuthoigian_text.val(res.tuanthuthoigian_text);
-            kienthuc_number.val(res.kienthuc_number);
-            kienthuc_text.val(res.kienthuc_text);
-            kynangnghe_number.val(res.kynangnghe_number);
-            kynangnghe_text.val(res.kynangnghe_text);
-            khanangdoclap_number.val(res.khanangdoclap_number);
-            khanangdoclap_text.val(res.khanangdoclap_text);
-            khanangnhom_number.val(res.khanangnhom_number);
-            khanangnhom_text.val(res.khanangnhom_text);
-            khananggiaiquyetcongviec_number.val(
-              res.khananggiaiquyetcongviec_number
-            );
-            khananggiaiquyetcongviec_text.val(
-              res.khananggiaiquyetcongviec_text
-            );
-            danhgiachung_number.val(res.danhgiachung_number);
-          }
+					if (Object.keys(res).length > 0) {
+						ythuckyluat_number.val(res.ythuckyluat_number);
+						ythuckyluat_text.val(res.ythuckyluat_text);
+						tuanthuthoigian_number.val(res.tuanthuthoigian_number);
+						tuanthuthoigian_text.val(res.tuanthuthoigian_text);
+						kienthuc_number.val(res.kienthuc_number);
+						kienthuc_text.val(res.kienthuc_text);
+						kynangnghe_number.val(res.kynangnghe_number);
+						kynangnghe_text.val(res.kynangnghe_text);
+						khanangdoclap_number.val(res.khanangdoclap_number);
+						khanangdoclap_text.val(res.khanangdoclap_text);
+						khanangnhom_number.val(res.khanangnhom_number);
+						khanangnhom_text.val(res.khanangnhom_text);
+						khananggiaiquyetcongviec_number.val(
+							res.khananggiaiquyetcongviec_number
+						);
+						khananggiaiquyetcongviec_text.val(
+							res.khananggiaiquyetcongviec_text
+						);
+						danhgiachung_number.val(res.danhgiachung_number);
+					}
 
-          $("#modal_footer").empty();
-          if (res.handanhgia <= currentTimestamp) {
-            $("#modal_id input, #modal_id textarea").prop("disabled", true);
-            $("#modal_footer").html(``);
-          } else {
-            $("#modal_footer").append(
-              `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>`
-            );
-          }
-          $("#modal_id").modal("show");
+					$("#modal_footer").empty();
+					if (res.handanhgia <= currentTimestamp) {
+						$("#modal_id input, #modal_id textarea").prop("disabled", true);
+						$("#modal_footer").html(``);
+					} else {
+						$("#modal_footer").append(
+							`<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>`
+						);
+					}
+					$("#modal_id").modal("show");
 
-          // Tính năng lưu thay đổi
-          $("#modal_submit_btn").click(function () {
-            // Get ID Nhom
-            $.ajax({
-              type: "GET",
-              url: "get_id_nhom_by_sv_id?id=" + id,
-              success: function (res) {
-                let data_update =
-                  "?sinhvienid=" +
-                  String(id) +
-                  "&nhomid=" +
-                  parseInt(res.id) +
-                  "&ythuckyluat_number=" +
-                  parseFloat(ythuckyluat_number.val()) +
-                  "&ythuckyluat_text=" +
-                  ythuckyluat_text.val() +
-                  "&tuanthuthoigian_number=" +
-                  parseFloat(tuanthuthoigian_number.val()) +
-                  "&tuanthuthoigian_text=" +
-                  tuanthuthoigian_text.val() +
-                  "&kienthuc_number=" +
-                  parseFloat(kienthuc_number.val()) +
-                  "&kienthuc_text=" +
-                  kienthuc_text.val() +
-                  "&kynangnghe_number=" +
-                  parseFloat(kynangnghe_number.val()) +
-                  "&kynangnghe_text=" +
-                  kynangnghe_text.val() +
-                  "&khanangdoclap_number=" +
-                  parseFloat(khanangdoclap_number.val()) +
-                  "&khanangdoclap_text=" +
-                  khanangdoclap_text.val() +
-                  "&khanangnhom_number=" +
-                  parseFloat(khanangnhom_number.val()) +
-                  "&khanangnhom_text=" +
-                  khanangnhom_text.val() +
-                  "&khananggiaiquyetcongviec_number=" +
-                  parseFloat(khananggiaiquyetcongviec_number.val()) +
-                  "&khananggiaiquyetcongviec_text=" +
-                  khananggiaiquyetcongviec_text.val() +
-                  "&danhgiachung_number=" +
-                  parseFloat(danhgiachung_number.val());
+					// Tính năng lưu thay đổi
+					$("#modal_submit_btn").click(function() {
+						// Get ID Nhom
+						$.ajax({
+							type: "GET",
+							url: "get_id_nhom_by_sv_id?id=" + id,
+							success: function(res) {
+								let data_update =
+									"?sinhvienid=" +
+									String(id) +
+									"&nhomid=" +
+									parseInt(res.id) +
+									"&ythuckyluat_number=" +
+									parseFloat(ythuckyluat_number.val()) +
+									"&ythuckyluat_text=" +
+									ythuckyluat_text.val() +
+									"&tuanthuthoigian_number=" +
+									parseFloat(tuanthuthoigian_number.val()) +
+									"&tuanthuthoigian_text=" +
+									tuanthuthoigian_text.val() +
+									"&kienthuc_number=" +
+									parseFloat(kienthuc_number.val()) +
+									"&kienthuc_text=" +
+									kienthuc_text.val() +
+									"&kynangnghe_number=" +
+									parseFloat(kynangnghe_number.val()) +
+									"&kynangnghe_text=" +
+									kynangnghe_text.val() +
+									"&khanangdoclap_number=" +
+									parseFloat(khanangdoclap_number.val()) +
+									"&khanangdoclap_text=" +
+									khanangdoclap_text.val() +
+									"&khanangnhom_number=" +
+									parseFloat(khanangnhom_number.val()) +
+									"&khanangnhom_text=" +
+									khanangnhom_text.val() +
+									"&khananggiaiquyetcongviec_number=" +
+									parseFloat(khananggiaiquyetcongviec_number.val()) +
+									"&khananggiaiquyetcongviec_text=" +
+									khananggiaiquyetcongviec_text.val() +
+									"&danhgiachung_number=" +
+									parseFloat(danhgiachung_number.val());
 
-                $.ajax({
-                  type: "POST",
-                  url: "update_danh_gia_sv_by_id" + data_update,
-                  data: data_update,
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  success: function (data) {
-                    if (data.status == "OK") {
-                      $("#modal_id").modal("hide");
-                      bangdssv.ajax.reload();
-                      Toast.fire({
-                        icon: "success",
-                        title: "Cập nhật thành công",
-                      });
-                    } else {
-                      Toast.fire({
-                        icon: "error",
-                        title: "Đã quá hạn đánh giá",
-                      });
-                    }
-                  },
-                  error: function (xhr, status, error) {
-                    Toast.fire({
-                      icon: "error",
-                      title: "Đã xãy ra lỗi",
-                    });
-                  },
-                });
-              },
-            });
-          });
-        },
-      });
-    } else if (kyhieu_truong == "CTU") {
-      empty_modal();
+								$.ajax({
+									type: "POST",
+									url: "update_danh_gia_sv_by_id" + data_update,
+									data: data_update,
+									headers: {
+										"Content-Type": "application/json",
+									},
+									success: function(data) {
+										if (data.status == "OK") {
+											$("#modal_id").modal("hide");
+											bangdssv.ajax.reload();
+											Toast.fire({
+												icon: "success",
+												title: "Cập nhật thành công",
+											});
+										} else {
+											Toast.fire({
+												icon: "error",
+												title: "Đã quá hạn đánh giá",
+											});
+										}
+									},
+									error: function(xhr, status, error) {
+										Toast.fire({
+											icon: "error",
+											title: "Đã xãy ra lỗi",
+										});
+									},
+								});
+							},
+						});
+					});
+				},
+			});
+		} else if (kyhieu_truong == "CTU") {
+			empty_modal();
 
-      $(".modal-dialog").addClass("modal-lg");
-      $("#modal_title").text("Đánh giá sinh viên");
-      $("#modal_body").html(`
+			$(".modal-dialog").addClass("modal-lg");
+			$("#modal_title").text("Đánh giá sinh viên");
+			$("#modal_body").html(`
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -564,10 +575,10 @@ function create_table(kythuctap, nhomthuctap) {
           <tr>
         </table>
       `);
-      $("#modal_footer").append(
-        `<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>`
-      );
-      $("#modal_id").modal("show");
-    }
-  });
+			$("#modal_footer").append(
+				`<button type="button" class="btn btn-primary" data-id="${id}" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>`
+			);
+			$("#modal_id").modal("show");
+		}
+	});
 }
