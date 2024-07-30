@@ -1,16 +1,10 @@
-from .config import (
-    create_connection,
-    email_host,
-    email_port,
-    email_username,
-    email_password,
-    email_name,
-)
-import smtplib
+from .config import create_connection
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import pyotp
 from datetime import datetime, timedelta
+
+import smtplib
+import pyotp
 
 conn = create_connection()
 cursor = conn.cursor()
@@ -19,6 +13,13 @@ cursor = conn.cursor()
 
 
 def send_otp_email(email: str, hoten: str):
+    from .models.models import get_gia_tri_tham_so
+    email_host = get_gia_tri_tham_so('EMAIL_HOST')
+    email_port = get_gia_tri_tham_so('EMAIL_PORT')
+    email_username = get_gia_tri_tham_so('EMAIL_USERNAME')
+    email_password = get_gia_tri_tham_so('EMAIL_PASSWORD')
+    email_name = get_gia_tri_tham_so('EMAIL_NAME')
+    # Load các tham số
     # Tạo một đối tượng TOTP với một secret key mới
     totp = pyotp.TOTP(pyotp.random_base32())
 

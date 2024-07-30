@@ -2489,3 +2489,13 @@ def cap_nhat_xoa_tham_so(id: int):
         return False
     except Exception as e:
         return e
+    
+    
+def get_gia_tri_tham_so(thamso: str):
+    try:
+        result = cursor.execute("SELECT GiaTri FROM THAMSOHETHONG WHERE ThamSo LIKE ?", thamso)
+        if result:
+            return result.fetchone()[0]
+        return False
+    except Exception as e:
+        return e

@@ -1,13 +1,13 @@
 import aiohttp
 import json
-from .config import telegram_token, admin_chat_id
+from .models.models import get_gia_tri_tham_so
 
-
-async def sendMessageTelegram(message: str, chat_id: str, format: str):
+async def sendMessageTelegram(message: str, format: str):
+    telegram_token = str(get_gia_tri_tham_so('TELEGRAM_TOKEN'))
+    chat_id = str(get_gia_tri_tham_so('ADMIN_CHAT_ID'))
     requestURI: str = f"https://api.telegram.org/bot{telegram_token}/sendMessage"
     requestHeaders = {"Accept": "*/*", "Content-Type": "application/json"}
     requestBody: dict = {"chat_id": chat_id, "text": message, "parse_mode": format}
-
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(

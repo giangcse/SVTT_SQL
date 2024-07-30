@@ -16,23 +16,20 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
 # Để khai báo format của request body, bạn cần sử dụng Pydantic models
-from flask import Flask, jsonify
 from pydantic import BaseModel
 from hashlib import sha3_256
 from typing import List
 
 from .controllers.controller import *
 from .send_otp import send_otp_email, is_otp_valid
-from .send_telegram_message import sendMessageTelegram, admin_chat_id
+from .send_telegram_message import sendMessageTelegram
 
 import os
 import jwt
 import datetime
 import pandas as pd
-import zipfile
 import shutil
 import asyncio
-import json
 
 app = FastAPI()
 app.add_middleware(
@@ -1575,7 +1572,6 @@ async def thong_tin_sinh_vien_route(sv: ThongTinSV):
             asyncio.create_task(
                 sendMessageTelegram(
                     message=f"<code>Sinh viên đăng ký thông tin</code>\n\n<b>Họ tên: </b>{sv.hoten}\n<b>MSSV:</b> {sv.mssv}\n<b>SĐT:</b> {sv.sdt}\n<b>Email:</b> {sv.email}",
-                    chat_id=admin_chat_id,
                     format="html",
                 )
             )
@@ -1617,12 +1613,10 @@ async def them_nhom_thuc_tap_sv_route(email: str, idnhom: int):
     result = update_nhom_thuc_tap_by_sv_id_controller(email, idnhom)
     if result:
         thongtinsv = get_thong_tin_nhom_by_sv_email_controller(email)
-        print(thongtinsv)
         if thongtinsv != -1:
             asyncio.create_task(
                 sendMessageTelegram(
                     message=f"<code>Sinh viên đăng kí nhóm</code>\n\n<b>Sinh viên:</b> <code>[{thongtinsv[0]}] {thongtinsv[1]}</code>\n<b>Đã đăng kí nhóm:</b> <pre>{thongtinsv[2]}</pre>",
-                    chat_id=admin_chat_id,
                     format="HTML",
                 )
             )
@@ -2305,7 +2299,6 @@ async def update_xoa_nganh_by_id_route(id: int, token: str = Cookie(None)):
             uid = payload.get("id")
             if permission == "user" and check_role(uid, "/danhmucnganh"):
                 result = update_xoa_nganh_by_id_controller(id)
-                print("id", id)
                 if result == 1:
                     return JSONResponse(status_code=200, content={"status": "OK"})
                 else:
@@ -2834,7 +2827,6 @@ async def gui_yeu_cau_in_phieu_route(idloaiyeucau: int, token: str = Cookie(None
                     if i is not None and i is not TypeError:
                         result = gui_yeu_cau_in_phieu_controller(sv_id, idloaiyeucau)
 
-                        print("\n\n\n\n\n\n\n\n", result)
                         if result != -1:
                             return JSONResponse(
                                 status_code=200, content={"status": result}
@@ -2972,7 +2964,6 @@ async def canh_bao_yeu_cau_in_phieu_route(
                         f"<b>Vào lúc: </b>{time}\n"
                         f"<b>Loại yêu cầu: </b>{loaiyeucau}\n"
                         f"<b>ID phiếu: </b>{id}</code>",
-                        chat_id=admin_chat_id,
                         format="HTML",
                     )
                 )
@@ -3831,7 +3822,7 @@ async def cap_nhat_tham_so_route(
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user" and check_role(id, "/thamsohethong"):
+            if permission == "user":
                 result = cap_nhat_tham_so_controller(id, ten, thamso, giatri, mota, trangthai)
                 if result:
                     return JSONResponse(status_code=200, content={"status": "OK"})
@@ -3854,7 +3845,7 @@ async def cap_nhat_xoa_tham_so_route(
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user" and check_role(id, "/thamsohethong"):
+            if permission == "user":
                 result = cap_nhat_xoa_tham_so_controller(id)
                 if result:
                     return JSONResponse(status_code=200, content={"status": "OK"})
