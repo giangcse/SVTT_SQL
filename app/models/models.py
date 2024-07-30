@@ -168,7 +168,7 @@ def get_user_info_by_username(username: str):
 
 def get_all_de_tai_thuc_tap():
     try:
-        result = cursor.execute("SELECT * FROM DeTai WHERE isDeleted != 2")
+        result = cursor.execute("SELECT * FROM DeTai WHERE isDeleted != 2 ORDER BY ID DESC")
         return [
             {"id": i[0], "ten": i[1], "mota": i[2], "xoa": i[3]}
             for i in result.fetchall()
