@@ -2424,3 +2424,68 @@ def xoa_bieu_mau_by_id(id: int):
         return True
     except Exception as e:
         return e
+
+
+def get_all_tham_so():
+    try:
+        result = cursor.execute("EXEC GetAllThamSo").fetchall()
+        return [{
+            "id": i[0],
+            "ten": i[1],
+            "thamso": i[2],
+            "giatri": i[3],
+            "mota": i[4],
+            "thamsohethong": i[5],
+            "trangthai": i[6]
+        } for i in result]
+    except Exception as e:
+        return e
+
+
+def get_chi_tiet_tham_so(id: int):
+    try:
+        result = cursor.execute("EXEC GetChiTietThamSoByID ?", id).fetchone()
+        return {
+            "id": result[0],
+            "ten": result[1],
+            "thamso": result[2],
+            "giatri": result[3],
+            "mota": result[4],
+            "thamsohethong": result[5],
+            "trangthai": result[6]
+        }
+    except Exception as e:
+        return e
+
+
+def them_tham_so(ten: str, thamso: str, giatri: str, mota: str, trangthai: int, hethong: int=0):
+    try:
+        result = cursor.execute("EXEC InsertThamSo ?, ?, ?, ?, ?, ?", (ten, thamso, giatri, mota, hethong, trangthai))
+        cursor.commit()
+        if result.rowcount:
+            return True
+        return False
+    except Exception as e:
+        return e
+
+
+def cap_nhat_tham_so(id: int, ten: str, thamso: str, giatri: str, mota: str, trangthai: int):
+    try:
+        result = cursor.execute("EXEC UpdateChiTietThamSoByID ?, ?, ?, ?, ?, ?", (id, ten, thamso, giatri, mota, trangthai))
+        cursor.commit()
+        if result.rowcount:
+            return True
+        return False
+    except Exception as e:
+        return e
+
+
+def cap_nhat_xoa_tham_so(id: int):
+    try:
+        result = cursor.execute("EXEC UpdateXoaThamSoByID ?", id)
+        cursor.commit()
+        if result.rowcount:
+            return True
+        return False
+    except Exception as e:
+        return e

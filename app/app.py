@@ -1255,94 +1255,6 @@ async def view_pdf(id: str, id_bieumau: int, token: str = Cookie(None)):
     raise HTTPException(status_code=401, detail="Unauthorized")
 
 
-# xem phieu giao viec ctu
-
-
-@app.get("/xem_phieugiaoviec_ctu.pdf")
-async def view_pdf(id: str, id_bieumau: int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                pdf_path = query_pdf_path_from_database_controller(id, id_bieumau)
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, "rb") as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
-
-
-# xem phieu giao viec ctu
-
-
-@app.get("/xem_phieutiepnhan_ctu.pdf")
-async def view_pdf(id: str, id_bieumau: int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                pdf_path = query_pdf_path_from_database_controller(id, id_bieumau)
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, "rb") as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
-
-
-# xem phieu danh gia vlute
-
-
-@app.get("/xem_phieudanhgia_vlute.pdf")
-async def view_pdf(id: str, id_bieumau: int, token: str = Cookie(None)):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            if permission == "user":
-                # Xác định đường dẫn tệp PDF dựa trên id hoặc các thông tin khác
-                # Thay hàm này bằng phương thức xác định đường dẫn thích hợp
-                pdf_path = query_pdf_path_from_database_controller(id, id_bieumau)
-                print("PDF Path:", pdf_path)
-                if pdf_path and os.path.exists(pdf_path):
-                    with open(pdf_path, "rb") as f:
-                        pdf_content = f.read()
-                    headers = {
-                        "Content-Disposition": "inline",
-                        "Content-Type": "application/pdf",
-                    }
-                    return Response(content=pdf_content, headers=headers)
-                else:
-                    raise HTTPException(status_code=404, detail="File not found")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    raise HTTPException(status_code=401, detail="Unauthorized")
-
-
 # @app.get('ctu_xuat_phieu_danh_gia')
 # async def ctu_xuat_phieu_danh_gia_route(id: str, token: str = Cookie(None)):
 #     if token:
@@ -3812,3 +3724,144 @@ async def get_ds_chuc_nang_by_user_id_route(token: str = Cookie(None)):
         except jwt.PyJWTError:
             return RedirectResponse("/login")
     return RedirectResponse("/login")
+
+
+@app.get("/thamsohethong")
+async def system_params(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "user" and check_role(id, "/thamsohethong"):
+                response = templates.TemplateResponse(
+                    "system_parameters.html", context={"request": request}
+                )
+                response.set_cookie("email", username, httponly=False)
+                return response
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
+
+
+@app.get("/get_all_tham_so")
+async def get_all_tham_so(request: Request, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "user" and check_role(id, "/thamsohethong"):
+                response = JSONResponse(
+                    status_code=200, content=get_all_tham_so_controller()
+                )
+                return response
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
+
+
+@app.get("/get_chi_tiet_tham_so")
+async def get_chi_tiet_tham_so(id: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "user":
+                response = JSONResponse(
+                    status_code=200, content=get_chi_tiet_tham_so_controller(id)
+                )
+                return response
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
+
+
+@app.post("/them_tham_so")
+async def them_tham_so(
+    ten: str,
+    thamso: str,
+    giatri: str,
+    mota: str,
+    trangthai: int,
+    token: str = Cookie(None),
+):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "user" and check_role(id, "/thamsohethong"):
+                result = them_tham_so_controller(
+                    ten, thamso, giatri, mota, trangthai, 0
+                )
+                if result:
+                    return JSONResponse(status_code=200, content={"status": "OK"})
+                return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
+
+
+@app.post("/cap_nhat_tham_so")
+async def cap_nhat_tham_so_route(
+    id: int,
+    ten: str,
+    thamso: str,
+    giatri: str,
+    mota: str,
+    trangthai: int,
+    token: str = Cookie(None),
+):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "user" and check_role(id, "/thamsohethong"):
+                result = cap_nhat_tham_so_controller(id, ten, thamso, giatri, mota, trangthai)
+                if result:
+                    return JSONResponse(status_code=200, content={"status": "OK"})
+                return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
+
+
+@app.post("/update_xoa_tham_so_by_id")
+async def cap_nhat_xoa_tham_so_route(
+    id: int,
+    token: str = Cookie(None),
+):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            permission = payload.get("permission")
+            if permission == "user" and check_role(id, "/thamsohethong"):
+                result = cap_nhat_xoa_tham_so_controller(id)
+                if result:
+                    return JSONResponse(status_code=200, content={"status": "OK"})
+                return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")

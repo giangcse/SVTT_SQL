@@ -833,3 +833,23 @@ def get_chi_tiet_bieu_mau_by_id_controller(id: int):
 
 def xoa_bieu_mau_by_id_controller(id: int):
     return xoa_bieu_mau_by_id(id)
+
+
+def get_all_tham_so_controller():
+    return get_all_tham_so()
+
+
+def get_chi_tiet_tham_so_controller(id: int):
+    return get_chi_tiet_tham_so(id)
+
+
+def them_tham_so_controller(ten: str, thamso: str, giatri: str, mota: str, trangthai: int, hethong: int=0):
+    return them_tham_so(ten, thamso, giatri, mota, trangthai, hethong)
+
+
+def cap_nhat_tham_so_controller(id: int, ten: str, thamso: str, giatri: str, mota: str, trangthai: int):
+    return cap_nhat_tham_so(id, ten, thamso, giatri, mota, trangthai)
+
+
+def cap_nhat_xoa_tham_so_controller(id: int):
+    return cap_nhat_xoa_tham_so(id)
