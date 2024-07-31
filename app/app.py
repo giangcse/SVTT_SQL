@@ -1568,13 +1568,17 @@ async def thong_tin_sinh_vien_route(sv: ThongTinSV):
         sv.truong,
         sv.nganh,
         sv.khoa,
-        sha3_256(bytes(default_password, "utf-8")).hexdigest(),
+        sha3_256(bytes(get_gia_tri_tham_so("DEFAULT_PASSWORD"), "utf-8")).hexdigest(),
     )
     if result:
         sent = send_otp_email(sv.email, sv.hoten)
         if sent:
             insert_taikhoan = insert_taikhoan_sinhvien_controller(
-                result, sha3_256(bytes(default_password, "utf-8")).hexdigest(), 1
+                result,
+                sha3_256(
+                    bytes(get_gia_tri_tham_so("DEFAULT_PASSWORD"), "utf-8")
+                ).hexdigest(),
+                1,
             )
             response = JSONResponse(status_code=200, content={"status": "OK"})
             response.set_cookie("studentid", result, max_age=5356800)  # Hạn 2 tháng
@@ -2290,7 +2294,10 @@ async def reset_password_route(id: int, token: str = Cookie(None)):
             id = payload.get("id")
             if permission == "user" and check_role(id, "/quanlytaikhoan"):
                 result = update_reset_mat_khau_nguoi_huong_dan_by_id_controller(
-                    id, sha3_256(bytes(default_password, "utf-8")).hexdigest()
+                    id,
+                    sha3_256(
+                        bytes(get_gia_tri_tham_so("DEFAULT_PASSWORD"), "utf-8")
+                    ).hexdigest(),
                 )
                 if result == 1:
                     return JSONResponse(status_code=200, content={"status": "OK"})
@@ -2500,7 +2507,9 @@ async def them_nguoi_huong_dan(
                     chucdanh,
                     phong,
                     username,
-                    sha3_256(bytes(default_password, "utf-8")).hexdigest(),
+                    sha3_256(
+                        bytes(get_gia_tri_tham_so("DEFAULT_PASSWORD"), "utf-8")
+                    ).hexdigest(),
                     zalo,
                     facebook,
                     github,
