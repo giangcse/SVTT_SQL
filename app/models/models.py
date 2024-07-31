@@ -2358,11 +2358,10 @@ def get_ds_chuc_nang_by_user_id(id: int):
 
 def check_role_by_url_and_id(uid: int, url: str):
     try:
-        result = cursor.execute("EXEC CheckRoleByUrlAndID ?, ?", uid, url).fetchone()[0]
-        if result != None:
-            return result
-        else:
-            return -1
+        result = cursor.execute("EXEC CheckRoleByUrlAndID ?, ?", (uid, url))
+        if result.fetchone()[0] == 1:
+            return True
+        return False
     except Exception as e:
         return e
 
@@ -2426,9 +2425,9 @@ def xoa_bieu_mau_by_id(id: int):
         return e
 
 
-def get_all_tham_so():
+def get_all_tham_so(uid: int):
     try:
-        result = cursor.execute("EXEC GetAllThamSo").fetchall()
+        result = cursor.execute("EXEC GetAllThamSo ?", uid).fetchall()
         return [{
             "id": i[0],
             "ten": i[1],
@@ -2442,9 +2441,9 @@ def get_all_tham_so():
         return e
 
 
-def get_chi_tiet_tham_so(id: int):
+def get_chi_tiet_tham_so(id: int, uid: int):
     try:
-        result = cursor.execute("EXEC GetChiTietThamSoByID ?", id).fetchone()
+        result = cursor.execute("EXEC GetChiTietThamSoByID ?, ?", id, uid).fetchone()
         return {
             "id": result[0],
             "ten": result[1],
@@ -2458,9 +2457,9 @@ def get_chi_tiet_tham_so(id: int):
         return e
 
 
-def them_tham_so(ten: str, thamso: str, giatri: str, mota: str, trangthai: int, hethong: int=0):
+def them_tham_so(ten: str, thamso: str, giatri: str, mota: str, hethong: int, trangthai: int, uid: int):
     try:
-        result = cursor.execute("EXEC InsertThamSo ?, ?, ?, ?, ?, ?", (ten, thamso, giatri, mota, hethong, trangthai))
+        result = cursor.execute("EXEC InsertThamSo ?, ?, ?, ?, ?, ?, ?", (ten, thamso, giatri, mota, hethong, trangthai, uid))
         cursor.commit()
         if result.rowcount:
             return True
@@ -2469,9 +2468,9 @@ def them_tham_so(ten: str, thamso: str, giatri: str, mota: str, trangthai: int, 
         return e
 
 
-def cap_nhat_tham_so(id: int, ten: str, thamso: str, giatri: str, mota: str, trangthai: int):
+def cap_nhat_tham_so(id: int, ten: str, thamso: str, giatri: str, mota: str, trangthai: int, uid: int):
     try:
-        result = cursor.execute("EXEC UpdateChiTietThamSoByID ?, ?, ?, ?, ?, ?", (id, ten, thamso, giatri, mota, trangthai))
+        result = cursor.execute("EXEC UpdateChiTietThamSoByID ?, ?, ?, ?, ?, ?, ?", (id, ten, thamso, giatri, mota, trangthai, uid))
         cursor.commit()
         if result.rowcount:
             return True
@@ -2480,9 +2479,9 @@ def cap_nhat_tham_so(id: int, ten: str, thamso: str, giatri: str, mota: str, tra
         return e
 
 
-def cap_nhat_xoa_tham_so(id: int):
+def cap_nhat_xoa_tham_so(id: int, uid: int):
     try:
-        result = cursor.execute("EXEC UpdateXoaThamSoByID ?", id)
+        result = cursor.execute("EXEC UpdateXoaThamSoByID ?, ?", id, uid)
         cursor.commit()
         if result.rowcount:
             return True

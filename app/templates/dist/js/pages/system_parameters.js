@@ -214,7 +214,7 @@ $("#bangdsthamso").on("click", "#editBtn", function () {
         if (res.status == "OK") {
           Toast.fire({
             icon: "success",
-            title: `Đã thêm tham số.`,
+            title: `Đã cập nhật tham số.`,
           });
           $("#modal_id").modal("hide");
           bangdsthamso.ajax.reload();

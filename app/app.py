@@ -3724,7 +3724,8 @@ async def system_params(request: Request, token: str = Cookie(None)):
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user" and check_role(id, "/thamsohethong"):
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
                 response = templates.TemplateResponse(
                     "system_parameters.html", context={"request": request}
                 )
@@ -3743,11 +3744,11 @@ async def get_all_tham_so(request: Request, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user" and check_role(id, "/thamsohethong"):
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
                 response = JSONResponse(
-                    status_code=200, content=get_all_tham_so_controller()
+                    status_code=200, content=get_all_tham_so_controller(uid)
                 )
                 return response
             else:
@@ -3763,11 +3764,11 @@ async def get_chi_tiet_tham_so(id: int, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user":
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
                 response = JSONResponse(
-                    status_code=200, content=get_chi_tiet_tham_so_controller(id)
+                    status_code=200, content=get_chi_tiet_tham_so_controller(id, uid)
                 )
                 return response
             else:
@@ -3790,11 +3791,11 @@ async def them_tham_so(
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user" and check_role(id, "/thamsohethong"):
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
                 result = them_tham_so_controller(
-                    ten, thamso, giatri, mota, trangthai, 0
+                    ten, thamso, giatri, mota, 0, trangthai, uid
                 )
                 if result:
                     return JSONResponse(status_code=200, content={"status": "OK"})
@@ -3820,10 +3821,10 @@ async def cap_nhat_tham_so_route(
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user":
-                result = cap_nhat_tham_so_controller(id, ten, thamso, giatri, mota, trangthai)
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
+                result = cap_nhat_tham_so_controller(id, ten, thamso, giatri, mota, trangthai, uid)
                 if result:
                     return JSONResponse(status_code=200, content={"status": "OK"})
                 return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
@@ -3845,8 +3846,9 @@ async def cap_nhat_xoa_tham_so_route(
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             username = payload.get("sub")
             permission = payload.get("permission")
-            if permission == "user":
-                result = cap_nhat_xoa_tham_so_controller(id)
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
+                result = cap_nhat_xoa_tham_so_controller(id, uid)
                 if result:
                     return JSONResponse(status_code=200, content={"status": "OK"})
                 return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
