@@ -426,9 +426,9 @@ def xem_thong_tin_sv_controller(email: str):
 
 
 def them_chi_tiet_cong_viec_controller(
-    id_congviec: int, id_sinhvien: int, trangthai: int, ghichu: str
+    id_congviec: int, id_sinhvien: int, trangthai: int, ghichu: str, link: str
 ):
-    return them_chi_tiet_cong_viec(id_congviec, id_sinhvien, trangthai, ghichu)
+    return them_chi_tiet_cong_viec(id_congviec, id_sinhvien, trangthai, ghichu, link)
 
 
 def get_chi_tiet_cong_viec_by_id_cong_viec_controller(id: int):
@@ -857,3 +857,7 @@ def cap_nhat_tham_so_controller(id: int, ten: str, thamso: str, giatri: str, mot
 
 def cap_nhat_xoa_tham_so_controller(id: int, uid: int):
     return cap_nhat_xoa_tham_so(id, uid)
+
+
+def get_thong_tin_sv_by_id_controller(id: int):
+    return get_thong_tin_sv_by_id(id)

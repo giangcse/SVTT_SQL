@@ -87,6 +87,7 @@ function load_ChiTietCongViec(id_congviec) {
         <th scope="col" style="text-align: center;" width="25%">Công việc</th>
         <th scope="col" style="text-align: center;" width="15%">Người thực hiện</th>
         <th scope="col" style="text-align: center;">Ghi chú</th>
+        <th scope="col" style="text-align: center;" width="15%">Link tài liệu</th>
         <th scope="col" style="text-align: center;" width="15%">Trạng thái</th>
         <th scope="col" style="text-align: center;" width="10%">Thao tác</th>
       </tr>
@@ -123,6 +124,9 @@ function load_ChiTietCongViec(id_congviec) {
 			},
 			{
 				data: "ghichu"
+			},
+			{
+				data: "link"
 			},
 			{
 				data: "trangthai",

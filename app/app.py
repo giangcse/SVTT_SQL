@@ -123,6 +123,7 @@ class ChiTietCongViec(BaseModel):
     id_congviec: int
     ghichu: str
     sinhvien: List[str]
+    link: str
 
 
 SECRET_KEY = secret_key
@@ -1019,6 +1020,14 @@ async def update_xac_nhan_trang_thai_cong_viec_route(
                     idcongviec, username
                 )
                 if result:
+                    ctcv = get_chi_tiet_cong_viec_by_id_controller(idcongviec)
+                    asyncio.create_task(
+                        sendMessageTelegram(
+                            message=f"<code>Xác nhận hoàn thành công việc</code>\n\n<b>Sinh viên: </b><code>[{ctcv[0]['mssv']}] - {ctcv[0]['hoten']}</code>\n<b>Công việc: </b>{ctcv[0]['tencongviec']}\n<b>Deadline: </b>{ctcv[0]['ngayketthuc']}",
+                            format="html",
+                            chat_id = str(get_gia_tri_tham_so('ADMIN_CHAT_ID'))
+                        )
+                    )
                     return JSONResponse(status_code=200, content={"status": "OK"})
                 else:
                     return JSONResponse(status_code=200, content={"status": "NOT OK"})
@@ -1573,6 +1582,7 @@ async def thong_tin_sinh_vien_route(sv: ThongTinSV):
                 sendMessageTelegram(
                     message=f"<code>Sinh viên đăng ký thông tin</code>\n\n<b>Họ tên: </b>{sv.hoten}\n<b>MSSV:</b> {sv.mssv}\n<b>SĐT:</b> {sv.sdt}\n<b>Email:</b> {sv.email}",
                     format="html",
+                    chat_id = str(get_gia_tri_tham_so('ADMIN_CHAT_ID'))
                 )
             )
             return response
@@ -1618,6 +1628,7 @@ async def them_nhom_thuc_tap_sv_route(email: str, idnhom: int):
                 sendMessageTelegram(
                     message=f"<code>Sinh viên đăng kí nhóm</code>\n\n<b>Sinh viên:</b> <code>[{thongtinsv[0]}] {thongtinsv[1]}</code>\n<b>Đã đăng kí nhóm:</b> <pre>{thongtinsv[2]}</pre>",
                     format="HTML",
+                    chat_id = str(get_gia_tri_tham_so('ADMIN_CHAT_ID'))
                 )
             )
         response = JSONResponse(status_code=200, content={"status": "OK"})
@@ -1878,6 +1889,7 @@ async def them_chi_tiet_cong_viec_route(
                         id_sinhvien=int(i),
                         trangthai=0,
                         ghichu=data.ghichu,
+                        link=data.link
                     )
                     if result == 1:
                         congviec = (
@@ -1891,7 +1903,7 @@ async def them_chi_tiet_cong_viec_route(
                         )
                         asyncio.create_task(
                             sendMessageTelegram(
-                                message=f"<code>Thông báo giao việc</code>\n\n<b>Người thực hiện:</b> <code>[{congviec['mssv']}] {congviec['nguoinhanviec']}</code>\n<b>Công việc:</b> {congviec['tencongviec']}\n<b>Thời gian:</b> {congviec['ngaybatdau']} đến {congviec['ngayketthuc']}\n<b>Nội dung công việc:</b>\n<pre language='c++'>{congviec_mota}</pre>\n<b>Ghi chú:</b>\n<pre language='c++'>{congviec_ghichu}</pre>",
+                                message=f"<code>Thông báo giao việc</code>\n\n<b>Người thực hiện:</b> <code>[{congviec['mssv']}] {congviec['nguoinhanviec']}</code>\n<b>Công việc:</b> {congviec['tencongviec']}\n<b>Thời gian:</b> {congviec['ngaybatdau']} đến {congviec['ngayketthuc']}\n<b>Nội dung công việc:</b>\n<pre language='c++'>{congviec_mota}</pre>\n<b>Tài liệu: </b>{congviec['link']}\n<b>Ghi chú:</b>\n<pre language='c++'>{congviec_ghichu}</pre>",
                                 chat_id=str(congviec["telegram_id"]),
                                 format="html",
                             )
@@ -2965,6 +2977,7 @@ async def canh_bao_yeu_cau_in_phieu_route(
                         f"<b>Loại yêu cầu: </b>{loaiyeucau}\n"
                         f"<b>ID phiếu: </b>{id}</code>",
                         format="HTML",
+                        chat_id = str(get_gia_tri_tham_so('ADMIN_CHAT_ID'))
                     )
                 )
         except jwt.PyJWTError:

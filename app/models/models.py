@@ -939,6 +939,7 @@ def get_chi_tiet_cong_viec_by_id_cong_viec(id: int):
                 "ghichu": i[4],
                 "tencongviec": i[5],
                 "nguoithuchien": i[6],
+                "link": i[7]
             }
             for i in result
         ]
@@ -957,6 +958,11 @@ def get_chi_tiet_cong_viec_by_id(id: int):
                 "id_sinhvien": i[2],
                 "trangthai": i[3],
                 "ghichu": i[4],
+                "tencongviec": i[5],
+                "ngayketthuc": i[6],
+                "hoten": i[7],
+                "mssv": i[8],
+                "link": i[9]
             }
             for i in result
         ]
@@ -1020,16 +1026,17 @@ def them_cong_viec_nhom(
 
 
 def them_chi_tiet_cong_viec(
-    id_congviec: int, id_sinhvien: int, trangthai: int, ghichu: str
+    id_congviec: int, id_sinhvien: int, trangthai: int, ghichu: str, link: str
 ):
     try:
         # Gọi stored procedure và truyền tham số
         result = cursor.execute(
-            "EXEC InsertChiTietCongViec ?, ?, ?, ?",
+            "EXEC InsertChiTietCongViec ?, ?, ?, ?, ?",
             id_congviec,
             id_sinhvien,
             trangthai,
             protect_xss(ghichu),
+            link
         ).fetchone()[0]
         # Lấy giá trị của biến đầu ra
         cursor.commit()
@@ -1402,6 +1409,7 @@ def get_chi_tiet_giao_viec_cho_sv_by_id_cong_viec(id: int, sv_id: int):
             "ghichu": result[6],
             "motacongviec": result[7],
             "telegram_id": result[8],
+            "link": result[10]
         }
     except Exception as e:
         return e
@@ -1432,6 +1440,7 @@ def get_chi_tiet_cong_viec_by_id_cong_viec_email_sv(id: int, email: str):
                 "nguoithuchien": result[5],
                 "trangthai": result[6],
                 "xacnhan": result[7],
+                "link": result[8]
             }
         ]
         return data
@@ -2511,6 +2520,28 @@ def get_gia_tri_tham_so(thamso: str):
         result = cursor.execute("SELECT GiaTri FROM THAMSOHETHONG WHERE ThamSo LIKE ?", thamso)
         if result:
             return result.fetchone()[0]
+        return False
+    except Exception as e:
+        return e
+
+
+def get_thong_tin_sv_by_id(id: int):
+    try:
+        result = cursor.execute("EXEC GetChiTietSVByID ?", id)
+        if result:
+            i = result.fetchone()
+            return {
+                "id": i[0],
+                "mssv": i[1],
+                "hoten": i[2],
+                "gioitinh": i[3],
+                "sdt": i[4],
+                "email": i[5],
+                "diachi": i[6],
+                "malop": i[7],
+                "truong": i[14],
+                "nganh": i[15]
+            }
         return False
     except Exception as e:
         return e

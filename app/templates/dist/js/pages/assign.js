@@ -11,7 +11,7 @@ function clear_modal() {
 	$("#modal_body").empty();
 	$("#modal_footer").empty();
 }
-
+$.fn.modal.Constructor.prototype._enforceFocus = function () { };
 $(document).ready(function() {
 	// Select2
 	$(".select2").select2({
@@ -109,21 +109,21 @@ $(document).ready(function() {
 		// Clear modal
 		clear_modal();
 		$("#modal_title").text("Thêm công việc");
-		html = `<div class="form-group">\
-              <label>Thời gian:</label> \
-              <div class="input-group"> \
-                <div class="input-group-prepend">\
-                  <span class="input-group-text">\
-                    <i class="far fa-calendar-alt"></i>\
-                  </span> \
-                </div>\
-                <input type="text" class="form-control float-right" id="thoigian"> \
-              </div> \
-            </div> \
-            <div class="form-group">\
-              <label>Tên công việc:</label> \
-              <div class="input-group"> \
-                <input class="form-control" id="tencongviec" type="text"/> \
+		html = `<div class="form-group">
+              <label>Thời gian:</label> 
+              <div class="input-group"> 
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="far fa-calendar-alt"></i>
+                  </span> 
+                </div>
+                <input type="text" class="form-control float-right" id="thoigian"> 
+              </div> 
+            </div> 
+            <div class="form-group">
+              <label>Tên công việc:</label> 
+              <div class="input-group"> 
+                <input class="form-control" id="tencongviec" type="text"/> 
               </div> 
             </div>
             <div class="form-group">
@@ -228,7 +228,7 @@ $(document).ready(function() {
 
 function createModal_ChiTietCongViec(id_congviec, id_nhom) {
 	clear_modal();
-	$("#modal_title").text(`Thêm chi tiết công việc ${id_congviec}`);
+	$("#modal_title").text(`Thêm chi tiết công việc`);
 	let body = `
   <div class="form-group">
     <label for="modal_sinhvien_select">Sinh viên thực hiện</label>
@@ -237,18 +237,17 @@ function createModal_ChiTietCongViec(id_congviec, id_nhom) {
     </div>
   </div>
   <div class="form-group">
+    <label>Link tài liệu</label> 
+    <div class="input-group"> 
+      <input class="form-control" type="url" id="modal_link_input" required>
+    </div> 
+  </div>
+  <div class="form-group">
     <label>Ghi chú</label> 
     <div class="input-group"> 
       <textarea class="form-control" id="modal_ghichu_text" rows="5"></textarea> 
     </div> 
-  </div>
-  <script>
-  $(document).ready(function() {
-    $("#modal_sinhvien_select").select2({
-        dropdownParent: $("#modal_id")
-    });
-  });
-  </script>`;
+  </div>`;
 	$("#modal_body").append(body);
 	$("#modal_footer").append(
 		'<button type="button" class="btn btn-primary" id="modal_luuchitiet_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>'
@@ -271,8 +270,19 @@ function createModal_ChiTietCongViec(id_congviec, id_nhom) {
 
 	$("#modal_id").modal("show");
 
+	// Select2
+	$(".modal .select2").select2({
+		theme: 'bootstrap4',
+		dropdownParent: $('#modal_id'),
+		width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+		placeholder: $(this).data('placeholder'),
+		allowClear: Boolean($(this).data('allow-clear')),
+		closeOnSelect: !$(this).attr('multiple'),
+	});
+
 	$("#modal_luuchitiet_btn").on("click", function() {
 		let dssv_select = $("#modal_sinhvien_select").val();
+		let link = $("#modal_link_input").val();
 		let ghichu = $("#modal_ghichu_text")
 			.val()
 			.replace(/[\r\n]+/g, "<br>");
@@ -285,7 +295,8 @@ function createModal_ChiTietCongViec(id_congviec, id_nhom) {
 			data: JSON.stringify({
 				"id_congviec": id_congviec,
 				"ghichu": ghichu,
-				"sinhvien": dssv_select
+				"sinhvien": dssv_select,
+				"link": link
 			}),
 			success: function(res) {
 				$.each(res.result, function(idx) {
@@ -326,6 +337,7 @@ function load_ChiTietCongViec(id_congviec) {
       <th scope="col" style="text-align: center;" width="25%">Công việc</th>
       <th scope="col" style="text-align: center;" width="15%">Người thực hiện</th>
       <th scope="col" style="text-align: center;">Ghi chú</th>
+      <th scope="col" style="text-align: center;" width="15%">Tài liệu</th>
       <th scope="col" style="text-align: center;" width="15%">Trạng thái</th>
       <th scope="col" style="text-align: center;" width="10%">Thao tác</th>
     </tr>
@@ -354,6 +366,9 @@ function load_ChiTietCongViec(id_congviec) {
 			},
 			{
 				data: "ghichu"
+			},
+			{
+				data: "link"
 			},
 			{
 				data: "trangthai",
@@ -440,7 +455,7 @@ function capNhatChiTietCongViec(id_congviec, id_chitiet) {
                               <i class="fa-solid fa-floppy-disk"></i> Lưu</button>`);
 	$("#modal_id").modal("show");
 
-	// Tạo danh sách sinh viên
+	// Tạo danh sách
 	$.ajax({
 		type: "GET",
 		url: `/get_dssv_by_id_cong_viec?id=${id_chitiet}`,
