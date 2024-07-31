@@ -2441,6 +2441,22 @@ def get_all_tham_so(uid: int):
         return e
 
 
+def get_all_tham_so_ca_nhan(uid: int):
+    try:
+        result = cursor.execute("EXEC GetAllThamSoCaNhan ?", uid).fetchall()
+        return [{
+            "id": i[0],
+            "ten": i[1],
+            "thamso": i[2],
+            "giatri": i[3],
+            "mota": i[4],
+            "thamsohethong": i[5],
+            "trangthai": i[6]
+        } for i in result]
+    except Exception as e:
+        return e
+
+
 def get_chi_tiet_tham_so(id: int, uid: int):
     try:
         result = cursor.execute("EXEC GetChiTietThamSoByID ?, ?", id, uid).fetchone()

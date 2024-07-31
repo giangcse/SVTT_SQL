@@ -3759,6 +3759,26 @@ async def get_all_tham_so(request: Request, token: str = Cookie(None)):
         return RedirectResponse("/login")
 
 
+@app.get("/get_all_tham_so_ca_nhan")
+async def get_all_tham_so_ca_nhan(token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
+                response = JSONResponse(
+                    status_code=200, content=get_all_tham_so_ca_nhan_controller(uid)
+                )
+                return response
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
+
+
 @app.get("/get_chi_tiet_tham_so")
 async def get_chi_tiet_tham_so(id: int, token: str = Cookie(None)):
     if token:
@@ -3797,6 +3817,7 @@ async def them_tham_so(
                 result = them_tham_so_controller(
                     ten, thamso, giatri, mota, 0, trangthai, uid
                 )
+                print(result)
                 if result:
                     return JSONResponse(status_code=200, content={"status": "OK"})
                 return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
@@ -3844,7 +3865,6 @@ async def cap_nhat_xoa_tham_so_route(
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
             permission = payload.get("permission")
             uid = payload.get("id")
             if permission == "user" and check_role(uid, "/thamsohethong"):

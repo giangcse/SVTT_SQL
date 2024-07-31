@@ -839,6 +839,10 @@ def get_all_tham_so_controller(uid: int):
     return get_all_tham_so(uid)
 
 
+def get_all_tham_so_ca_nhan_controller(uid: int):
+    return get_all_tham_so_ca_nhan(uid)
+
+
 def get_chi_tiet_tham_so_controller(id: int, uid: int):
     return get_chi_tiet_tham_so(id, uid)
 
