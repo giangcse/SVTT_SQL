@@ -2291,8 +2291,8 @@ async def reset_password_route(id: int, token: str = Cookie(None)):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             permission = payload.get("permission")
-            id = payload.get("id")
-            if permission == "user" and check_role(id, "/quanlytaikhoan"):
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/quanlytaikhoan"):
                 result = update_reset_mat_khau_nguoi_huong_dan_by_id_controller(
                     id,
                     sha3_256(
