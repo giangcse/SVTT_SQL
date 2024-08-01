@@ -18,8 +18,11 @@ function clear_modal() {
 
 
 $(document).ready(function() {
+	// Select2
 	$(".select2").select2({
-		theme: "bootstrap",
+		theme: 'bootstrap4',
+		placeholder: $(this).data('placeholder'),
+		allowClear: Boolean($(this).data('allow-clear')),
 	});
 	$.ajax({
 		type: "GET",

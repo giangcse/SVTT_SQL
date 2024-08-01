@@ -31,14 +31,28 @@ $("#thembieumau_btn").click(function() {
       <select id="modal_truong_select" class="form-control select2"></select>
     </div>
     <div class="form-group">
-      <label for="modal_file_input">Chọn file biểu mẫu</label>
-      <input type="file" id="modal_file_input" class="form-control" accept=".pdf, .docx, .pptx, .xlsx">
-    </div>`;
+		<label for="modal_file_input">File biểu mẫu</label>
+		<div class="input-group">
+			<div class="custom-file">
+				<input type="file" class="custom-file-input" id="modal_file_input" accept=".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx">
+				<label class="custom-file-label" for="modal_file_input">Chọn file</label>
+			</div>
+		</div>
+	</div>`;
 	$("#modal_body").append(html);
 	$("#modal_footer").append(
 		'<button type="button" class="btn btn-primary" id="modal_submit_btn"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>'
 	);
 	$("#modal_id").modal("show");
+
+	$(".modal .select2").select2({
+		theme: 'bootstrap4',
+		dropdownParent: $('#modal_id'),
+		width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+		placeholder: $(this).data('placeholder'),
+		allowClear: Boolean($(this).data('allow-clear')),
+		closeOnSelect: !$(this).attr('multiple'),
+	});
 
 	$.ajax({
 		type: 'GET',

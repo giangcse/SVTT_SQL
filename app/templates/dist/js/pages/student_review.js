@@ -17,6 +17,7 @@ function empty_modal() {
 
 // Khởi tạo dropdown
 $(".dropdown-toggle").dropdown();
+$.fn.modal.Constructor.prototype._enforceFocus = function () { };
 
 // load filter
 function loadFilter() {
@@ -36,12 +37,16 @@ function loadFilter() {
 }
 
 $(document).ready(function() {
-	$(".select2").select2({
-		theme: "bootstrap",
-	});
 	empty_modal();
 	loadFilter();
+  $("#filter_kythuctap").select2({
+      theme: 'bootstrap4',
+      width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+      placeholder: $(this).data('placeholder'),
+      allowClear: Boolean($(this).data('allow-clear'))
+   });
 	create_table("-1", "-1");
+  
 	$("#filter_kythuctap").on("change", function() {
 		let id = $("#filter_kythuctap").val();
 		let filter_nhomthuctap = $("#filter_nhomthuctap");

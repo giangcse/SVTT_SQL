@@ -7,6 +7,7 @@ var Toast = Swal.mixin({
 
 // Khởi tạo Map
 let roleStatusMap = new Map();
+$.fn.modal.Constructor.prototype._enforceFocus = function () { };
 
 $(document).ready(function() { //LẤY USERNAME TỪ COOKIE
 	let c = document.cookie.split(";");
