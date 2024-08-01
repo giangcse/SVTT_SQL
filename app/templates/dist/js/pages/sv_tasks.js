@@ -189,7 +189,7 @@ function load_ChiTietCongViec(id_congviec) {
 							icon: "success",
 							title: "Đã xác nhận trạng thái",
 						});
-						bang_congviec.ajax.reload();
+						bang_congviec.ajax.reload(null, false);
 					},
 					error: function() {
 						Toast.fire({

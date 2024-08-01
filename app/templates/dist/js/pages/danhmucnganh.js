@@ -106,7 +106,7 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function () {
 							icon: "success",
 							title: `Ngưng sử dụng ngành thành công!.`,
 						});
-						bangdscacnganh.ajax.reload();
+						bangdscacnganh.ajax.reload(null, false);
 					} else if (res.status == "EXISTS") {
 						Toast.fire({
 							icon: "warning",
@@ -157,13 +157,13 @@ $("#xoadanhmucnganhBtn").on("click", function () {
 								icon: "success",
 								title: `Đã xóa ${idList.length} ngành.`,
 							});
-							bangdscacnganh.ajax.reload();
+							bangdscacnganh.ajax.reload(null, false);
 						} else {
 							Toast.fire({
 								icon: "warning",
 								title: "Không thể xóa ngành đang được sử dụng.",
 							});
-							bangdscacnganh.ajax.reload();
+							bangdscacnganh.ajax.reload(null, false);
 						}
 					},
 					error: function (xhr, status, error) {
@@ -172,7 +172,7 @@ $("#xoadanhmucnganhBtn").on("click", function () {
 							icon: "error",
 							title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
 						});
-						bangdscacnganh.ajax.reload();
+						bangdscacnganh.ajax.reload(null, false);
 					},
 				});
 			}
@@ -253,7 +253,7 @@ $("#bangdscacnganh").on("click", "#editBtn", function () {
 								title: `Đã cập nhật thông tin ngành.`,
 							});
 							$("#modal_id").modal("hide");
-							bangdscacnganh.ajax.reload();
+							bangdscacnganh.ajax.reload(null, false);
 						} else if (res.status == "NOT_UPDATE") {
 							Toast.fire({
 								icon: "warning",
@@ -335,7 +335,7 @@ $("#taodanhmucnganhBtn").on("click", function () {
 						title: `Đã thêm ngành ${tennganh.val()}.`,
 					});
 					$("#modal_id").modal("hide");
-					bangdscacnganh.ajax.reload();
+					bangdscacnganh.ajax.reload(null, false);
 				} else if (res.status == "NOT_CREATE") {
 					Toast.fire({
 						icon: "warning",
@@ -375,7 +375,7 @@ $("#bangdscacnganh").on("click", "#unlockNganhBtn", function () {
 							icon: "success",
 							title: `Mở khóa ngành thành công.`,
 						});
-						bangdscacnganh.ajax.reload();
+						bangdscacnganh.ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "error",

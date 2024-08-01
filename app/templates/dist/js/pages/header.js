@@ -15,6 +15,9 @@ $(document).ready(function () {
                 if (val.thamso == 'DARK_MODE' && val.giatri == 1 && val.trangthai == 1) {
                     $("body").addClass("dark-mode");
                 }
+                if (val.thamso == 'SIDEBAR_COLLAPSE' && val.giatri == 1 && val.trangthai == 1) {
+                    $("body").addClass("sidebar-collapse");
+                }
             })
         },
         error: function () {

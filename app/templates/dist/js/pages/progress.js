@@ -224,7 +224,7 @@ $(document).ready(function() {
 								icon: "success",
 								title: "Đã xác nhận trạng thái",
 							});
-							dscongviec.ajax.reload();
+							dscongviec.ajax.reload(null, false);
 						},
 						error: function() {
 							Toast.fire({

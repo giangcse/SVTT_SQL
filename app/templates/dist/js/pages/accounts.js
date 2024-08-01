@@ -186,7 +186,7 @@ $("#bangdstaikhoan").on("click", "#deleteBtn", function() {
 							icon: "success",
 							title: `Xoá người dùng thành công.`,
 						});
-						bangdstaikhoan.ajax.reload();
+						bangdstaikhoan.ajax.reload(null, false);
 					} else if (res.status == "EXISTS") {
 						Toast.fire({
 							icon: "warning",
@@ -226,7 +226,7 @@ $("#bangdstaikhoan").on("click", "#banBtn", function() {
 							icon: "success",
 							title: `Đã ngưng người dùng`,
 						});
-						bangdstaikhoan.ajax.reload();
+						bangdstaikhoan.ajax.reload(null, false);
 					} else if (res.status == "IS_ADMIN") {
 						Toast.fire({
 							icon: "warning",
@@ -266,7 +266,7 @@ $("#bangdstaikhoan").on("click", "#activeBtn", function() {
 							icon: "success",
 							title: `Đã kích hoạt người dùng.`,
 						});
-						bangdstaikhoan.ajax.reload();
+						bangdstaikhoan.ajax.reload(null, false);
 					} else if (res.status == "NOT_BANNED") {
 						Toast.fire({
 							icon: "warning",
@@ -306,7 +306,7 @@ $("#bangdstaikhoan").on("click", "#resetBtn", function() {
 							icon: "success",
 							title: `Đã reset mật khẩu người dùng.`,
 						});
-						bangdstaikhoan.ajax.reload();
+						bangdstaikhoan.ajax.reload(null, false);
 					}
 				},
 				error: function() {
@@ -417,7 +417,7 @@ $("#bangdstaikhoan").on("click", "#roleBtn", function() {
 					});
 				}
 				$("#modal_id").modal("hide");
-				bangdstaikhoan.ajax.reload();
+				bangdstaikhoan.ajax.reload(null, false);
 			},
 			error: function() {
 				Toast.fire({
@@ -529,7 +529,7 @@ $("#bangdstaikhoan").on("click", "#editBtn", function() {
 						title: `Đã cập nhật thông tin.`,
 					});
 					$("#modal_id").modal("hide");
-					bangdstaikhoan.ajax.reload();
+					bangdstaikhoan.ajax.reload(null, false);
 				}
 			},
 			error: function() {
@@ -628,7 +628,7 @@ $("#taoTaiKhoanBtn").on("click", function() {
 						title: `Đã thêm người hướng dẫn.`,
 					});
 					$("#modal_id").modal("hide");
-					bangdstaikhoan.ajax.reload();
+					bangdstaikhoan.ajax.reload(null, false);
 				} else {
 					Toast.fire({
 						icon: "error",

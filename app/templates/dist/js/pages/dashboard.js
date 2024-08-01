@@ -477,7 +477,7 @@ $("#dashboard_bangdssv").on("click", "#viewBtn", function() {
 					success: function(data) {
 						if (data.status == "OK") {
 							$("#modal_id").modal("hide");
-							$("#dashboard_bangdssv").DataTable().ajax.reload();
+							$("#dashboard_bangdssv").DataTable().ajax.reload(null, false);
 							Toast.fire({
 								icon: "success",
 								title: "Cập nhật thành công",
@@ -525,7 +525,7 @@ $("#dashboard_bangdssv").on("click", "#deleteBtn", function() {
 							icon: "success",
 							title: "Đã xoá",
 						});
-						$("#dashboard_bangdssv").DataTable().ajax.reload();
+						$("#dashboard_bangdssv").DataTable().ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "warning",

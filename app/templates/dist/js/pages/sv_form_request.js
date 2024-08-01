@@ -149,7 +149,7 @@ $(document).ready(function() {
 							error: () => {}
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					} else if (res.status == "INVALID") {
 						Toast.fire({
 							icon: "warning",
@@ -207,14 +207,14 @@ $("#bangdsyeucau").on("click", "#deleteBtn", function() {
 							title: "Đã xoá 1 yêu cầu",
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "warning",
 							title: "Xóa yêu cầu không thành công"
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					}
 				},
 				error: function(xhr, status, error) {

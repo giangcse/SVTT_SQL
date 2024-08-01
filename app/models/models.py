@@ -1640,7 +1640,7 @@ def them_nguoi_huong_dan(
         kq_insert_phanquyen = insert_phanquyen.fetchone()[0]
         conn.commit()
 
-        return kq_insert_phanquyen
+        return kq_insert_nhd
     except Exception as e:
         return e
 

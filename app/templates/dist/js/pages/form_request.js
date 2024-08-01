@@ -169,14 +169,14 @@ function create_table(kythuctap) {
 								title: "Đã xoá 1 yêu cầu",
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						} else {
 							Toast.fire({
 								icon: "warning",
 								title: "Xóa yêu cầu không thành công"
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						}
 					},
 					error: function(xhr, status, error) {
@@ -219,14 +219,14 @@ function create_table(kythuctap) {
 								title: "Đã duyệt 1 yêu cầu",
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						} else {
 							Toast.fire({
 								icon: "warning",
 								title: "Duyệt yêu cầu không thành công"
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						}
 					},
 					error: function(xhr, status, error) {
@@ -268,7 +268,7 @@ function create_table(kythuctap) {
 								title: "Đã từ chối 1 yêu cầu",
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						} else {
 							Toast.fire({
 								icon: "warning",
@@ -322,7 +322,7 @@ $("#checkSelectedBtn").click(function() {
 							title: "Đã duyệt " + res.total + " yêu cầu",
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "warning",
@@ -330,7 +330,7 @@ $("#checkSelectedBtn").click(function() {
 						});
 					}
 					// Tải lại bảng bangdsyeucau
-					bangdsyeucau.ajax.reload();
+					bangdsyeucau.ajax.reload(null, false);
 				},
 				error: function(xhr, status, error) {
 					Toast.fire({
@@ -377,7 +377,7 @@ $("#rejectSelectedBtn").click(function() {
 							title: "Đã từ chối " + res.total + " yêu cầu",
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "warning",
@@ -385,7 +385,7 @@ $("#rejectSelectedBtn").click(function() {
 						});
 					}
 					// Tải lại bảng bangdsyeucau
-					bangdsyeucau.ajax.reload();
+					bangdsyeucau.ajax.reload(null, false);
 				},
 				error: function(xhr, status, error) {
 					Toast.fire({
@@ -432,14 +432,14 @@ $("#deleteSelectedBtn").click(function() {
 							title: "Đã xóa " + res.total + " yêu cầu",
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "warning",
 							title: "Xóa yêu cầu không thành công"
 						});
 						// Tải lại bảng bangdsyeucau
-						bangdsyeucau.ajax.reload();
+						bangdsyeucau.ajax.reload(null, false);
 					}
 				},
 				error: function(xhr, status, error) {
@@ -628,14 +628,14 @@ $("#thembanin_btn").click(function() {
 								title: "Đã thêm " + res.total + " yêu cầu được duyệt",
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						} else {
 							Toast.fire({
 								icon: "warning",
 								title: "Không thêm mới yêu cầu nào!"
 							});
 							// Tải lại bảng bangdsyeucau
-							bangdsyeucau.ajax.reload();
+							bangdsyeucau.ajax.reload(null, false);
 						}
 					},
 					error: function(xhr, status, error) {

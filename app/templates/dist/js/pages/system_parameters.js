@@ -119,7 +119,7 @@ $("#bangdsthamso").on("click", "#deleteBtn", function () {
               icon: "success",
               title: `Xoá tham số thành công.`,
             });
-            bangdsthamso.ajax.reload();
+            bangdsthamso.ajax.reload(null, false);
           } else if (res.status == "EXISTS") {
             Toast.fire({
               icon: "warning",
@@ -217,7 +217,7 @@ $("#bangdsthamso").on("click", "#editBtn", function () {
             title: `Đã cập nhật tham số.`,
           });
           $("#modal_id").modal("hide");
-          bangdsthamso.ajax.reload();
+          bangdsthamso.ajax.reload(null, false);
         } else {
           Toast.fire({
             icon: "error",
@@ -290,7 +290,7 @@ $("#themThamSoBtn").on("click", function () {
             title: `Đã thêm tham số.`,
           });
           $("#modal_id").modal("hide");
-          bangdsthamso.ajax.reload();
+          bangdsthamso.ajax.reload(null, false);
         } else {
           Toast.fire({
             icon: "error",

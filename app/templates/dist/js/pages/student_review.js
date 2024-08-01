@@ -391,7 +391,7 @@ function create_table(kythuctap, nhomthuctap) {
 									success: function(data) {
 										if (data.status == "OK") {
 											$("#modal_id").modal("hide");
-											bangdssv.ajax.reload();
+                      bangdssv.ajax.reload(null, false);
 											Toast.fire({
 												icon: "success",
 												title: "Cập nhật thành công",

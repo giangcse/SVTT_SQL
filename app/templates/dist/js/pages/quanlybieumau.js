@@ -89,7 +89,7 @@ $("#thembieumau_btn").click(function() {
 					icon: "success",
 					text: "Đã thêm biểu mẫu"
 				});
-				bangdsbieumau.ajax.reload();
+				bangdsbieumau.ajax.reload(null, false);
 			},
 			error: function() {
 				Toast.fire({
@@ -193,7 +193,7 @@ $("#bangdsbieumau").on("click", "#deleteBtn", function() {
 						icon: 'success',
 						text: 'Đã xoá biểu mẫu'
 					})
-					bangdsbieumau.ajax.reload();
+					bangdsbieumau.ajax.reload(null, false);
 				},
 				error: function() {
 					Toast.fire({

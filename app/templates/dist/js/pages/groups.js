@@ -257,7 +257,7 @@ $("#bangdsnhomthuctap").on("click", "#editBtn", function() {
 					success: function(data) {
 						if (data.status == "OK") {
 							$("#modal_id").modal("hide");
-							bangdsnhomthuctap.ajax.reload();
+							bangdsnhomthuctap.ajax.reload(null, false);
 							Toast.fire({
 								icon: "success",
 								title: "Cập nhật thành công",
@@ -303,7 +303,7 @@ $("#bangdsnhomthuctap").on("click", "#deleteBtn", function() {
 							icon: "success",
 							title: "Đã xoá",
 						});
-						bangdsnhomthuctap.ajax.reload();
+						bangdsnhomthuctap.ajax.reload(null, false);
 					} else {
 						Toast.fire({
 							icon: "warning",
@@ -423,7 +423,7 @@ $("#themkythuctap_btn").click(function() {
 							icon: "success",
 							title: "Đã thêm kỳ thực tập",
 						});
-						bangdsnhomthuctap.ajax.reload();
+						bangdsnhomthuctap.ajax.reload(null, false);
 					},
 					error: function(xhr, status, error) {
 						Toast.fire({

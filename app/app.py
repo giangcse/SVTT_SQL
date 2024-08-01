@@ -2515,6 +2515,10 @@ async def them_nguoi_huong_dan(
                     github,
                     avatar,
                 )
+                # Insert các tham số
+                print(result)
+                them_tham_so_controller('Dark mode', 'DARK_MODE', 1, '1: Bật/0: Tắt darkmode', 0, 1, result)
+                them_tham_so_controller('Thu nhỏ sidebar', 'SIDEBAR_COLLAPSE', 1, '1: mở rộng sidebar/0: thu nhỏ sidebar', 0, 1, result)
                 if isinstance(result, int):
                     return JSONResponse(status_code=200, content={"status": "OK"})
                 else:
@@ -2770,44 +2774,6 @@ async def get_templates(request: Request, token: str = Cookie(None)):
             if permission == "user" and check_role(uid, "/templates"):
                 return templates.TemplateResponse(
                     "templates.html", context={"request": request}
-                )
-        except jwt.PyJWTError:
-            return RedirectResponse("/login")
-    return RedirectResponse("/login")
-
-
-@app.post("/chinh_sua_phieutiepnhan_ctu.pdf")
-async def chinh_sua_ptn_ctu(
-    id: int, id_bieumau: int, data: str, token: str = Cookie(None)
-):
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username = payload.get("sub")
-            permission = payload.get("permission")
-            i = ctu_chinh_phieu_tiep_nhan_controller(id, id_bieumau)
-            if permission == "user":
-                if i is not TypeError:
-                    headers = {
-                        # Mở tệp PDF trong trình duyệt
-                        "Content-Disposition": f"inline;",
-                        "Content-Type": "application/pdf",  # Loại nội dung của tệp PDF
-                    }
-                    pdf_path = query_pdf_path_from_database_controller(id, id_bieumau)
-                    r = ctu_chinh_phieu_tiep_nhan(
-                        pdf_path, f"{username}.pdf", data, username
-                    )
-                    if r:
-                        with open(r, "rb") as f:
-                            pdf_content = f.read()
-                        return Response(content=pdf_content, headers=headers)
-                else:
-                    return JSONResponse(
-                        status_code=404, content={"status": "Lỗi không nhận được phiếu"}
-                    )
-            else:
-                return JSONResponse(
-                    status_code=404, content={"status": "Lỗi khi xuất phiếu"}
                 )
         except jwt.PyJWTError:
             return RedirectResponse("/login")
