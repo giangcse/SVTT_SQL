@@ -142,15 +142,15 @@ $("#bangdsnhomthuctap").on("click", "#editBtn", function() {
         <div class="form-check">
           <input type="checkbox" class="form-check-input" id="modal_hoatdong_check">
           <label class="form-check-label" for="modal_hoatdong_check">Hoạt động?</label>
-        </div>
-        <script>
-          $(".select2").select2({
-            theme: "bootstrap",
-            dropdownParent: $("#modal_id")
-          });
-        </script>`;
+        </div>`;
 			$("#modal_body").append(html);
-
+			$(".modal .select2").select2({
+				theme: 'bootstrap4',
+				dropdownParent: $('#modal_id'),
+				width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+				placeholder: $(this).data('placeholder'),
+				allowClear: Boolean($(this).data('allow-clear')),
+			});
 			// Danh sách kỳ thực tập
 			$.ajax({
 				type: "GET",
@@ -357,14 +357,15 @@ $("#themkythuctap_btn").click(function() {
         <div class="form-group">
           <label for="modal_soluong_input">Ghi chú</label>
           <textarea id="modal_ghichu_text" class="form-control" rows="5"></textarea>
-        </div>
-        <script>
-          $(".select2").select2({
-            theme: "bootstrap",
-            dropdownParent: $("#modal_id")
-          });
-        </script>`;
+        </div>`;
 			$("#modal_body").append(html);
+			$(".modal .select2").select2({
+				theme: 'bootstrap4',
+				dropdownParent: $('#modal_id'),
+				width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+				placeholder: $(this).data('placeholder'),
+				allowClear: Boolean($(this).data('allow-clear')),
+			});
 			$.each(res.kythuctap, function(idx, val) {
 				$("#modal_kythuctap_select").append(
 					'<option value="' +

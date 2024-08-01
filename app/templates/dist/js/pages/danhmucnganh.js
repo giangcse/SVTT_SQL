@@ -19,50 +19,50 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
 		dataSrc: "",
 	},
 	columns: [{
-			data: "id",
-			render: function(data, type, row, meta) {
-				return `<center><input type="checkbox" id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
-			},
+		data: "id",
+		render: function (data, type, row, meta) {
+			return `<center><input type="checkbox" id='child-checkbox' class="select-checkbox child-checkbox" data-id="${row.id}"></center>`;
 		},
-		{
-			data: null,
-			render: function(data, type, row, meta) {
-				// Use meta.row to get the current row index, and add 1 to start from 1
-				return "<center>" + (meta.row + 1) + "</center>";
-			},
+	},
+	{
+		data: null,
+		render: function (data, type, row, meta) {
+			// Use meta.row to get the current row index, and add 1 to start from 1
+			return "<center>" + (meta.row + 1) + "</center>";
 		},
-		{
-			data: "ten"
+	},
+	{
+		data: "ten"
+	},
+	{
+		data: "kyhieu"
+	},
+	{
+		data: "isDeleted",
+		render: function (data, type, row) {
+			if (data == 1) {
+				return '<center><span class="badge badge-warning"><i class="fa-solid fa-exclamation"></i> Ngưng hoạt động</span></center>';
+			} else {
+				return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang hoạt động</span></center>';
+			}
 		},
-		{
-			data: "kyhieu"
-		},
-		{
-			data: "isDeleted",
-			render: function(data, type, row) {
-				if (data == 1) {
-					return '<center><span class="badge badge-warning"><i class="fa-solid fa-exclamation"></i> Ngưng hoạt động</span></center>';
-				} else {
-					return '<center><span class="badge badge-success"><i class="fa-solid fa-check"></i> Đang hoạt động</span></center>';
-				}
-			},
-		},
-		{
-			data: "ten_truong"
-		},
-		{
-			data: null,
-			render: function(data, type, row) {
-				if (row.isDeleted == 1) {
-					return `
+	},
+	{
+		data: "ten_truong"
+	},
+	{
+		data: null,
+		render: function (data, type, row) {
+			if (row.isDeleted == 1) {
+				return `
             <center>
               <a class="btn btn-warning btn-sm" id="unlockNganhBtn" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Mở khóa ngành">
                 <i class="fa-solid fa-key"></i>
               </a>
             </center>
           `;
-				} else {
-					return `
+			} else {
+				return `
             <center>
               <a class="btn btn-info btn-sm" id="editBtn" data-id="${row.id}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sửa thông tin">
                 <i class="fa-solid fa-pencil-alt"></i>
@@ -72,9 +72,9 @@ let bangdscacnganh = $("#bangdscacnganh").DataTable({
               </a>
             </center>
           `;
-				}
-			},
+			}
 		},
+	},
 	],
 });
 
@@ -86,7 +86,7 @@ function clear_modal() {
 }
 
 // Xoa nganh
-$("#bangdscacnganh").on("click", "#deleteNganhBtn", function() {
+$("#bangdscacnganh").on("click", "#deleteNganhBtn", function () {
 	let id = $(this).data("id");
 
 	Swal.fire({
@@ -100,7 +100,7 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function() {
 			$.ajax({
 				type: `POST`,
 				url: `update_xoa_nganh_by_id?id=${id}`,
-				success: function(res) {
+				success: function (res) {
 					if (res.status == "OK") {
 						Toast.fire({
 							icon: "success",
@@ -114,7 +114,7 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function() {
 						});
 					}
 				},
-				error: function() {
+				error: function () {
 					Toast.fire({
 						icon: "error",
 						title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
@@ -126,9 +126,9 @@ $("#bangdscacnganh").on("click", "#deleteNganhBtn", function() {
 });
 
 //xoa ngành vĩnh viễn
-$("#xoadanhmucnganhBtn").on("click", function() {
+$("#xoadanhmucnganhBtn").on("click", function () {
 	let idList = $("#child-checkbox:checked")
-		.map(function() {
+		.map(function () {
 			return $(this).data("id");
 		})
 		.get();
@@ -150,7 +150,7 @@ $("#xoadanhmucnganhBtn").on("click", function() {
 					type: `POST`,
 					url: `delete_nganh_by_id_list?idList=${idList}`,
 					contentType: "application/json",
-					success: function(res) {
+					success: function (res) {
 						console.log(res);
 						if (res.status == "OK") {
 							Toast.fire({
@@ -166,7 +166,7 @@ $("#xoadanhmucnganhBtn").on("click", function() {
 							bangdscacnganh.ajax.reload();
 						}
 					},
-					error: function(xhr, status, error) {
+					error: function (xhr, status, error) {
 						console.error("Error:", status, error);
 						Toast.fire({
 							icon: "error",
@@ -180,13 +180,13 @@ $("#xoadanhmucnganhBtn").on("click", function() {
 	}
 });
 // Sửa thông tin ngành
-$("#bangdscacnganh").on("click", "#editBtn", function() {
+$("#bangdscacnganh").on("click", "#editBtn", function () {
 	let id = $(this).data("id");
 	clear_modal();
 	$.ajax({
 		type: "GET",
 		url: `get_chi_tiet_nganh_by_id?id=` + parseInt(id),
-		success: function(nganh) {
+		success: function (nganh) {
 			console.log(nganh);
 			$("#modal_title").text("Sửa thông tin ngành " + nganh.kyhieu);
 			let html = `
@@ -200,21 +200,28 @@ $("#bangdscacnganh").on("click", "#editBtn", function() {
         </div>
         <div class="form-group">
           <label for="modal_chontruong_update_select">Chọn trường</label>
-          <select id="modal_chontruong_update_select" class="form-control">
+          <select id="modal_chontruong_update_select" class="form-control select2">
             
           </select>
         </div>
       `;
 			$("#modal_body").append(html);
+			$(".modal .select2").select2({
+				theme: 'bootstrap4',
+				dropdownParent: $('#modal_id'),
+				width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+				placeholder: $(this).data('placeholder'),
+				allowClear: Boolean($(this).data('allow-clear')),
+			});
 			$.ajax({
 				type: `GET`,
 				url: `get_danh_sach_truong`,
-				success: function(schools) {
+				success: function (schools) {
 					let options = schools
 						.map(
 							(school) =>
-							`<option value="${school.id}" ${school.id == nganh.id_truong ? "selected" : ""
-                }>
+								`<option value="${school.id}" ${school.id == nganh.id_truong ? "selected" : ""
+								}>
             ${school.ten}
           </option>`
 						)
@@ -231,14 +238,14 @@ $("#bangdscacnganh").on("click", "#editBtn", function() {
 			);
 			// Show the modal
 			$("#modal_id").modal("show");
-			$("#modal_submit_nganh_btn").on("click", function() {
+			$("#modal_submit_nganh_btn").on("click", function () {
 				let tennganh = $("#modal_tennganh_input");
 				let kyhieu = $("#modal_kyhieu_input");
 				let idtruong = $("#modal_chontruong_update_select");
 				$.ajax({
 					type: `POST`,
 					url: `update_nganh_by_id?id=${id}&ten=${tennganh.val()}&kyhieu=${kyhieu.val()}&isDeleted=0&idtruong=${idtruong.val()}`,
-					success: function(res) {
+					success: function (res) {
 						console.log(res);
 						if (res.status == "OK") {
 							Toast.fire({
@@ -254,7 +261,7 @@ $("#bangdscacnganh").on("click", "#editBtn", function() {
 							});
 						}
 					},
-					error: function(xhr, status, error) {
+					error: function (xhr, status, error) {
 						console.error("Error:", status, error);
 						Toast.fire({
 							icon: "error",
@@ -267,12 +274,12 @@ $("#bangdscacnganh").on("click", "#editBtn", function() {
 	});
 });
 // Tạo thông tin ngành
-$("#taodanhmucnganhBtn").on("click", function() {
+$("#taodanhmucnganhBtn").on("click", function () {
 	clear_modal();
 	$.ajax({
 		type: `GET`,
 		url: `get_danh_sach_truong`,
-		success: function(res) {
+		success: function (res) {
 			let options = "";
 			res.forEach((school) => {
 				options += `<option value="${school.id}">${school.ten}</option>`;
@@ -292,7 +299,7 @@ $("#taodanhmucnganhBtn").on("click", function() {
       </div>
       <div class="form-group">
         <label for="modal_chontruong_select">Chọn trường</label>
-        <select id="modal_chontruong_select" class="form-control">
+        <select id="modal_chontruong_select" class="form-control select2">
         </select>
       </div>
     `);
@@ -304,16 +311,23 @@ $("#taodanhmucnganhBtn").on("click", function() {
 	);
 
 	$("#modal_id").modal("show");
+	$(".modal .select2").select2({
+		theme: 'bootstrap4',
+		dropdownParent: $('#modal_id'),
+		width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+		placeholder: $(this).data('placeholder'),
+		allowClear: Boolean($(this).data('allow-clear')),
+	});
 
 	let tennganh = $("#modal_tennganh_input");
 	let kyhieu = $("#modal_kyhieu_input");
 	let idtruong = $("#modal_chontruong_select");
 
-	$("#modal_submit_nganh_btn").on("click", function() {
+	$("#modal_submit_nganh_btn").on("click", function () {
 		$.ajax({
 			type: `POST`,
 			url: `them_nganh?ten=${tennganh.val()}&kyhieu=${kyhieu.val()}&isDeleted=0&idtruong=${idtruong.val()}`,
-			success: function(res) {
+			success: function (res) {
 				console.log(res);
 				if (res.status == "OK") {
 					Toast.fire({
@@ -329,7 +343,7 @@ $("#taodanhmucnganhBtn").on("click", function() {
 					});
 				}
 			},
-			error: function(xhr, status, error) {
+			error: function (xhr, status, error) {
 				console.error("Error:", status, error);
 				Toast.fire({
 					icon: "error",
@@ -341,7 +355,7 @@ $("#taodanhmucnganhBtn").on("click", function() {
 });
 
 // Unlock nganh
-$("#bangdscacnganh").on("click", "#unlockNganhBtn", function() {
+$("#bangdscacnganh").on("click", "#unlockNganhBtn", function () {
 	let id = $(this).data("id");
 
 	Swal.fire({
@@ -355,7 +369,7 @@ $("#bangdscacnganh").on("click", "#unlockNganhBtn", function() {
 			$.ajax({
 				type: `POST`,
 				url: `update_mo_khoa_nganh_by_id?id=${id}`,
-				success: function(res) {
+				success: function (res) {
 					if (res.status == "OK") {
 						Toast.fire({
 							icon: "success",
@@ -369,7 +383,7 @@ $("#bangdscacnganh").on("click", "#unlockNganhBtn", function() {
 						});
 					}
 				},
-				error: function() {
+				error: function () {
 					Toast.fire({
 						icon: "error",
 						title: `Đã xảy ra lỗi. Vui lòng thử lại sau.`,
@@ -380,17 +394,17 @@ $("#bangdscacnganh").on("click", "#unlockNganhBtn", function() {
 	});
 });
 // Select all/none checkboxes
-$("#bangdscacnganh").on("click", ".select-all-checkbox", function() {
+$("#bangdscacnganh").on("click", ".select-all-checkbox", function () {
 	var isChecked = $(this).prop("checked");
 	$(".child-checkbox").prop("checked", isChecked);
 });
 // Xóa danh mục ngành
-$(document).ready(function() {
+$(document).ready(function () {
 	// Ẩn nút khi trang vừa tải
 	$("#xoadanhmucnganhBtn").hide();
 
 	// Lắng nghe sự kiện khi checkbox thay đổi trạng thái
-	$(document).on("change", ".select-checkbox", function() {
+	$(document).on("change", ".select-checkbox", function () {
 		if ($(".select-checkbox:checked").length > 0) {
 			// Hiển thị nút nếu có checkbox được chọn
 			$("#xoadanhmucnganhBtn").show();
@@ -401,7 +415,7 @@ $(document).ready(function() {
 	});
 
 	// Lắng nghe sự kiện thay đổi của checkbox "select-all-checkbox"
-	$(document).on("change", ".select-all-checkbox", function() {
+	$(document).on("change", ".select-all-checkbox", function () {
 		$(".select-checkbox")
 			.prop("checked", $(this).prop("checked"))
 			.trigger("change");
