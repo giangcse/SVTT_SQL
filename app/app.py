@@ -1119,8 +1119,8 @@ async def get_id_nhom_by_sv_id_route(id: str, token: str = Cookie(None)):
     return RedirectResponse("/login")
 
 
-@app.get("/ctu_xuat_danh_gia")
-async def xuat_danh_gia(id: str, token: str = Cookie(None)):
+@app.get("/vlute_xuat_danh_gia")
+async def vlute_xuat_danh_gia_router(id: str, token: str = Cookie(None)):
     if token:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

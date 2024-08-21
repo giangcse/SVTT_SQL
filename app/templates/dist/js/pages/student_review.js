@@ -134,7 +134,7 @@ function create_table(kythuctap, nhomthuctap) {
                       <i class="fa-solid fa-print"></i>
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="xuat_danh_gia?id=${data}" target="_blank">In phiếu đánh giá</a>
+                      <a class="dropdown-item" href="vlute_xuat_danh_gia?id=${data}" target="_blank">In phiếu đánh giá</a>
                     </div>
                   </div>
                 </center>`;
