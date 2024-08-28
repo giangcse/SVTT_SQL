@@ -861,3 +861,7 @@ def cap_nhat_xoa_tham_so_controller(id: int, uid: int):
 
 def get_thong_tin_sv_by_id_controller(id: int):
     return get_thong_tin_sv_by_id(id)
+
+
+def vlute_xuat_ds_diem_controller(id_kythuctap: int):
+    return vlute_xuat_ds_diem_model(id_kythuctap)

@@ -2545,3 +2545,14 @@ def get_thong_tin_sv_by_id(id: int):
         return False
     except Exception as e:
         return e
+    
+    
+def vlute_xuat_ds_diem_model(id_kythuctap: int):
+    try:
+        result = cursor.execute("VLUTE_DanhSachDiemSVTheoKy ?", id_kythuctap)
+        if result:
+            count: int = 0
+            return [{"stt": (count:=count+1),"mssv": i[0], "hoten": i[1], "malop": i[2], "diem": i[3]} for i in result.fetchall()]
+        return False
+    except Exception as e:
+        return e

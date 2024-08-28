@@ -165,7 +165,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 @app.middleware("http")
 async def catch_404(request, call_next):
     response = await call_next(request)
-    if response.status_code == 404:
+    if response.status_code == 404 or response.status_code == 422:
         return templates.TemplateResponse("404.html", context={"request": request})
     return response
 
@@ -3347,6 +3347,28 @@ async def sv_vlute_xuat_phieu_route(id: str, token: str = Cookie(None)):
             return RedirectResponse("/login")
     return RedirectResponse("/login")
 
+
+@app.get("/vlute_xuat_excel_ds_diem")
+async def vlute_xuat_excel_ds_diem(request: Request, id_kythuctap: int, token: str = Cookie(None)):
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            permission = payload.get("permission")
+            uid = payload.get("id")
+            if permission == "user" and check_role(uid, "/thamsohethong"):
+                result = vlute_xuat_ds_diem_model(id_kythuctap)
+                if result:
+                    df = pd.DataFrame(result)
+                    filePath = os.path.join(os.getcwd(), 'xlsx', f"vlute_danh_sach_diem_{id_kythuctap}.xlsx")
+                    df.to_excel(filePath, index=False, header=['STT', 'MSSV', 'Họ tên', 'Mã lớp', 'Điểm'])
+                    return FileResponse(filePath, filename="DS_Diem_sinh_vien_vlute.xlsx", media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                return JSONResponse(status_code=400, content={"status": "BAD REQUEST"})
+            else:
+                return RedirectResponse("/login")
+        except jwt.PyJWTError:
+            return RedirectResponse("/login")
+    else:
+        return RedirectResponse("/login")
 
 # MAPPING CHỨC NĂNG
 @app.get("/mappingchucnang")
