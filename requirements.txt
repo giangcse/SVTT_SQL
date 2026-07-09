@@ -8,3 +8,11 @@ docx-mailmerge
 pandas
 openpyxl
 python-dotenv
+pyotp
+bleach
+aiohttp
+requests
+reportlab
+PyPDF2
+redis
+nest_asyncio
